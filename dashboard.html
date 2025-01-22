@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LearnNest</title>
+    <link rel="stylesheet" href="css/dash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><img src="imgs/logo.svg" alt="notfound"></div>
+        <ul>
+            <div class="up"><li class="dash-icon  "><a href="dashboard.html"><img src="imgs/dash.svg" alt="notfound">Dashboard</a></li>
+           <div class="usermanag"><li class="active"><a href="userman.html"><img src="imgs/usermanag.svg" alt="notfound">User Management </a></li> </div>
+           <div class="contentmanag"><li><a href="contentmang.html"> <img src="imgs/contentmanag.svg" alt="notfound">Content Management </a></li></div>
+           <div class="reports"><li><a href="reports.html"><img src="imgs/report.svg" alt="">Reports of Students </a></li></div></div>
+            
+           <div class="end"><div class="setting"><li><a href=""> <img src="imgs/setting.svg" alt="notfound">Setting </a></li></div>
+            <div class="logout"><li><a href=""><img src="imgs/logout.svg" alt="notfound"> Log out </a></li>
+            </div></div>
+        </ul>
+        <div class="profile">
+            <img class="admin" src="imgs/admin.webp" alt="Profile Picture">
+           <div class="admin-prof">
+            <p class="name">Kamal Hamza</p>
+            <p class="email">khamza@gmail.com</p>
+        </div>   
+        </div>
+    </div>
+    <div class="search-bar-container">
+        <div class="ser-input">
+        <form>
+           <input class="inpt1" type="search" placeholder="Search... "   >
+            <button class="btn-ser" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        </form>
+    </div>
+
+    <div class="dash-container">
+        <div class="num-admin">Number of Admins
+            <p id="numAdmins" class="p-num">5</p></div>
+        <div class="num-instructor">Number of Instructors
+            <p id="numInstructors" class="p-num">20</p> </div>
+        <div class="num-student">Number of Students <p id="numStudents" class="p-num">1200</p></div>
+    </div>
+    <div class="all"> All of Content</div>
+    <div class="buttons">
+        <button class="btn-a"><i class="fas fa-plus"></i>Add User</button>
+        <button class="btn-b"><i class="fas fa-plus"></i>Add New Content</button>
+        <button class="btn-c"><i class="fa-regular fa-copy"></i>view Reports</button>
+    </div>
+    <div class="all"> All of Content</div>
+
+    <script src="js/dash.js"></script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+body {
+    display: flex;
+   
+}
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background-color: #E8EFF5;
+    padding: 48px 0px 48px 16px  ;
+    border-radius:  0px 20px 20px 0px;
+    display: flex;
+    flex-direction: column;  
+}
+.logo{
+    display: flex;
+}
+.up{
+    height: 168px;
+    padding-top:6px;
+    
+}
+.back{
+    margin-left: 32px;
+    display: flex;
+}
+.sidebar ul li  {
+    list-style: none;
+    
+   
+}
+.sidebar ul li a{
+    text-decoration: none;
+    color: #6B6B6B;
+    display: flex;
+    gap: 8px;
+}
+.sidebar li  {
+     
+    display: flex;
+    padding-top:24px ;
+}
+.dash-icon {
+   cursor: pointer;
+    display: flex;  
+}
+.end{
+    margin-top:252px ;
+    padding-top: 24px;
+}
+.profile {
+    display: flex;
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 18.75px;
+}
+.profile img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;    
+}
+.name{
+    display: block;
+    color: #1F507A;
+    gap: 8px;
+    line-height: 18.75px;
+}
+.email{
+    color: #6B6B6B;
+    font-size: 14px;
+    padding-top: 8px;
+}
+.admin-prof{
+    margin-left:8px ;
+}
+.up:active{
+    color:#2C6DA4;
+}
+.reports a:active{
+    color: #2C6DA4;
+    background-color: #fff;
+    width: 200px;  
+}
+.contentmanag a:active{
+    color: #2C6DA4;
+    background-color: #fff;
+    width: 200px;  
+}
+.usermanag a:active{
+    color: #2C6DA4;
+    background-color: #fff;
+    width: 200px;  }
+
+.search-bar-container {
+    padding: 40px;
+    background-color: #fff;
+}
+.inpt1 {
+    width: 1220px;
+    height: 48px;
+    padding: 12px 24px 12px 24px;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    font-size: 16px;
+}
+form{
+position: relative;
+}
+.btn-ser{
+    position: absolute;
+    top: 12px;
+    right: 24px;
+    width: 24pxpx;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    color: #757575;
+    background-color:#ffffff;
+    font-size: 16px;
+}
+.show-container {
+    display: flex; 
+    padding: 10px 16px;
+    margin-top: 80px;
+    
+}
+.show-select {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.show-select select {
+    width: 43px;
+    height: 31px;
+    padding: 2px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #E0E0E0;  
+}
+
+.id-ser {
+    display: flex;
+    gap: 20px; 
+}
+
+.search-filter {
+    position: relative;
+    width: 150.33px;
+    height: 32px;  
+    margin-left: 24px;
+}
+
+.search-filter input {
+    width: 100%;
+    padding: 10px 30px 10px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 32px; 
+}
+
+.search-filter i {
+    position: absolute;
+    left: 9px;
+    top: 16px;
+    transform: translateY(-50%);
+    color: #757575;  
+}
+.input2{
+    padding-left: 8px;
+}
+.btn-ser2{
+    position: absolute;
+    top: 12px;
+   right: 24px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border: none;
+    color: #757575;
+    background-color:#ffffff;
+    font-size: 16px;
+}
+
+.add-user-btn{ 
+    width: 74px;
+    height: 32px;
+    padding: 8px 12px 8px 12px;
+   background-color: #2C6DA4;
+   color: #ffffff;
+   border: none;
+   border-radius: 8px;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   font-size: 12px;
+}
+.add-user{
+    margin-left:419px ;
+    margin-right: 16px;
+}
+.table-container {
+    background-color: #ffff;
+    border-radius: 5px;  
+    width: 100%; 
+    height:470px; 
+    margin: auto;
+    overflow: auto; 
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table th, table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #ffff;
+    font-weight: bold;
+    color: #2C6DA4;
+    
+}
+table tbody tr:nth-child(even) {
+    background-color: #ffff; /* لون أزرق فاتح للصفوف الزوجية */
+
+}
+
+table tbody tr:nth-child(odd) {
+    background-color: #E8EFF5; /* لون أبيض للصفوف الفردية */
+    
+}
+
+.role-admin {
+    background-color:#EBF9F1 ;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.role-instructor {
+    background-color: #FEF2E5;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.role-student {
+    background-color:#FBE7E8;
+    padding: 5px 10px;
+    border-radius: 5px;
+    
+}
+
+.action-icons {
+    display: flex;
+    gap: 8px;
+   
+}
+
+.edit-icon {
+    color: #4caf50;
+    cursor: pointer;
+    font-size: 25px;
+}
+
+.delete-icon {
+    color: #f44336;
+    cursor: pointer;
+    font-size: 25px;
+   
+}
+.progress-container {
+    display: flex;
+    align-items: center;
+    width: 100px;
+    height: 9px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, #ff9800,#4caf50);
+    transition: width 0.3s ease-in-out;
+}
+.grade-text {
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
