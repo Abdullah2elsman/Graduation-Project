@@ -1,0 +1,5 @@
+<<<<<<< HEAD
+Your changes in your branch
+=======
+Changes from the target branch
+>>>>>>> target-branch-name
