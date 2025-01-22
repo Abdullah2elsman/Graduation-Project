@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LearnNest</title>
+    <link rel="stylesheet" href="css/content.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><img src="imgs/logo.svg" alt="notfound"> </div>
+        <ul>
+            <div class="up"><li class="dash-icon  "><a href="dashboard.html"><img src="imgs/dash.svg" alt="notfound">Dashboard</a></li>
+            <div class="usermanag"><li class="active"><a href="userman.html"><img src="imgs/usermanag.svg" alt="notfound">User Management </a></li> </div>
+            <div class="contentmanag"><li><a href="contentmang.html"> <img src="imgs/contentmanag.svg" alt="notfound">Content Management </a></li></div>
+            <div class="reports"><li><a href="reports.html"><img src="imgs/report.svg" alt="">Reports of Students </a></li></div></div>
+            
+            <div class="end"><div class="setting"><li><a href=""> <img src="imgs/setting.svg" alt="notfound">Setting </a></li></div>
+            <div class="logout"><li><a href=""><img src="imgs/logout.svg" alt="notfound"> Log out </a></li>
+            </div></div>
+        </ul>
+        <div class="profile">
+            <img class="admin" src="imgs/admin.webp" alt="Profile Picture">
+            <div class="admin-prof">
+            <p class="name">Kamal Hamza</p>
+            <p class="email">khamza@gmail.com</p>
+        </div>   
+        </div>
+    </div>
+    <div class="search-bar-container">
+        <div class="ser-input">
+        <form>
+            <input class="inpt1" id="globalSearch" type="search" placeholder="Search... "   >
+            <button class="btn-ser" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        </form>
+    </div>
+        
+        <div class="show-container">
+            <div class="show-select">
+                <label>Show</label>
+                <select>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+                <label>entries</label>
+            </div>
+            <div class="id-ser">
+                <div class="search-filter ">
+                    <i class="fas fa-search sic"></i>
+                    <input class="inpt2" id="searchId" type="text" placeholder="       Id">
+                </div>
+            </div>
+
+
+                <div class="search-filter">
+                 <i class="fas fa-search sic"></i>
+                 <input id="searchTitle" type="text" placeholder="       Title of Course">
+               </div>
+              
+    
+      </div>
+      <div class="cont-container">
+        <div class="cont-upload">
+        <span class="cou-t">Course Title</span><input class="cou-title" id="courseTitle" type="text" placeholder="Add Title of course">
+        <span class="cou-t">Management By</span><input class="cou-title" id="managementBy" type="text" placeholder="Add Id of instructor">
+        <span>Upload Lecture</span> <button class="add-file"><i class="fas fa-plus"></i> Choose file</button>
+            
+        </div>   
+      </div> 
+        <div class="table-container"  >
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID of Book</th>
+                        <th>Title of course</th>
+                        <th>Add By</th>
+                        <th>Management By</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- JavaScript will add rows here -->
+                </tbody>
+            </table> 
+     </div>
+    </div>
+          
+
+     
+<script src="js/content.js"></script>
+</body>
+</html>

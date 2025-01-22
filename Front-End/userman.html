@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LearnNest</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><img src="imgs/logo.svg" alt="notfound"></div>
+        <ul>
+            <div class="up"><li class="dash-icon  "><a href="dashboard.html"><img src="imgs/dash.svg" alt="notfound">Dashboard</a></li>
+           <div class="usermanag"><li class="active"><a href="userman.html"><img src="imgs/usermanag.svg" alt="notfound">User Management </a></li> </div>
+           <div class="contentmanag"><li><a href="contentmang.html"> <img src="imgs/contentmanag.svg" alt="notfound">Content Management </a></li></div>
+           <div class="reports"><li><a href="reports.html"><img src="imgs/report.svg" alt="">Reports of Students </a></li></div></div>
+            
+           <div class="end"><div class="setting"><li><a href=""> <img src="imgs/setting.svg" alt="notfound">Setting </a></li></div>
+            <div class="logout"><li><a href=""><img src="imgs/logout.svg" alt="notfound"> Log out </a></li>
+            </div></div>
+        </ul>
+        <div class="profile">
+            <img class="admin" src="imgs/admin.webp" alt="Profile Picture">
+           <div class="admin-prof">
+            <p class="name">Kamal Hamza</p>
+            <p class="email">khamza@gmail.com</p>
+        </div>   
+        </div>
+    </div>
+           
+    <div class="search-bar-container">
+        <div class="ser-input">
+        <form>
+           <input class="inpt1" id="globalSearch" type="search" placeholder="Search... "   >
+            <button class="btn-ser" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        </form>
+    </div>
+    
+        
+        <div class="show-container">
+            <div class="show-select">
+                <label>Show</label>
+                <select id="rowCount">
+                    <option value="10">10</option>
+                    <option value="9">9</option>
+                    <option value="8">8</option>
+                    <option value="7">7</option>
+                    <option value="6">6</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="">2</option>
+                    <option value="1">1</option>
+                    
+                </select>
+                <label>entries</label>
+            </div>
+            <div class="id-ser">
+                <div class="search-filter ">
+                    <i class="fas fa-search sic"></i>
+                    <input class="inpt2" type="text" id="searchId" placeholder="       Id">
+                </div>
+            </div> 
+
+
+                <div class="search-filter">
+                 <i class="fas fa-search sic"></i>
+                 <input type="text" id="searchRole" placeholder="       Role of User...">
+               </div>
+              <div class="add-user"> <button class="add-user-btn"><i class="fas fa-plus"></i> Add User</button></div>
+    
+      </div>  
+
+        
+        <div class="table-container" >
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tracking ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- JavaScript will add rows here -->
+                </tbody>
+            </table> 
+     </div>   
+    </div>  
+    
+
+     
+<script src="js/script.js"></script>
+</body>
+</html>
