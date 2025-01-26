@@ -1,11 +1,12 @@
-
-// Choose role button
+// Select role button
 const roleButtons = document.querySelectorAll('.role-btn');
 
+let role;
 roleButtons.forEach(button => {
   button.addEventListener('click', () => {
     roleButtons.forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
+    role = button.value;
   });
 });
 
@@ -36,48 +37,41 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-document.querySelector('.login-box form').addEventListener('submit', async (e) => {
-  e.preventDefault();
+document.getElementById('loginForm').addEventListener(
+  'submit',
+  async function (e) {
+    e.preventDefault(); // Prevent form submission
 
-  const email = document.querySelector('input[type="email"]').value.trim();
-  const password = document.querySelector('#newPassword').value;
-  const rememberMe = document.getElementById('rememberMe').checked;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-  if (!email || !password) {
-    alert("All fields are required!");
-    return;
-  }
+    try {
+      // Send POST request to the API
+      const response = await fetch('http://localhost:8005/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, role }),
+      });
 
-  if (rememberMe) {
-    localStorage.setItem('rememberedEmail', email);
-    localStorage.setItem('rememberedPassword', password);
-    localStorage.setItem('rememberMe', 'true');
-  } else {
-    localStorage.removeItem('rememberedEmail');
-    localStorage.removeItem('rememberedPassword');
-    localStorage.setItem('rememberMe', 'false');
-  }
+      const data = await response.json();
 
-  try {
-    const response = await fetch('https://example.com/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Login successful!");
-      window.location.href = "dashboard.html";
-    } else {
-      alert(data.message || "Login failed! Please check your credentials.");
+      console.log(data)
+      if (response.ok) {
+        // Handle successful login
+        alert('Login successful');
+        console.log('User:', data.user);
+        // Redirect to dashboard or another page
+        window.location.href = 'dashboard.html';
+      } else {
+        // Handle login error
+        alert(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
     }
-  } catch (error) {
-    console.error("Error during login:", error);
-    alert("An error occurred. Please try again later.");
   }
-});
+);
 
