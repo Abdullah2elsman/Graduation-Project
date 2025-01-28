@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
+use App\Models\Instructor;
+use App\Models\Student;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,10 +12,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    
-    
+
+
     // ----------------------- Read Admin -----------------------
-    function read(Request $request){
+    function read(Request $request)
+    {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -144,5 +147,19 @@ class AdminController extends Controller
         } else {
             return response()->json(['error' => 'Failed to update image path in the database'], 500);
         }
+    }
+
+    // ----------------------- Get Numbers Of Users -----------------------
+
+    function getNumOfUsers()
+    {
+        $numberOfStudents = Student::count();
+        $numberOfAdmins = Admin::count();
+        $numberOfInstructors = Instructor::count();
+        return response()->json([
+            'numberOfAdmins' => $numberOfAdmins,
+            'numberOfInstructors' => $numberOfInstructors,
+            'numberOfStudents' => $numberOfStudents,
+        ]);
     }
 }

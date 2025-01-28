@@ -45,10 +45,7 @@ class AuthController extends Controller
             // Generate token
             $token = $user->createToken($tokenName)->plainTextToken;
 
-            return response()->json([
-                'token' => $token,
-                'user' => $user,
-            ], 200);
+            return response()->json(['token' => $token], 200);
         } else {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
@@ -101,8 +98,15 @@ class AuthController extends Controller
         return response()->json(['token' => $token], 200);
     }
 
-    function home()
+    public function validateToken(Request $request)
     {
-        return view('home');
+        if ($request->user()) {
+            return response()->json([
+                'message' => 'Token is valid',
+                'user' => $request->user(), // Return the authenticated user's details
+            ], 200);
+        }
+
+        return response()->json(['message' => 'Invalid token'], 401);
     }
 }

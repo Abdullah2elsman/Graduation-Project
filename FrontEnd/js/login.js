@@ -42,6 +42,7 @@ toggleIcon.addEventListener('click',togglePassword);
 //   }
 // });
 
+// When Submit the login form
 document.getElementById('loginForm').addEventListener(
   'submit',
   async function (e) {
@@ -60,8 +61,9 @@ document.getElementById('loginForm').addEventListener(
         body: JSON.stringify({ email, password, role }),
       });
 
-      const data = await response.json();
+      const data = await response.json();  
       if (response.ok) {
+        localStorage.setItem('authToken', data.token)
         window.location.href = 'dashboard.html';
       } else {
         // Handle login error
@@ -72,6 +74,7 @@ document.getElementById('loginForm').addEventListener(
       alert('An error occurred. Please try again.'); // will replace it by pop up message
     }
   }
+
 );
 
 

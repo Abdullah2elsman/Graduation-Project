@@ -17,6 +17,9 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Authorization API
+Route::middleware('auth:sanctum')->get('/validateToken', [AuthController::class, 'validateToken']);
+
 // Student API
 Route::post('/readStudent', [StudentController::class, 'read'])->name('student.read');
 Route::put('/updateStudent', [StudentController::class, 'update'])->name('student.update');
@@ -26,12 +29,13 @@ Route::get('/getStudent/{id}' , [StudentController::class, 'getStudent']);
 Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
 
 // Admin API
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/readAdmin', [AdminController::class, 'read'])->name('admin.read');
     Route::put('/updateAdmin/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::post('/deleteAdmin/{id}', [AdminController::class, 'delete'])->name('admin.delete');
-    Route::get('/getAllAdmins', [AdminController::class, 'getAllAdmins']);
-    Route::get('/getAdmin/{id}', [AdminController::class, 'getAdmin']);
+    Route::post('/getAllAdmins', [AdminController::class, 'getAllAdmins']);
+    Route::post('/getAdmin/{id}', [AdminController::class, 'getAdmin']);
+    Route::post('/getNumOfUsers', [AdminController::class, 'getNumOfUsers']);
 });
 
 
