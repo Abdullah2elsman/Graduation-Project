@@ -31,17 +31,24 @@
       flex-direction: column;
       gap: 32px;
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      transition: width 0.3s;
+    }
+
+    .sidebar.collapsed {
+      width: 72px;
     }
 
     .sidebar-header {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
     }
 
-    .sidebar-header h1 {
-      font-size: 1.5rem;
-      color: #333;
+    .sidebar-header .arrow-left {
+      cursor: pointer;
+      font-size: 1.2rem;
+      background: none;
+      border: none;
     }
 
     .menu {
@@ -51,33 +58,72 @@
       flex-grow: 1;
     }
 
-    .menu-item {
+    .menu-item,
+    .arrow-right {
       display: flex;
       align-items: center;
       width: 208px;
       height: 40px;
       padding: 8px 0;
       gap: 8px;
-      color: #333;
+      color: #6b6b6b;
       text-decoration: none;
       font-size: 1rem;
       transition: all 0.3s;
     }
 
-    .menu-item:hover {
-      color: #194062;
-      background-color: #FDFDFD;
-      border-radius: 8px;
-    }
-
-    .menu-item img {
+    .menu-item img,
+    .arrow-right img {
       width: 24px;
       height: 24px;
-      transition: all 0.3s;
     }
 
-    .menu-item:hover img {
-      filter: invert(31%) sepia(74%) saturate(639%) hue-rotate(185deg) brightness(92%) contrast(91%);
+    .sidebar.collapsed .menu-item img,
+    .arrow-right img {
+      margin-left: 6px;
+    }
+
+    .menu-item span,
+    .arrow-right span {
+      transition: opacity 0.3s;
+    }
+
+    .menu-item.selected {
+            background-color: #FDFDFD;
+            border-radius: 8px;
+            color: #194062;
+    }
+    
+
+        .menu-item.selected img {
+            filter: invert(31%) sepia(74%) saturate(639%) hue-rotate(185deg) brightness(92%) contrast(91%);
+    }
+
+    .sidebar.collapsed .menu-item span,
+    .sidebar.collapsed .arrow-right span{
+      opacity: 0;
+      visibility: hidden;
+    }
+    .sidebar.collapsed .menu-item,
+    .sidebar.collapsed .arrow-right {
+        border-radius: 8px;
+        color: #194062;
+        width: 37px;
+    }
+    .sidebar.collapsed .arrow-right {
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+    .sidebar.collapsed .menu-item.selected {
+        background-color: #FDFDFD;
+        border-radius: 8px;
+        color: #194062;
+        width: 37px;
+    }
+
+    .arrow-right{
+      display: none;
     }
 
     .footer {
@@ -98,52 +144,75 @@
       display: flex;
       flex-direction: column;
       gap: 19px;
+      transition: opacity 0.3s;
+      gap: 8px;
     }
 
-    .footer-info p {
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    .footer-info a {
-      text-decoration: none;
-      font-size: 0.9rem;
-      color: #007bff;
-    }
-
-    .footer-info a:hover {
-      text-decoration: underline;
+    .sidebar.collapsed .footer-info {
+      opacity: 0;
+      visibility: hidden;
     }
   </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const sidebar = document.querySelector(".sidebar");
+      const rightArrow = document.querySelector(".arrow-right");
+      const leftArrow = document.querySelector('.arrow-left');
+      const menuItems = document.querySelectorAll(".menu-item");
+      const logo = document.getElementById('Logo');
+      console.log(logo.src);
+      leftArrow.addEventListener("click", function () {
+        sidebar.classList.add("collapsed");
+        logo.src = "imgs/logo-collapsed.svg";
+        rightArrow.style.display = 'flex';
+        leftArrow.style.display = 'none';
+      });
+        
+      rightArrow.addEventListener('click', function() {
+        sidebar.classList.remove("collapsed");
+          logo.src = "imgs/logo.svg";
+          rightArrow.style.display = 'none';
+          leftArrow.style.display = 'block';
+      });
+    menuItems.forEach(item => {
+        item.addEventListener("click", function () {
+          menuItems.forEach(i => i.classList.remove("selected"));
+          this.classList.add("selected");
+        });
+      });
+    });
+  </script>
 </head>
 
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo"><img src="imgs/logo.svg" alt="notfound"> </div>
+      <div class="logo"><img id="Logo" src="imgs/logo.svg" alt="Logo Image"></div>
+      <button class="arrow-left"><img src="imgs/arrow-left-circle.svg" alt="arrow-left-circle Image"></button>
     </div>
 
     <nav class="menu">
-      <a href="#dashboard" class="menu-item">
-        <img src="imgs/dash.svg" alt="Dashboard Icon"> Dashboard
+      <button class="arrow-right"><img src="imgs/arrow-right-circle.svg" alt="arrow-right-circle Image"></button>
+      <a href="#dashboard" class="menu-item selected">
+        <img src="imgs/dash.svg" alt="Dashboard Icon"> <span>Dashboard</span>
       </a>
       <a href="#user-management" class="menu-item">
-        <img src="imgs/usermanag.svg" alt="User Management Icon">User Management
+        <img src="imgs/usermanag.svg" alt="User Management Icon"> <span>User Management</span>
       </a>
       <a href="#content-management" class="menu-item">
-        <img src="imgs/contentmanag.svg" alt="Content Management Icon">Content Management
+        <img src="imgs/contentmanag.svg" alt="Content Management Icon"> <span>Content Management</span>
       </a>
       <a href="#reports" class="menu-item">
-        <img src="imgs/report.svg" alt="Reports Of Students Icon">Reports Of Students
+        <img src="imgs/report.svg" alt="Reports Of Students Icon"> <span>Reports Of Students</span>
       </a>
     </nav>
 
     <nav class="settings-logout">
       <a href="#settings" class="menu-item">
-        <img src="imgs/setting.svg" alt="Setting Icon">Setting
+        <img src="imgs/setting.svg" alt="Setting Icon"> <span>Setting</span>
       </a>
       <a href="#logout" class="menu-item">
-        <img src="imgs/logout.svg" alt="Logout Icon">Log Out
+        <img src="imgs/logout.svg" alt="Logout Icon"> <span>Log Out</span>
       </a>
     </nav>
 
@@ -157,4 +226,4 @@
   </div>
 </body>
 
-</html> 
+</html>
