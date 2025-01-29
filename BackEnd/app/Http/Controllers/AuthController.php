@@ -89,13 +89,12 @@ class AuthController extends Controller
         $user = $user::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password,
-            'role' => $request->role
+            'password' => $request->password
         ]);
 
-        $token = $user->createToken($tokenName)->plainTextToken;
+        
 
-        return response()->json(['token' => $token], 200);
+        return response()->json(['message' => 'success'], 200);
     }
 
     public function validateToken(Request $request)

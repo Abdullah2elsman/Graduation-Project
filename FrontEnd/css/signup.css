@@ -213,7 +213,7 @@ span{
   .login-link a:hover {
     text-decoration: underline;
   }
-  .email,.pass,.name{
+  .email,.pass,.full-name{
     size: 16px;
     font-weight: 500;
     line-height: 16px;

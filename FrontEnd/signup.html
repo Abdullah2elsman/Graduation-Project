@@ -15,18 +15,18 @@
         <p class="p1">Create Account</p>
         <p class="p2">Create your account for a seamless learning and teaching experience.</p>
         <div class="role-buttons">
-          <button class="role-btn">I'm Instructor</button>
-          <button class="role-btn">I'm Student</button>
-          <button class="role-btn">I'm Admin</button>
+          <button class="role-btn" value="instructor">Instructor</button>
+          <button class="role-btn" value="student">Student</button>
+          <button class="role-btn active" value="admin">Admin</button>
         </div>
-        <form>
-          <label class="name"> Full Name </label>
-          <input type="text" placeholder="Enter your name" required>
+        <form class="signupForm">
+          <label class="full-name"> Full Name </label>
+          <input type="text" id="full-name" placeholder="Enter your name" required>
           <label class="email"> Email </label>
-          <input type="email" placeholder="Enter your email" required>
+          <input type="email" id="email" placeholder="Enter your email" required>
           <label class="pass"> Password </label>
           <div class="password-container">    
-              <input type="password" id="newPassword" class="password-input" placeholder="Enter your password" required>
+              <input type="password" id="password" class="password-input" placeholder="Enter your password" required>
               <i id="toggleNewPassword" class="fa-regular fa-eye-slash"></i>
           </div>
           <p class="password-hint">Password must include a capital letter, a symbol (@#$%^&*), and 8+ characters.</p>
@@ -34,7 +34,7 @@
         </form>
         <div class="divider">OR</div>
         <button class="google-button">
-          <img class="google-ic" src="imgs/Google__G__logo.svg.png" alt="notfound"> 
+          <img class="google-ic" src="imgs/Google__G__logo.png" alt="notfound"> 
           <span>Continue with Google</span>
         </button>    
         <p class="login-link">Already have an account ? <a href="login.html">Log in</a></p>

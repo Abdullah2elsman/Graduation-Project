@@ -1,7 +1,7 @@
 // Select role button
 const roleButtons = document.querySelectorAll('.role-btn');
 
-let role;
+let role = 'admin';
 roleButtons.forEach(button => {
   button.addEventListener('click', () => {
     roleButtons.forEach(btn => btn.classList.remove('active'));
