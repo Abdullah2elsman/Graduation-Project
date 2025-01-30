@@ -2,141 +2,147 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Roboto', sans-serif;
 }
 
 body {
+  font-family: 'Roboto', Arial, sans-serif;
   display: flex;
+  min-height: 100vh;
+  background-color: #f4f5f7;
+  margin: 0;
 }
 
 .sidebar {
   width: 240px;
-  height: 100vh;
-  background-color: #E8EFF5;
-  padding: 48px 0px 48px 16px;
-  border-radius: 0px 20px 20px 0px;
+  min-height: 100vh;
+  padding: 48px 16px;
+  background-color: #e8eff5;
+  border-radius: 0 20px 20px 0;
   display: flex;
   flex-direction: column;
+  gap: 32px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s;
 }
 
-.logo {
+.sidebar.collapsed {
+  width: 72px;
+}
+
+.sidebar-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.up {
-  height: 168px;
-  padding-top: 6px;
-}
-
-.back {
-  margin-left: 32px;
-  display: flex;
-}
-
-.sidebar ul li {
-  list-style: none;
-}
-
-.sidebar ul li a {
-  text-decoration: none;
-  color: #6B6B6B;
-  display: flex;
-  gap: 8px;
-}
-
-.sidebar li {
-  display: flex;
-  padding-top: 24px;
-}
-
-.dash-icon {
+.sidebar-header .arrow-left {
   cursor: pointer;
-  display: flex;
-}
-.end {
-  margin-top: 252px;
-  padding-top: 24px;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
 }
 
-.profile {
+.menu {
   display: flex;
-  margin-top: 20px;
-  font-size: 16px;
-  line-height: 18.75px;
+  flex-direction: column;
+  gap: 24px;
+  flex-grow: 1;
 }
 
-.profile img {
-  width: 50px;
-  height: 50px;
+.menu-item,
+.arrow-right {
+  display: flex;
+  align-items: center;
+  width: 208px;
+  height: 40px;
+  padding: 8px 0;
+  gap: 8px;
+  color: #6b6b6b;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.menu-item img,
+.arrow-right img {
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar.collapsed .menu-item img,
+.arrow-right img {
+  margin-left: 6px;
+}
+
+.menu-item span,
+.arrow-right span {
+  transition: opacity 0.3s;
+}
+
+.menu-item.selected {
+  background-color: #FDFDFD;
+  border-radius: 8px;
+  color: #194062;
+}
+
+
+.menu-item.selected img {
+  filter: invert(31%) sepia(74%) saturate(639%) hue-rotate(185deg) brightness(92%) contrast(91%);
+}
+
+.sidebar.collapsed .menu-item span,
+.sidebar.collapsed .arrow-right span {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.sidebar.collapsed .menu-item,
+.sidebar.collapsed .arrow-right {
+  border-radius: 8px;
+  color: #194062;
+  width: 37px;
+}
+
+.sidebar.collapsed .arrow-right {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.sidebar.collapsed .menu-item.selected {
+  background-color: #FDFDFD;
+  border-radius: 8px;
+  color: #194062;
+  width: 37px;
+}
+
+.arrow-right {
+  display: none;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer img {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
-.name {
-  display: block;
-  color: #1F507A;
+.footer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  transition: opacity 0.3s;
   gap: 8px;
-  line-height: 18.75px;
 }
 
-.email {
-  color: #6B6B6B;
-  font-size: 14px;
-  padding-top: 8px;
-}
-
-.admin-prof {
-  margin-left: 8px;
-}
-
-.up:active {
-  color: #2C6DA4;
-}
-
-.reports a:active {
-  color: #2C6DA4;
-  background-color: #fff;
-  width: 200px;
-}
-
-.contentmanag a:active {
-  color: #2C6DA4;
-  background-color: #fff;
-  width: 200px;
-}
-
-.usermanag a:active {
-  color: #2C6DA4;
-  background-color: #fff;
-  width: 200px;
-}
-
-.search-bar-container {
-  padding: 40px;
-  background-color: #fff;
-}
-
-.inpt1 {
-  width: 1220px;
-  height: 48px;
-  padding: 12px 24px 12px 24px;
-  border: 1px solid #ccc;
-  border-radius: 16px;
-  font-size: 16px;
-}
-
-form {
-  position: relative;
-}
-
-.btn-ser {
-  position: absolute;
-  top: 12px;
-  right: 24px;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  border: none;
-  color: #757575;
-  background-color: #ffffff;
-  font-size: 16px;
+.sidebar.collapsed .footer-info {
+  opacity: 0;
+  visibility: hidden;
 }

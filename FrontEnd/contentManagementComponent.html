@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/master.css">
+  <style>
+  
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+  
+    .search-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 8px 12px;
+      background: white;
+    }
+  
+    .search-bar input {
+      border: none;
+      outline: none;
+      flex: 1;
+      padding: 6px;
+      font-size: 16px;
+    }
+  
+    .search-bar .icon {
+      font-size: 16px;
+      color: #999;
+      cursor: pointer;
+    }
+
+    /* The tools up the table */
+    .form-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 24px ;
+            margin-top: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px 10px 0px 0px;
+            width: 100%;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group label {
+            font-family: Roboto;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 16.41px;
+            text-align: left;
+            text-underline-position: from-font;
+            text-decoration-skip-ink: none;
+        }
+
+        .form-group input {
+            padding: 8px;
+            height: 31px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #course-title{
+          width: 400px;
+        }
+
+        .upload-button {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #2c6da4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Table */
+        .table-container {
+            min-height: 200px;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            border-radius: 0px 0px 10px 10px;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #fefefe;
+        }
+        
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          text-align: center;
+        }
+        th {
+            background-color: #ffff;
+            font-weight: bold;
+            color: #2C6DA4;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #ffff; /* color of the odd rows */
+
+        }
+
+        table tbody tr:nth-child(odd) {
+            background-color: #E8EFF5; /* color of the odd rows */
+            
+        }
+
+        
+
+  </style>
+  <title>Document</title>
+</head>
+<body>
+
+  <!-- --------------------------------- Side bar --------------------------------- -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo"><img id="Logo" src="imgs/logo.svg" alt="Logo Image"></div>
+      <button class="arrow-left"><img src="imgs/arrow-left-circle.svg" alt="arrow-left-circle Image"></button>
+    </div>
+  
+    <nav class="menu">
+      <button class="arrow-right"><img src="imgs/arrow-right-circle.svg" alt="arrow-right-circle Image"></button>
+      <a href="#dashboard" class="menu-item selected">
+        <img src="imgs/dash.svg" alt="Dashboard Icon"> <span>Dashboard</span>
+      </a>
+      <a href="#user-management" class="menu-item">
+        <img src="imgs/usermanag.svg" alt="User Management Icon"> <span>User Management</span>
+      </a>
+      <a href="#content-management" class="menu-item">
+        <img src="imgs/contentmanag.svg" alt="Content Management Icon"> <span>Content Management</span>
+      </a>
+      <a href="#reports" class="menu-item">
+        <img src="imgs/report.svg" alt="Reports Of Students Icon"> <span>Reports Of Students</span>
+      </a>
+    </nav>
+  
+    <nav class="settings-logout">
+      <a href="#settings" class="menu-item">
+        <img src="imgs/setting.svg" alt="Setting Icon"> <span>Setting</span>
+      </a>
+      <a href="#logout" class="menu-item">
+        <img src="imgs/logout.svg" alt="Logout Icon"> <span>Log Out</span>
+      </a>
+    </nav>
+  
+    <div class="footer">
+      <img src="imgs/admin.webp" alt="User Avatar">
+      <div class="footer-info">
+        <p>Kamal Hamza</p>
+        <a href="#">khamza@gmail.com</a>
+      </div>
+    </div>
+  </div>
+
+    <!-- --------------------------------- content --------------------------------- -->
+
+    <!-- --------------------------------- Search Bar --------------------------------- -->
+    <div class="content">
+      <div class="search-bar">
+        <input type="text" placeholder="Search ...">
+        <span class="icon">🔍</span>
+    </div>
+
+    <div class="form-container">
+      <div class="form-group">
+        <label for="course-title">Course Title</label>
+        <input type="text" id="course-title" placeholder="Add Title of course">
+      </div>
+      <div class="form-group">
+        <label for="management-by">Management By</label>
+        <input type="text" id="management-by" placeholder="Add Id of instructor">
+      </div>
+      <div class="form-group">
+        <label for="upload-book">Upload Book</label>
+        <button class="upload-button">+ Choose File</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Id of Book</th>
+            <th>Title of Course</th>
+            <th>Added By</th>
+            <th>Management By</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Example Course</td>
+            <td>Admin</td>
+            <td>John Doe</td>
+            <td><button>Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
