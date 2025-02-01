@@ -7,7 +7,7 @@ use App\Models\Instructor;
 use App\Models\Student;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -41,7 +41,7 @@ class AuthController extends Controller
         $user = $userModel::where('email', $request->email)->first();
         
         // Check if the user exists and the password is correct
-        if ($user && $request->password === $user->password) {
+        if ($user && Hash::check($request->password,$user->password)) {
             // Generate token
             $token = $user->createToken($tokenName)->plainTextToken;
 
@@ -71,15 +71,12 @@ class AuthController extends Controller
         switch ($request['role']) {
             case 'student':
                 $user = new Student();
-                $tokenName = 'Student';
                 break;
             case 'admin':
                 $user = new Admin();
-                $tokenName = 'Admin';
                 break;
             case 'instructor':
                 $user = new Instructor();
-                $tokenName = 'Instructor';
                 break;
             default:
                 throw new Exception('Invalid role specified');
@@ -89,7 +86,7 @@ class AuthController extends Controller
         $user = $user::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password
+            'password' => Hash::make($request->password)
         ]);
 
         

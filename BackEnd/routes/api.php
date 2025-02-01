@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\InstructorController;
 use Illuminate\Http\Request;
@@ -46,6 +47,9 @@ Route::delete('deleteInstructor/{id}', [InstructorController::class, 'delete'])-
 Route::get('/getAllInstructors', [InstructorController::class, 'getAllInstructors']);
 Route::get('/getInstructor/{id}', [InstructorController::class, 'getInstructor']);
 Route::post('/uploadImage/{id}', [InstructorController::class, 'uploadImage'])->name('instructor.uploadImage');
+
+// Course API
+Route::post('/getAllCourses', [CourseController::class, 'getAllCourses']);
 
 // Google Sheets API
 Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
