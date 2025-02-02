@@ -15,8 +15,13 @@ body {
 }
 
 .sidebar {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  overflow-y: auto;
+  scrollbar-width: none;
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
   padding: 48px 16px;
   background-color: #e8eff5;
   border-radius: 0 20px 20px 0;
@@ -152,6 +157,8 @@ body {
 .content {
   flex: 1;
   padding: 20px;
+  margin-left: 240px;
+  transition: margin-left 0.3s;
 }
 
 .search-bar {
@@ -222,7 +229,7 @@ body {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  background: #2c6da4;
+  background: #28a745;
   color: white;
   border: none;
   border-radius: 8px;
@@ -273,4 +280,101 @@ table tbody tr:nth-child(odd) {
   background-color: #E8EFF5;
   /* color of the odd rows */
 
+}
+
+/* Dashboard Style */
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  width: 100%;
+}
+
+.stat-box {
+  width: 30%;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  color: white;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+}
+
+.admin {
+  background-color: #173957;
+}
+
+.instructor {
+  background-color: #2c6da4;
+}
+
+.student {
+  background-color: #43a5fa;
+}
+
+/* Actions Section */
+.actions-container {
+  height: auto;
+  padding: 0px 16px;
+}
+
+.actions-container h2 {
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.buttons-wrapper {
+  display: flex;
+  padding-left: 16px;
+  gap: 24px;
+}
+
+.action-button {
+  background-color: #2c6da4;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Content Section */
+.content-container {
+  margin-top: 20px;
+  padding: 16px;
+}
+
+.cards-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.content-card {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content-card img {
+  border-radius: 8px;
+}
+
+.content-card h3 {
+  font-size: 16px;
+  margin: 10px 0 5px;
+}
+
+.content-card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
 }

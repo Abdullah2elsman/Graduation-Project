@@ -14,9 +14,10 @@
             <div class="logo"><img id="Logo" src="imgs/logo.svg" alt="Logo Image"></div>
             <button class="arrow-left"><img src="imgs/arrow-left-circle.svg" alt="arrow-left-circle Image"></button>
         </div>
-    
+
         <nav class="menu">
-            <button class="arrow-right"><img src="imgs/arrow-right-circle.svg" alt="arrow-right-circle Image"></button>
+            <button class="arrow-right"><img src="imgs/arrow-right-circle.svg"
+                    alt="arrow-right-circle Image"></button>
             <a href="dashboard.html" class="menu-item selected">
                 <img src="imgs/dash.svg" alt="Dashboard Icon"> <span>Dashboard</span>
             </a>
@@ -30,7 +31,7 @@
                 <img src="imgs/report.svg" alt="Reports Of Students Icon"> <span>Reports Of Students</span>
             </a>
         </nav>
-    
+
         <nav class="settings-logout">
             <a href="#settings" class="menu-item">
                 <img src="imgs/setting.svg" alt="Setting Icon"> <span>Setting</span>
@@ -39,7 +40,7 @@
                 <img src="imgs/logout.svg" alt="Logout Icon"> <span>Log Out</span>
             </a>
         </nav>
-    
+
         <div class="footer">
             <img src="imgs/admin.webp" alt="User Avatar">
             <div class="footer-info">
@@ -50,7 +51,7 @@
     </div>
 
     <!-- --------------------------------- content --------------------------------- -->
-    
+
     <!-- --------------------------------- Search Bar --------------------------------- -->
     <div class="content">
         <div class="search-bar">
@@ -58,20 +59,96 @@
             <span class="icon">🔍</span>
         </div>
 
-    <div class="dash-container">
-        <div class="num-admin">Number of Admins
-            <p id="numAdmins" class="p-num">loading...</p></div>
-        <div class="num-instructor">Number of Instructors
-            <p id="numInstructors" class="p-num">loading...</p> </div>
-        <div class="num-student">Number of Students <p id="numStudents" class="p-num">loading...</p></div>
+        <!-- --------------------------------- Statistics Boxes --------------------------------- -->
+        <div class="stats-container">
+            <div class="stat-box admin">
+                <p>Number of Admins</p>
+                <h3>5</h3>
+            </div>
+            <div class="stat-box instructor">
+                <p>Number of Instructors</p>
+                <h3>20</h3>
+            </div>
+            <div class="stat-box student">
+                <p>Number of Students</p>
+                <h3>1200</h3>
+            </div>
+        </div>
+
+        <!-- --------------------------------- Actions Section --------------------------------- -->
+        <div class="actions-container">
+            <h2>All of Actions</h2>
+            <div class="buttons-wrapper">
+                <button class="action-button">+ Add User</button>
+                <button class="action-button">+ Add New Content</button>
+                <button class="action-button">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M6 8H8.5M6 10H8.5M6 12H8.5M10.5 12.5H12C12.8284 12.5 13.5 11.8284 13.5 11V4.07214C13.5 3.31549 12.9367 2.67344 12.1826 2.61085C11.9338 2.59019 11.6841 2.57239 11.4337 2.55746M7.56635 2.55746C7.52322 2.69734 7.5 2.84596 7.5 3C7.5 3.27614 7.72386 3.5 8 3.5H11C11.2761 3.5 11.5 3.27614 11.5 3C11.5 2.84596 11.4768 2.69734 11.4337 2.55746M7.56635 2.55746C7.75517 1.94505 8.32561 1.5 9 1.5H10C10.6744 1.5 11.2448 1.94505 11.4337 2.55746M7.56635 2.55746C7.31591 2.57239 7.06625 2.59019 6.81739 2.61085C6.06333 2.67344 5.5 3.31549 5.5 4.07215V5.5M5.5 5.5H3.25C2.83579 5.5 2.5 5.83579 2.5 6.25V13.75C2.5 14.1642 2.83579 14.5 3.25 14.5H9.75C10.1642 14.5 10.5 14.1642 10.5 13.75V6.25C10.5 5.83579 10.1642 5.5 9.75 5.5H5.5ZM4.5 8H4.505V8.005H4.5V8ZM4.5 10H4.505V10.005H4.5V10ZM4.5 12H4.505V12.005H4.5V12Z"
+                            stroke="#FDFDFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    View Reports
+                </button>
+            </div>
+        </div>
+
+        <!-- --------------------------------- Content Section --------------------------------- -->
+        <div class="content-container">
+            <h2>All of Content</h2>
+            <div class="cards-wrapper">
+                <div class="content-card">
+                    <img src="imgs/tentang Kalmu.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/pergi.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/Konspirasi.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/becoming.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/becoming.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/tentang Kalmu.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/pergi.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/Konspirasi.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/becoming.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+                <div class="content-card">
+                    <img src="imgs/becoming.png" alt="Content Image">
+                    <h3>pergi</h3>
+                    <p>pergi</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="all"> All of Content</div>
-    <div class="buttons">
-        <button class="btn-a"><i class="fas fa-plus"></i>Add User</button>
-        <button class="btn-b"><i class="fas fa-plus"></i>Add New Content</button>
-        <button class="btn-c"><i class="fa-regular fa-copy"></i>view Reports</button>
-    </div>
-    <div class="all"> All of Content</div>
 
     <script src="js/script.js"></script>
 </body>

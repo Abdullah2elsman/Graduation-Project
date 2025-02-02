@@ -6,12 +6,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const leftArrow = document.querySelector('.arrow-left');
     const menuItems = document.querySelectorAll(".menu-item");
     const logo = document.getElementById('Logo');
+    const content = document.querySelector('.content');
     console.log(logo.src);
     leftArrow.addEventListener("click", function () {
         sidebar.classList.add("collapsed");
         logo.src += "/../logo-collapsed.svg";
         rightArrow.style.display = 'flex';
         leftArrow.style.display = 'none';
+        content.style.marginLeft = 70 + 'px';
     });
         
     rightArrow.addEventListener('click', function() {
@@ -19,6 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
         logo.src = "imgs/logo.svg";
         rightArrow.style.display = 'none';
         leftArrow.style.display = 'block';
+        content.style.marginLeft = 240 + 'px';
+
     });
     menuItems.forEach(item => {
         item.addEventListener("click", function () {

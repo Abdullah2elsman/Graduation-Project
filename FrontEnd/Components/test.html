@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Margin</title>
+    <style>
+        #box {
+            width: 100px;
+            height: 100px;
+            background-color: blue;
+            margin-left: 0px;
+            transition: margin-left 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button onclick="moveBox()">Move</button>
+    <div id="box"></div>
+
+    <script>
+        function moveBox() {
+            let box = document.getElementById("box");
+            box.style.marginLeft = "100px"; // Change this value as needed
+        }
+    </script>
+
+</body>
+
+</html>
