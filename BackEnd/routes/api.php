@@ -30,14 +30,14 @@ Route::get('/getStudent/{id}' , [StudentController::class, 'getStudent']);
 Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
 
 // Admin API
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/readAdmin', [AdminController::class, 'read'])->name('admin.read');
+// Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/updateAdmin/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::post('/deleteAdmin/{id}', [AdminController::class, 'delete'])->name('admin.delete');
-    Route::post('/getAllAdmins', [AdminController::class, 'getAllAdmins']);
     Route::post('/getAdmin/{id}', [AdminController::class, 'getAdmin']);
     Route::post('/getNumOfUsers', [AdminController::class, 'getNumOfUsers']);
-});
+    Route::post('/getAllCourses', [AdminController::class, 'getAllCourses']);
+    Route::post('/getAllUsersData', [AdminController::class, 'getAllUsersData']);
+// });
 
 
 // Instructor API
@@ -48,8 +48,6 @@ Route::get('/getAllInstructors', [InstructorController::class, 'getAllInstructor
 Route::get('/getInstructor/{id}', [InstructorController::class, 'getInstructor']);
 Route::post('/uploadImage/{id}', [InstructorController::class, 'uploadImage'])->name('instructor.uploadImage');
 
-// Course API
-Route::post('/getAllCourses', [CourseController::class, 'getAllCourses']);
 
 // Google Sheets API
 Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);

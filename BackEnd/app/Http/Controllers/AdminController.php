@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
+use App\Models\Course;
 use App\Models\Instructor;
 use App\Models\Student;
 use Exception;
@@ -13,28 +14,6 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
 
-
-    // ----------------------- Read Admin -----------------------
-    function read(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $admin = Admin::where('email', $request->email)->first();
-
-        // Check if student exists and password matches
-        if ($admin && $request->password ===  $admin->password) {
-            return redirect()->route('home', ['id' => $admin->id]);
-        }
-
-        if (!$admin) {
-            return redirect()->route('login')->with('email_error', 'The email does not exist.');
-        }
-
-        return redirect()->route('login', ['password' => 'The password is incorrect.']);
-    }
     // ----------------------- Update Admin -----------------------
 
     function update(Request $request, $id)
@@ -85,15 +64,7 @@ class AdminController extends Controller
         }
 
         return response()->json(['message' => 'No record found with the given email.'], 404);
-    }
-
-    // ----------------------- Get All Admins Data -----------------------
-    function getAllAdmins()
-    {
-        $admins = Admin::all();
-        $numberOfAdmins = Admin::count();
-        return ["Admins Data" => $admins, "Number Of Admins" => $numberOfAdmins];
-    }
+    }    
 
     // ----------------------- Get Admin Data -----------------------
     function getAdmin($id)
@@ -160,6 +131,32 @@ class AdminController extends Controller
             'numberOfAdmins' => $numberOfAdmins,
             'numberOfInstructors' => $numberOfInstructors,
             'numberOfStudents' => $numberOfStudents,
+        ]);
+    }
+
+    // ----------------------- Get All Courses -----------------------
+    function getAllCourses()
+    {
+        $courses = Course::all();
+        if ($courses->isEmpty()) {
+            return response()->json(['message' => 'No courses found'], 404);
+        }
+        return response()->json($courses, 200);
+    }
+
+    // ----------------------- Get All Users Data -----------------------
+
+    function getAllUsersData(){
+        // Fetch all students, instructors, and admins separately
+        $students = DB::table('students')->get();
+        $instructors = DB::table('instructors')->get();
+        $admins = DB::table('admins')->get();
+
+        // Combine all into one response
+        return response()->json([
+            'admins' => $admins,
+            'instructors' => $instructors,
+            'students' => $students
         ]);
     }
 }
