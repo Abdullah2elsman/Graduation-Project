@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -145,4 +147,130 @@ body {
 .sidebar.collapsed .footer-info {
   opacity: 0;
   visibility: hidden;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+.search-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 8px 12px;
+  background: white;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px;
+  font-size: 16px;
+}
+
+.search-bar .icon {
+  font-size: 16px;
+  color: #999;
+  cursor: pointer;
+}
+
+/* The tools up the table */
+.form-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24px;
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px 10px 0px 0px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-group label {
+  font-family: Roboto;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16.41px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+
+.form-group input {
+  padding: 8px;
+  height: 31px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#course-title {
+  width: 400px;
+}
+
+.upload-button {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #2c6da4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Table */
+.table-container {
+  min-height: 200px;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  border-radius: 0px 0px 10px 10px;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #fefefe;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+th {
+  background-color: #ffff;
+  font-weight: bold;
+  color: #2C6DA4;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #ffff;
+  /* color of the odd rows */
+
+}
+
+table tbody tr:nth-child(odd) {
+  background-color: #E8EFF5;
+  /* color of the odd rows */
+
 }

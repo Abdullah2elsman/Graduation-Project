@@ -3,48 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link rel="stylesheet" href="css/login.css">
-  
+  <title>sign up</title>
+  <link rel="stylesheet" href="../css/signup.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
   <div class="container">
     <div class="form-card">
-      <img class="img-logo" src="imgs/logo.svg" alt="notfound">
-      <div class="login-box">
-        <p class="p1">Login</p>
-        <p class="p2">Welcome back! Please enter your credentials to access your account.</p>
+      <img class="img-logo" src="../imgs/logo.svg" alt="notfound">
+      <div class="signup-box">
+        <p class="p1">Create Account</p>
+        <p class="p2">Create your account for a seamless learning and teaching experience.</p>
         <div class="role-buttons">
           <button class="role-btn" value="instructor">Instructor</button>
           <button class="role-btn" value="student">Student</button>
           <button class="role-btn active" value="admin">Admin</button>
         </div>
-        <form id="loginForm">
-          <label class="email" > Email </label>
+        <form class="signupForm">
+          <label class="full-name"> Full Name </label>
+          <input type="text" id="full-name" placeholder="Enter your name" required>
+          <label class="email"> Email </label>
           <input type="email" id="email" placeholder="Enter your email" required>
-          <label class="pass">Password</label>
+          <label class="pass"> Password </label>
           <div class="password-container">    
               <input type="password" id="password" class="password-input" placeholder="Enter your password" required>
               <i id="toggleNewPassword" class="fa-regular fa-eye-slash"></i>
           </div>
-          <div class="remember-me">
-              <input class="checkbox" type="checkbox" id="rememberMe">
-              <label class="rememberMe">Remember Me</label>
-              <p class="p3"><a href=""> Forget password?</p></a>
-          </div>
-          <button type="submit" class="submit-button">Login</button>
+          <p class="password-hint">Password must include a capital letter, a symbol (@#$%^&*), and 8+ characters.</p>
+          <button type="submit" class="submit-button">Sign up</button>
         </form>
         <div class="divider">OR</div>
         <button class="google-button">
-          <img class="google-ic" src="imgs/Google__G__logo.png" alt="notfound"> 
+          <img class="google-ic" src="../imgs/Google__G__logo.png" alt="notfound"> 
           <span>Continue with Google</span>
         </button>    
-        <p class="login-link">Don't have an account ? <a href="signup.html">sign up</a></p>
+        <p class="login-link">Already have an account ? <a href="login.html">Log in</a></p>
       </div>
     </div>
   </div>
-  <script src="js/login.js" defer></script>
-
+  <script src="js/signup.js" defer></script>
+  
 </body>
 </html>
