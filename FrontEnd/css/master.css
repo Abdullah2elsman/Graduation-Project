@@ -315,25 +315,17 @@ table tbody tr:nth-child(odd) {
 
 .stat-box {
   width: 30%;
-  padding: 20px;
+  padding: 16px 24px;
   text-align: center;
   border-radius: 8px;
   color: white;
+}
+
+.stat-box h3,
+.stat-box p {
   font-size: 32px;
   font-weight: 600;
-  line-height: 40px;
-}
-
-.admin {
-  background-color: #173957;
-}
-
-.instructor {
-  background-color: #2c6da4;
-}
-
-.student {
-  background-color: #43a5fa;
+  margin-bottom: 5px;
 }
 
 /* Actions Section */
@@ -357,8 +349,8 @@ table tbody tr:nth-child(odd) {
   background-color: #2c6da4;
   color: white;
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 8px 12px;
+  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
   display: flex;
@@ -373,33 +365,43 @@ table tbody tr:nth-child(odd) {
 }
 
 .cards-wrapper {
+  width: 100%;
+  margin-left: -10px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
 .content-card {
+  width: 100%;
   padding: 10px;
   border-radius: 8px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.content-card img {
-  border-radius: 8px;
+.content-card .image-card {
+  margin-bottom: -35px;
+}
+
+.content-card .text-card {
+  margin-left: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .content-card h3 {
-  font-size: 16px;
-  margin: 10px 0 5px;
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: 13px;
 }
 
 .content-card p {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #656565;
 }
 
 /* Progress-bar */
