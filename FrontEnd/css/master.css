@@ -20,6 +20,7 @@ body {
   top: 0px;
   overflow-y: auto;
   scrollbar-width: none;
+  z-index: 100;
   width: 240px;
   height: 100vh;
   padding: 48px 16px;
@@ -199,6 +200,7 @@ body {
 }
 
 .form-group {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -214,11 +216,19 @@ body {
   text-decoration-skip-ink: none;
 }
 
+.search-icon {
+  position: absolute;
+  left: 7px;
+  width: 16px;
+  height: 16px;
+}
+
 .form-group input {
   padding: 8px;
   height: 31px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  padding: 10px 10px 10px 30px; /* Extra left padding for SVG */
 }
 
 #course-title {
@@ -265,7 +275,6 @@ th {
 th,
 td {
   padding: 15px;
-  text-align: left;
   border-bottom: 1px solid #ddd;
   text-align: center;
 }
@@ -280,6 +289,20 @@ table tbody tr:nth-child(odd) {
   background-color: #E8EFF5;
   /* color of the odd rows */
 
+}
+
+.edit-action,
+.delete-action {
+  width: Fixed (32px)px;
+  height: Fixed (32px)px;
+  padding: 4px 0px 0px 0px;
+  gap: 8px;
+  border-radius: 4px 0px 0px 0px;
+  cursor: pointer;
+}
+
+.actions {
+  padding: 5px;
 }
 
 /* Dashboard Style */
@@ -377,4 +400,34 @@ table tbody tr:nth-child(odd) {
   font-size: 14px;
   color: #666;
   margin-bottom: 10px;
+}
+
+/* Progress-bar */
+.progress-container {
+  width: 125px;
+  height: 19px;
+  background-color: white;
+  border-radius: 50px;
+  border: 2px solid #2c6da4;
+  /* Blue border */
+  display: flex;
+  align-items: center;
+  padding: 1px;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 80%;
+  /* Adjust for different progress levels */
+  background: linear-gradient(to right, #ff7501 30%, #dfb441 70%, #52d060 100%);
+  border-radius: 50px;
+  border: 1.5px solid #2c6da4
+}
+
+.progress-text {
+  font-size: 14px;
+  font-weight: bold;
+  color: green;
+  margin-left: 10px;
 }
