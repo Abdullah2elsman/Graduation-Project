@@ -135,7 +135,11 @@ body {
   align-items: center;
   gap: 16px;
 }
-
+.logout-button{
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
 .footer img {
   width: 40px;
   height: 40px;
@@ -148,6 +152,17 @@ body {
   gap: 19px;
   transition: opacity 0.3s;
   gap: 8px;
+}
+
+.footer-info .name{
+  color: #194062;
+  font-size: 16px;
+  font-weight: 600;
+}
+.footer-info .email{
+  color: #6b6b6b;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .sidebar.collapsed .footer-info {
@@ -420,7 +435,7 @@ table tbody tr:nth-child(odd) {
 
 .progress-bar {
   height: 100%;
-  width: 80%;
+  width: 0%;
   /* Adjust for different progress levels */
   background: linear-gradient(to right, #ff7501 30%, #dfb441 70%, #52d060 100%);
   border-radius: 50px;

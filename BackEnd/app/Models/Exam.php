@@ -9,16 +9,16 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'course_id', 'exam_date'];
+    protected $fillable = ['course_id', 'exam', 'time', 'date'];
 
-    // Define relationships
     public function course()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Course::class, 'course_id', 'id');
     }
 
-    public function attempts()
+    public function examAttempts()
     {
         return $this->hasMany(ExamAttempt::class);
     }
+
 }

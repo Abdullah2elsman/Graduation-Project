@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use App\Models\Course;
+use App\Models\ExamAttempt;
 use App\Models\Instructor;
 use App\Models\Student;
 use Exception;
@@ -158,5 +159,21 @@ class AdminController extends Controller
             'instructors' => $instructors,
             'students' => $students
         ]);
+    }
+
+    // ----------------------- Get Reports -----------------------
+
+    function getReports(){
+        $examAttempts = ExamAttempt::with([
+            'student:id,name,email',
+            'exam:id,exam,course_id',
+            'exam.course:id,title,description' // Fetch course details
+        ])
+            ->select('id', 'exam_id', 'student_id', 'grade') // Select only needed columns
+            ->get();
+
+        return response()->json([
+            'data' => $examAttempts
+        ],200);
     }
 }

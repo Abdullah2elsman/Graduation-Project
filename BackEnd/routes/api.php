@@ -8,36 +8,39 @@ use App\Http\Controllers\InstructorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleSheetsController;
+use App\Models\Admin;
 use App\Models\Course;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Authentication API
+// Authentication And Authorization API
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
-// Authorization API
 Route::middleware('auth:sanctum')->get('/validateToken', [AuthController::class, 'validateToken']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+
+
 
 // Student API
 Route::post('/readStudent', [StudentController::class, 'read'])->name('student.read');
 Route::put('/updateStudent', [StudentController::class, 'update'])->name('student.update');
 Route::delete('deleteStudent/{id}', [StudentController::class, 'delete'])->name('student.delete');
 Route::get('/getAllStudents', [StudentController::class, 'getAllStudents']);
-Route::get('/getStudent/{id}' , [StudentController::class, 'getStudent']);
+Route::get('/getStudent/{id}', [StudentController::class, 'getStudent']);
 Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
 
 // Admin API
-// Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/updateAdmin/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::post('/deleteAdmin/{id}', [AdminController::class, 'delete'])->name('admin.delete');
     Route::post('/getAdmin/{id}', [AdminController::class, 'getAdmin']);
     Route::post('/getNumOfUsers', [AdminController::class, 'getNumOfUsers']);
     Route::post('/getAllCourses', [AdminController::class, 'getAllCourses']);
     Route::post('/getAllUsersData', [AdminController::class, 'getAllUsersData']);
-// });
+    Route::post('/getReports', [AdminController::class, 'getReports']);
+});
 
 
 // Instructor API
@@ -54,7 +57,7 @@ Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
 Route::post('/sheets/write', [GoogleSheetsController::class, 'writeSheet']);
 
 
-Route::post('/test', function (Request $request){
+Route::post('/test', function (Request $request) {
     $data = Course::all(); // Replace 'YourModel' with your model name
     return response()->json($data);
 });

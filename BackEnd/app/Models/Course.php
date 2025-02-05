@@ -11,7 +11,6 @@ class Course extends Model
 
     protected $fillable = ['name', 'description', 'instructor_id'];
 
-    // Define relationships
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
@@ -29,6 +28,6 @@ class Course extends Model
 
     public function exams()
     {
-        return $this->hasMany(Exam::class);
+        return $this->hasMany(Exam::class, 'course_id', 'id');
     }
 }

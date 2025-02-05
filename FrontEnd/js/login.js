@@ -64,7 +64,7 @@ document.getElementById('loginForm').addEventListener(
       const data = await response.json();  
       if (response.ok) {
         localStorage.setItem('authToken', data.token)
-        window.location.href = 'dashboard.html';
+        window.location.href = '../dashboard.html';
       } else {
         // Handle login error
         alert(data.error || 'Login failed'); // will replace it by pop up message
@@ -76,10 +76,3 @@ document.getElementById('loginForm').addEventListener(
   }
 
 );
-
-
-// Check if the token exists and is valid when visiting other pages (e.g., dashboard)
-window.addEventListener('load', function() {
-  localStorage.getItem('authToken');
-});
-

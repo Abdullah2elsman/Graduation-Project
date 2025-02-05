@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="css/master.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
-<body>
+<body data-page="reports">
 
     <!-- --------------------------------- Side bar --------------------------------- -->
     <div class="sidebar">
@@ -35,16 +35,16 @@
             <a href="#settings" class="menu-item">
                 <img src="imgs/setting.svg" alt="Setting Icon"> <span>Setting</span>
             </a>
-            <a href="#logout" class="menu-item">
+            <button class="menu-item logout-button">
                 <img src="imgs/logout.svg" alt="Logout Icon"> <span>Log Out</span>
-            </a>
+            </button>
         </nav>
     
         <div class="footer">
             <img src="imgs/admin.webp" alt="User Avatar">
             <div class="footer-info">
-                <p>Kamal Hamza</p>
-                <a href="#">khamza@gmail.com</a>
+                <p class="name">Loading...</p>
+                <p class="email">Loading...</p>
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <div class="table-container user-management">
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -101,7 +101,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>123</td>
                         <td>Abdullah Elsman</td>
                         <td>Math</td>
@@ -126,12 +126,12 @@
                                     stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </td>
-                    </tr>
+                    </tr> -->
 
                 </tbody>
             </table>
         </div>
     </div>
-    <script src="../js/script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
