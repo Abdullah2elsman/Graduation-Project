@@ -1,7 +1,7 @@
 const token = localStorage.getItem('authToken');
 const url = "http://localhost:8005";
 
-
+/*
 // This function to check if the user login or not
 const checkUserLogin = async () => {
     if (!token) {
@@ -35,7 +35,7 @@ const checkUserLogin = async () => {
     window.location.href = 'Auth/login.html'; // Redirect on error
     }
 };
-
+*/
 
 // Logout button
 document.querySelector(".logout-button").addEventListener(

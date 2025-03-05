@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .chart-container {
+      width: 80%;
+      height: 500px;
+      /* Full height */
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: auto;
+      overflow-x: auto;
+      /* Enable scroll if needed */
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      /* Center the chart */
+    }
+
+    .chart-wrapper {
+      display: inline-block;
+      height: 100%;
+      /* Full height */
+    }
+
+    canvas {
+      height: 100% !important;
+      /* Force full height */
+      width: auto !important;
+      /* Auto-adjust width */
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Average Student Grades</h2>
+  <div class="chart-container">
+    <div class="chart-wrapper">
+      <canvas id="progressChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('progressChart').getContext('2d');
+
+    // Generate dynamic data (increase count to test scroll)
+    const dataCount = 15; // Change this to increase/decrease columns
+    const data = Array.from({ length: dataCount }, (_, i) => ({
+      label: `Quiz ${i + 1}`,
+      achieved: Math.floor(Math.random() * 10),
+      remaining: 10 - Math.floor(Math.random() * 10)
+    }));
+
+    const labels = data.map(item => item.label);
+    const achievedData = data.map(item => item.achieved);
+    const remainingData = data.map(item => item.remaining);
+
+    // Show horizontal scroll only if columns > 10
+    const columnWidth = 50; // Fixed space per column
+    const maxColumns = 10;
+    const chartWidth = dataCount > maxColumns ? dataCount * columnWidth : "100%";
+
+    document.querySelector(".chart-wrapper").style.width = `${chartWidth}px`;
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Achieved",
+            data: achievedData,
+            backgroundColor: "#2c6da4",
+            borderRadius: { topLeft: 4, topRight: 4 },
+            stack: "Stack 0",
+            barThickness: 30 // Fixed column width
+          },
+          {
+            label: "Remaining",
+            data: remainingData,
+            backgroundColor: "#e8eff5",
+            borderRadius: 4,
+            stack: "Stack 0",
+            barThickness: 30 // Fixed column width
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: false }
+          },
+          y: {
+            stacked: true,
+            grid: { display: false },
+            beginAtZero: true,
+            max: 10
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

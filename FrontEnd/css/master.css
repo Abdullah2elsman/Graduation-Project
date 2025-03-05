@@ -420,7 +420,7 @@ table tbody tr:nth-child(odd) {
 }
 
 /* Progress-bar */
-.progress-container {
+td .progress-container {
   width: 125px;
   height: 19px;
   background-color: white;
@@ -433,7 +433,7 @@ table tbody tr:nth-child(odd) {
   position: relative;
 }
 
-.progress-bar {
+td .progress-bar {
   height: 100%;
   width: 0%;
   /* Adjust for different progress levels */
@@ -442,7 +442,7 @@ table tbody tr:nth-child(odd) {
   border: 1.5px solid #2c6da4
 }
 
-.progress-text {
+td .progress-text {
   font-size: 14px;
   font-weight: bold;
   color: green;
