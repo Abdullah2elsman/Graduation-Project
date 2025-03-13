@@ -274,3 +274,16 @@
 .schedule-item .details {
   color: #585a66;
 }
+
+.show-excel {
+  color: #194062;
+  background-color: transparent;
+  height: 31px;
+  border: 1px solid #194062;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  min-width: 135px;
+}
