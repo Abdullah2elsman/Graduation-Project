@@ -56,8 +56,18 @@ Route::post('/uploadImage/{id}', [InstructorController::class, 'uploadImage'])->
 Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
 Route::post('/sheets/write', [GoogleSheetsController::class, 'writeSheet']);
 
+// Course API
+
+Route::post('/createCourse', [CourseController::class, 'createCourse']);
+Route::post('/readCourse', [CourseController::class, 'readCourse']);
+Route::put('/updateCourse', [CourseController::class, 'updateCourse']);
+Route::delete('deleteCourse/{id}', [CourseController::class, 'deleteCourse']);
+Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
+Route::get('/getCourse/{id}', [CourseController::class, 'getCourse']);
+
 
 Route::post('/test', function (Request $request) {
     $data = Course::all(); // Replace 'YourModel' with your model name
     return response()->json($data);
 });
+

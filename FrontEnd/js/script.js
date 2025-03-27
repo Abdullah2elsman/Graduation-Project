@@ -1,7 +1,7 @@
 const token = localStorage.getItem('authToken');
 const url = "http://localhost:8005";
 
-/*
+
 // This function to check if the user login or not
 const checkUserLogin = async () => {
     if (!token) {
@@ -35,7 +35,7 @@ const checkUserLogin = async () => {
     window.location.href = 'Auth/login.html'; // Redirect on error
     }
 };
-*/
+
 
 // Logout button
 document.querySelector(".logout-button").addEventListener(
@@ -145,7 +145,7 @@ async function getAllCourses() {
                 method: 'POST', // Ensure the endpoint supports POST
                 headers: {
                 'Content-Type': 'application/json',
-'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({}) // Modify body as needed (e.g., send request parameters)
             });
