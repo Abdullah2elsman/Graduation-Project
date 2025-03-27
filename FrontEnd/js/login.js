@@ -1,5 +1,6 @@
 // Select role button
 const roleButtons = document.querySelectorAll('.role-btn');
+const url = 'http://localhost:8005/api';
 
 let role = 'admin';
 roleButtons.forEach(button => {
@@ -29,19 +30,6 @@ function togglePassword(){
 // toggle Event
 toggleIcon.addEventListener('click',togglePassword);
 
-// تحميل البيانات من Local Storage عند فتح الصفحة
-// window.addEventListener('DOMContentLoaded', () => {
-//   const savedEmail = localStorage.getItem('rememberedEmail');
-//   const savedPassword = localStorage.getItem('rememberedPassword');
-//   const rememberMeChecked = localStorage.getItem('rememberMe') === 'true';
-
-//   if (savedEmail && savedPassword && rememberMeChecked) {
-//     document.querySelector('input[type="email"]').value = savedEmail;
-//     document.querySelector('#newPassword').value = savedPassword;
-//     document.getElementById('rememberMe').checked = true;
-//   }
-// });
-
 // When Submit the login form
 document.getElementById('loginForm').addEventListener(
   'submit',
@@ -53,7 +41,7 @@ document.getElementById('loginForm').addEventListener(
     console.log(JSON.stringify({ email, password, role }));
     try {
       // Send POST request to the API
-      const response = await fetch('http://localhost:8005/api/login', {
+      const response = await fetch(`${url}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +52,18 @@ document.getElementById('loginForm').addEventListener(
       const data = await response.json();  
       if (response.ok) {
         localStorage.setItem('authToken', data.token)
-        window.location.href = '../dashboard.html';
+        if (role === 'admin')
+        { 
+          window.location.href = '../admin/dashboard.html';
+        }
+        else if (role === 'student')
+        { 
+          window.location.href = '../student/dashboard.html';
+        }
+        else if (role === 'instructor')
+        {  
+          window.location.href = '../instructor/dashboard.html';
+        }
       } else {
         // Handle login error
         alert(data.error || 'Login failed'); // will replace it by pop up message

@@ -61,7 +61,7 @@ document.querySelector(".logout-button").addEventListener(
         localStorage.removeItem("authToken");
 
         // Redirect to login page
-        window.location.href = "Auth/login.html";
+        window.location.href = "../Auth/login.html";
     }
 );
 
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log(logo.src);
     leftArrow.addEventListener("click", function () {
         sidebar.classList.add("collapsed");
-        logo.src += "/../logo-collapsed.svg";
+        logo.src = "../imgs/logo-collapsed.svg";
         rightArrow.style.display = 'flex';
         leftArrow.style.display = 'none';
         content.style.marginLeft = 70 + 'px';
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
     rightArrow.addEventListener('click', function() {
         sidebar.classList.remove("collapsed");
-        logo.src = "imgs/logo.svg";
+        logo.src = "../imgs/logo.svg";
         rightArrow.style.display = 'none';
         leftArrow.style.display = 'block';
         content.style.marginLeft = 240 + 'px';
