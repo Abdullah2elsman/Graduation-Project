@@ -16,7 +16,7 @@ class Exam extends Model
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
 
-    public function examAttempts()
+    public function attempts()
     {
         return $this->hasMany(ExamAttempt::class);
     }

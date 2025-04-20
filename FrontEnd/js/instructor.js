@@ -1,53 +1,130 @@
+// const instructorId = userData.user.id;
+function createCourseCard(course){
+  // Create main course card div
+    let card = document.createElement("div");
+    card.classList.add("course-card");
+
+    // Progress container
+    let progressContainer = document.createElement("div");
+    progressContainer.classList.add("progress-container");
+
+    let canvas = document.createElement("canvas");
+    canvas.classList.add("progress-chart");
+    canvas.id = "chart" + course.id;
+
+    let progressText = document.createElement("div");
+    progressText.classList.add("progress-text");
+    progressText.id = "text" + course.id;
+
+    progressContainer.appendChild(canvas);
+    progressContainer.appendChild(progressText);
+
+    // Course title
+    let title = document.createElement("div");
+    title.classList.add("course-title");
+    title.textContent = course.title;
+
+    // Quiz info
+    let completedQuizzes = document.createElement("div");
+    completedQuizzes.classList.add("quiz-info");
+    completedQuizzes.textContent = "Completed Quizzes: " + course.completed_exams;
+
+    let remainingQuizzes = document.createElement("div");
+    remainingQuizzes.classList.add("quiz-info");
+    remainingQuizzes.textContent = "Remaining Quizzes: " + (course.number_of_exams - course.completed_exams);
+
+    // Create quiz button
+    let button = document.createElement("button");
+    button.classList.add("quiz-button");
+    button.textContent = "+ Create New Quiz";
+    
+    // Append elements to the card
+    card.appendChild(progressContainer);
+    card.appendChild(title);
+    card.appendChild(completedQuizzes);
+    card.appendChild(remainingQuizzes);
+    card.appendChild(button);
+
+    // Append the card to a container in the HTML
+    document.querySelector(".cards-wrapper").appendChild(card);
+}
+
 // Course Progress Chart
 function createProgressChart(canvasId, percentage) {
-          const canvas = document.getElementById(canvasId);
-          const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
 
-          // Scale canvas for high-resolution screens
-          const dpr = window.devicePixelRatio || 1;
-          canvas.width = canvas.clientWidth * dpr;
-          canvas.height = canvas.clientHeight * dpr;
-          ctx.scale(dpr, dpr);
+  // Scale canvas for high-resolution screens
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = canvas.clientHeight * dpr;
+  ctx.scale(dpr, dpr);
 
-          new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              labels: ['Completed', 'Remaining'],
-              datasets: [{
-                data: [percentage, 100 - percentage],
-                backgroundColor: ['#0077b6', '#e8eff5'],
-                borderWidth: 0,
-                borderRadius: percentage === 100 ? 0 : 3
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false, // Ensures scaling maintains the correct aspect ratio
-              cutout: '74%',
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false }
-              }
-            }
-          });
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'Remaining'],
+      datasets: [{
+        data: [percentage, 100 - percentage],
+        backgroundColor: ['#0077b6', '#e8eff5'],
+        borderWidth: 0,
+        borderRadius: percentage === 100 ? 0 : 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false, // Ensures scaling maintains the correct aspect ratio
+      cutout: '74%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false }
+      }
+    }
+  });
 
-          document.getElementById(`text${canvasId.replace('chart', '')}`).innerHTML = `${percentage}%<span>Completed</span>`;
-        }
+  document.getElementById(`text${canvasId.replace('chart', '')}`).innerHTML = `${percentage}%<span>Completed</span>`;
+}
 
-        
-// Example Calls
-createProgressChart('chart0', 20);
-createProgressChart('chart1', 30);
-createProgressChart('chart2', 45);
-createProgressChart('chart3', 50);
-createProgressChart('chart4', 80);
-createProgressChart('chart5', 100);
+document.addEventListener('DOMContentLoaded',async function() {
+  await checkUserLogin();
+  await loadCourses();
+});
 
+// Load course
+async function loadCourses(){
+  const storedUserData = localStorage.getItem('userData');
+  const userData = JSON.parse(storedUserData);
+    try {
+        // Fetch data from API
+        const userId = userData.user.id;
+        let response = await fetch(`${url}/instructor/${userId}/courses`);
+        let courses = await response.json();
+        console.log(courses);
+        courses.forEach(course => createCourseCard(course));
+        courses.forEach(course => createProgressChart('chart' + course.id, Math.floor((course.completed_exams/course.number_of_exams)*100)));
+
+
+    } catch (error) {
+        console.error("Error fetching courses:", error);
+    }
+}
+
+// Move Course cards right and left
+const moveRight = document.querySelector('.move-right');
+const moveLeft = document.querySelector('.move-left');
+const courses = document.querySelector('.cards-wrapper');
+moveRight.addEventListener('click', () => {
+  courses.scrollBy(300, 0);
+});
+
+moveLeft.addEventListener('click', () => {
+  courses.scrollBy(-300, 0);
+});
+
+const labelsLine = Array.from({ length: 30 }, (_, i) => i + 1);
+const dataValues = [20, 25, 40, 55, 45, 50, 35, 42, 38, 64, 42, 47, 43, 46, 50, 55, 20, 60, 35, 55, 40, 52, 49, 48, 50, 45, 47, 49, 52, 55];
 
 // Line Chart
-  const labelsLine = Array.from({ length: 30 }, (_, i) => i + 1);
-  const dataValues = [20, 25, 40, 55, 45, 50, 35, 42, 38, 64, 42, 47, 43, 46, 50, 55, 20, 60, 35, 55, 40, 52, 49, 48, 50, 45, 47, 49, 52, 55];
-
 function createMonthlyProgressChart(labels, dataValues) {
   const ctxLine = document.getElementById('MonthlyProgressChart').getContext('2d');
 
@@ -134,7 +211,7 @@ const ctxBar = document.getElementById('averageGrades').getContext('2d');
           label: "Achieved",
           data: achievedData,
           backgroundColor: "#2c6da4",
-          borderRadius: { topLeft: 4, topRight: 4 }, // إضافة الحواف العلوية
+          borderRadius: { topLeft: 4, topRight: 4 },
           stack: "Stack 0",
           barThickness: 25
 
@@ -183,64 +260,66 @@ const ctxBar = document.getElementById('averageGrades').getContext('2d');
 createAverageGradesChart(data);
 
   // Calendar
-  const monthText = document.getElementById("month");
-        const yearText = document.getElementById("year");
-        const daysContainer = document.querySelector(".calendar-days");
-        let date = new Date();
-        let currentMonth = date.getMonth();
-        let currentYear = date.getFullYear();
-        let selectedDay = null;
-        let today = date.getDate();
+const monthText = document.getElementById("month");
+const yearText = document.getElementById("year");
+const daysContainer = document.querySelector(".calendar-days");
+let date = new Date();
+let currentMonth = date.getMonth();
+let currentYear = date.getFullYear();
+let selectedDay = null;
+let today = date.getDate();
 
-        function renderCalendar(month, year) {
-          daysContainer.innerHTML = "";
-          monthText.innerHTML = new Date(year, month).toLocaleString('en-US', { month: 'long' });
-          yearText.innerHTML = year;
-          let firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
-          let daysInMonth = new Date(year, month + 1, 0).getDate();
-          let prevMonthDays = new Date(year, month, 0).getDate();
+function renderCalendar(month, year) {
+  daysContainer.innerHTML = "";
+  monthText.innerHTML = new Date(year, month).toLocaleString('en-US', { month: 'long' });
+  yearText.innerHTML = year;
+  let firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+  let daysInMonth = new Date(year, month + 1, 0).getDate();
+  let prevMonthDays = new Date(year, month, 0).getDate();
 
-          for (let i = firstDay - 1; i >= 0; i--) {
-            let prevDayDiv = document.createElement("div");
-            prevDayDiv.textContent = prevMonthDays - i;
-            prevDayDiv.classList.add("prev-month");
-            daysContainer.appendChild(prevDayDiv);
-          }
+  for (let i = firstDay - 1; i >= 0; i--) {
+    let prevDayDiv = document.createElement("div");
+    prevDayDiv.textContent = prevMonthDays - i;
+    prevDayDiv.classList.add("prev-month");
+    daysContainer.appendChild(prevDayDiv);
+  }
 
-          for (let day = 1; day <= daysInMonth; day++) {
-            let dayDiv = document.createElement("div");
-            dayDiv.textContent = day;
-            if (day === today && month === date.getMonth() && year === date.getFullYear()) {
-              dayDiv.classList.add("selected");
-              selectedDay = dayDiv;
-            }
-            dayDiv.addEventListener("click", function () {
-              if (selectedDay) {
-                selectedDay.classList.remove("selected");
-              }
-              dayDiv.classList.add("selected");
-              selectedDay = dayDiv;
-            });
-            daysContainer.appendChild(dayDiv);
-          }
-        }
+  for (let day = 1; day <= daysInMonth; day++) {
+    let dayDiv = document.createElement("div");
+    dayDiv.textContent = day;
+    if (day === today && month === date.getMonth() && year === date.getFullYear()) {
+      dayDiv.classList.add("selected");
+      selectedDay = dayDiv;
+    }
+    dayDiv.addEventListener("click", function () {
+      if (selectedDay) {
+        selectedDay.classList.remove("selected");
+      }
+      dayDiv.classList.add("selected");
+      selectedDay = dayDiv;
+    });
+    daysContainer.appendChild(dayDiv);
+  }
+}
 
-        function prevMonth() {
-          currentMonth--;
-          if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-          }
-          renderCalendar(currentMonth, currentYear);
-        }
+function prevMonth() {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar(currentMonth, currentYear);
+}
 
-        function nextMonth() {
-          currentMonth++;
-          if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-          }
-          renderCalendar(currentMonth, currentYear);
-        }
+function nextMonth() {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar(currentMonth, currentYear);
+}
 
-        renderCalendar(currentMonth, currentYear);
+renderCalendar(currentMonth, currentYear);
+
+

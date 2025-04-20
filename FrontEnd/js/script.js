@@ -1,40 +1,69 @@
-const token = localStorage.getItem('authToken');
-const url = "http://localhost:8005";
+const token = localStorage.getItem('token');
+let userData = null;
+const url = "http://localhost:8005/api";
 
+
+const redirectToLogin = () => {
+    window.location.href = '../Auth/login.html';
+};
 
 // This function to check if the user login or not
 const checkUserLogin = async () => {
-    if (!token) {
-        // No token, redirect to login
-        window.location.href = 'Auth/login.html';
+
+    // Check if the user is already logged in from localStorage/sessionStorage
+    const storedUserData = localStorage.getItem('userData');
+    const storedToken = localStorage.getItem('token');
+    
+    if (storedUserData && storedToken) {
+        // If user data and token are found in localStorage, use them directly
+        const userData = JSON.parse(storedUserData);
+        document.querySelector('.footer-info .name').innerHTML = userData.user.name;
+        document.querySelector('.footer-info .email').innerHTML = userData.user.email;
         return;
+    }
+    
+    if (!storedToken) {
+        // No token, redirect to login immediately
+        return redirectToLogin();
     }
     
     try {
         // Send a request to validate the token
-        const response = await fetch(`${url}/api/validateToken`, {
+        const response = await fetch(`${url}/validateToken`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
         });
-        
-        if (response.ok) {
-            // Token is valid, fetch user data
-            const userData = await response.json();
+        if (!response.ok) {
+            // Handle different status codes
+            if (response.status === 401) {
+                console.error('Unauthorized - Invalid token.');
+            } else if (response.status === 500) {
+                console.error('Server error - Try again later.');
+            } else {
+                console.error('Unexpected error occurred.');
+            }
+            return redirectToLogin();
+        }
 
-            document.querySelector('.footer-info .name').innerHTML = userData.user.name;
-            document.querySelector('.footer-info .email').innerHTML = userData.user.email;
-        } else {
-      // Token is invalid, redirect to login
-        console.error('Invalid token, redirecting to login...');
-        window.location.href = 'Auth/login.html';
-    }
+        // Token is valid, fetch user data
+        const userData = await response.json();
+        console.log(userData);
+
+        // Store the user data and token for future pages
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('token', storedToken);
+
+        // Update UI with user data
+        document.querySelector('.footer-info .name').innerHTML = userData.user.name;
+        document.querySelector('.footer-info .email'). innerHTML = userData.user.email;
     } catch (error) {
-    console.error('Error validating token:', error);
-    window.location.href = 'Auth/login.html'; // Redirect on error
+        console.error('Error validating token:', error);
+        return redirectToLogin(); // Redirect on error
     }
 };
+
 
 
 // Logout button
@@ -42,7 +71,7 @@ document.querySelector(".logout-button").addEventListener(
     "click",
     async () => {
         try {
-            const response = await fetch(`${url}/api/logout`, {
+            const response = await fetch(`${url}/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -58,10 +87,10 @@ document.querySelector(".logout-button").addEventListener(
         }
 
         // Remove token from local storage
-        localStorage.removeItem("authToken");
+        localStorage.removeItem("token");
 
         // Redirect to login page
-        window.location.href = "../Auth/login.html";
+        redirectToLogin();
     }
 );
 
@@ -119,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function (){
 // This in Dashboard function to get the number of users from database
 async function getNumOfUsers() {
     try {
-        const response = await fetch(`${url}/api/getNumOfUsers`, {
+        const response = await fetch(`${url}/getNumOfUsers`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -141,7 +170,7 @@ async function getNumOfUsers() {
 // This function to the content management page
 async function getAllCourses() {
         try {
-            const response = await fetch(`${url}/api/getAllCourses`, {  // Replace with actual API URL
+            const response = await fetch(`${url}/getAllCourses`, {  // Replace with actual API URL
                 method: 'POST', // Ensure the endpoint supports POST
                 headers: {
                 'Content-Type': 'application/json',
@@ -189,7 +218,7 @@ async function getAllCourses() {
 // This function to the user management page
 async function getAllUsersData() {
     try {
-        const response = await fetch(`${url}/api/getAllUsersData`, {  // Replace with actual API URL
+        const response = await fetch(`${url}/getAllUsersData`, {  // Replace with actual API URL
         method: 'POST', // Ensure the endpoint supports POST
         headers: {
             'Content-Type': 'application/json',
@@ -245,7 +274,7 @@ async function getAllUsersData() {
 // This function to the reports page in Admin 
 async function getReports(){
     try {
-        const response = await fetch(`${url}/api/getReports`, {
+        const response = await fetch(`${url}/getReports`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -308,9 +337,3 @@ async function getReports(){
         console.error("Error fetching data:", error);
     }
 }
-
-
-    // Function to delete a row (modify this to actually delete from the server)
-// function deleteRow(id) {
-// console.log("Delete item with ID:", id);
-// }

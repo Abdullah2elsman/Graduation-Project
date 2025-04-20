@@ -30,12 +30,19 @@ function togglePassword(){
 // toggle Event
 toggleIcon.addEventListener('click',togglePassword);
 
+
+
+
 // When Submit the login form
 document.getElementById('loginForm').addEventListener(
   'submit',
   async function (e) {
     e.preventDefault(); 
+    // Remove the data of user when user go to login page from the URL
+    localStorage.removeItem('userData');
+    localStorage.removeItem('token');
 
+    // make logout if the user go to the login page from url link
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     console.log(JSON.stringify({ email, password, role }));
@@ -51,7 +58,8 @@ document.getElementById('loginForm').addEventListener(
 
       const data = await response.json();  
       if (response.ok) {
-        localStorage.setItem('authToken', data.token)
+        
+        localStorage.setItem('token', data.token)
         if (role === 'admin')
         { 
           window.location.href = '../admin/dashboard.html';

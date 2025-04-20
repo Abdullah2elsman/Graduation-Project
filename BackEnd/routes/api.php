@@ -50,6 +50,7 @@ Route::delete('deleteInstructor/{id}', [InstructorController::class, 'delete'])-
 Route::get('/getAllInstructors', [InstructorController::class, 'getAllInstructors']);
 Route::get('/getInstructor/{id}', [InstructorController::class, 'getInstructor']);
 Route::post('/uploadImage/{id}', [InstructorController::class, 'uploadImage'])->name('instructor.uploadImage');
+Route::get('instructor/{id}/courses', [InstructorController::class, 'getCourses']);
 
 
 // Google Sheets API
@@ -64,10 +65,8 @@ Route::put('/updateCourse', [CourseController::class, 'updateCourse']);
 Route::delete('deleteCourse/{id}', [CourseController::class, 'deleteCourse']);
 Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
 Route::get('/getCourse/{id}', [CourseController::class, 'getCourse']);
+Route::get('instructor/{id}/getCourseExamAttempts', [CourseController::class, 'getCourseExamAttempts']);
 
 
-Route::post('/test', function (Request $request) {
-    $data = Course::all(); // Replace 'YourModel' with your model name
-    return response()->json($data);
-});
-
+// Test
+Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);

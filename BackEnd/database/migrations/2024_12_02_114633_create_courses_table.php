@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->unsignedBigInteger('instructor_id');
+            $table->smallInteger('number_of_exams')->unsigned()->default(4);
+            $table->smallInteger('completed_exams')->unsigned()->default(0);
             $table->timestamps();
         });
     }

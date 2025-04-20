@@ -15,5 +15,9 @@ class Instructor extends Model
         'password'
     ];
 
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
     
 }

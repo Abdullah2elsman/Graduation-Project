@@ -11,21 +11,8 @@ class CourseController extends Controller
     /**
      * Create a new course.
      */
-    public function createCourse(Request $request): JsonResponse
-    {
-        $request->validate([
-            'name' => 'required|string|unique:courses,name',
-            'description' => 'required|string',
-        ]);
-
-        $course = Course::create([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
-
-        return response()->json(['message' => 'Course created successfully', 'course' => $course], 201);
-    }
-
+    
+    
     /**
      * Read course details by name.
      */
@@ -87,14 +74,44 @@ class CourseController extends Controller
     /**
      * Get course details by ID.
      */
-    public function getCourse($id): JsonResponse
+    
+    public function getCourseExamAttempts($instructorId)
     {
-        $course = Course::find($id);
+        $courses = Course::with(['exams.attempts'])
+            ->where('instructor_id', $instructorId)
+            ->get();
 
-        if (!$course) {
-            return response()->json(['error' => 'Course not found'], 404);
-        }
+        $data = $courses->map(function ($course) {
+            return [
+                'course_id' => $course->id,
+                'course_name' => $course->title, // Change to 'title' or whatever your DB uses
+                'exams' => $course->exams->map(function ($exam) {
+                    return [
+                        'exam_id' => $exam->id,
+                        'exam_name' => $exam->exam,
+                        'attempts_count' => $exam->attempts->count(),
+                    ];
+                }),
+            ];
+        });
 
-        return response()->json($course);
+        return response()->json($data);
+    }
+
+    public function getCourseEnrollments()
+    {
+        $courses = Course::withCount(['enrollments' => function ($query) {
+            $query->where('cancelled', false); // only active enrollments
+        }])->get();
+
+        $data = $courses->map(function ($course) {
+            return [
+                'course_id' => $course->id,
+                'course_name' => $course->title, // or title
+                'students_enrolled' => $course->enrollments_count,
+            ];
+        });
+
+        return response()->json($data);
     }
 }

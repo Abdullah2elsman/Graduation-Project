@@ -27,7 +27,7 @@
         <a href="contentmang.html" class="menu-item">
           <img src="../imgs/contentmanag.svg" alt="Content Management Icon"> <span>Content Management</span>
         </a>
-        <a href="userman.html" class="menu-item">
+        <a href="StudentManagement.html" class="menu-item">
           <img src="../imgs/usermanag.svg" alt="User Management Icon"> <span>Student Management</span>
         </a>
       </nav>
@@ -57,250 +57,54 @@
       <div class="courses-progress">
         <h2>Courses Progress</h2>
         <div class="cards-container">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
-              stroke="#1F507A" />
-            <path
-              d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
-              stroke="black" stroke-opacity="0.2" />
-            <g clip-path="url(#clip0_1317_8602)">
+          <button class="move-left">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
-                d="M12.6347 20.0805C12.6347 19.6891 12.8032 19.2978 13.1395 18.9994L23.7288 9.60914C24.4024 9.0118 25.4945 9.0118 26.1679 9.60914C26.8412 10.2062 26.8412 11.1745 26.1679 11.7719L16.7979 20.0805L26.1675 28.3892C26.8409 28.9865 26.8409 29.9547 26.1675 30.5517C25.4942 31.1494 24.4021 31.1494 23.7284 30.5517L13.1392 21.1617C12.8028 20.8631 12.6347 20.4718 12.6347 20.0805V20.0805Z"
-                fill="#1F507A" />
+                d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
+                stroke="#1F507A" />
               <path
-                d="M12.6347 20.0805C12.6347 19.6891 12.8032 19.2978 13.1395 18.9994L23.7288 9.60914C24.4024 9.0118 25.4945 9.0118 26.1679 9.60914C26.8412 10.2062 26.8412 11.1745 26.1679 11.7719L16.7979 20.0805L26.1675 28.3892C26.8409 28.9865 26.8409 29.9547 26.1675 30.5517C25.4942 31.1494 24.4021 31.1494 23.7284 30.5517L13.1392 21.1617C12.8028 20.8631 12.6347 20.4718 12.6347 20.0805V20.0805Z"
-                fill="black" fill-opacity="0.2" />
-            </g>
-            <defs>
-              <clipPath id="clip0_1317_8602">
-                <rect width="21.8388" height="13.6729" fill="white" transform="matrix(0 1 -1 0 26.6729 9.16113)" />
-              </clipPath>
-            </defs>
-          </svg>
+                d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
+                stroke="black" stroke-opacity="0.2" />
+              <g clip-path="url(#clip0_1317_8602)">
+                <path
+                  d="M12.6347 20.0805C12.6347 19.6891 12.8032 19.2978 13.1395 18.9994L23.7288 9.60914C24.4024 9.0118 25.4945 9.0118 26.1679 9.60914C26.8412 10.2062 26.8412 11.1745 26.1679 11.7719L16.7979 20.0805L26.1675 28.3892C26.8409 28.9865 26.8409 29.9547 26.1675 30.5517C25.4942 31.1494 24.4021 31.1494 23.7284 30.5517L13.1392 21.1617C12.8028 20.8631 12.6347 20.4718 12.6347 20.0805V20.0805Z"
+                  fill="#1F507A" />
+                <path
+                  d="M12.6347 20.0805C12.6347 19.6891 12.8032 19.2978 13.1395 18.9994L23.7288 9.60914C24.4024 9.0118 25.4945 9.0118 26.1679 9.60914C26.8412 10.2062 26.8412 11.1745 26.1679 11.7719L16.7979 20.0805L26.1675 28.3892C26.8409 28.9865 26.8409 29.9547 26.1675 30.5517C25.4942 31.1494 24.4021 31.1494 23.7284 30.5517L13.1392 21.1617C12.8028 20.8631 12.6347 20.4718 12.6347 20.0805V20.0805Z"
+                  fill="black" fill-opacity="0.2" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1317_8602">
+                  <rect width="21.8388" height="13.6729" fill="white" transform="matrix(0 1 -1 0 26.6729 9.16113)" />
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
           <div class="cards-wrapper">
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart0"></canvas>
-                <p class="progress-text" id="text0">25%<span>Completed</span></p>
-              </div>
-              <div class="course-title">Math 0</div>
-              <div class="quiz-info">Completed Quizzes : 1</div>
-              <div class="quiz-info">Remaining Quizzes : 3</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart1"></canvas>
-                <div class="progress-text" id="text1">50%</div>
-              </div>
-              <div class="course-title">Math 1</div>
-              <div class="quiz-info">Completed Quizzes : 2</div>
-              <div class="quiz-info">Remaining Quizzes : 2</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart2"></canvas>
-                <div class="progress-text" id="text2">75%</div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart3"></canvas>
-                <div class="progress-text" id="text3">75%</div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart4"></canvas>
-                <div class="progress-text" id="text4"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart0"></canvas>
-                <p class="progress-text" id="text0">25%<span>Completed</span></p>
-              </div>
-              <div class="course-title">Math 0</div>
-              <div class="quiz-info">Completed Quizzes : 1</div>
-              <div class="quiz-info">Remaining Quizzes : 3</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart1"></canvas>
-                <div class="progress-text" id="text1">50%</div>
-              </div>
-              <div class="course-title">Math 1</div>
-              <div class="quiz-info">Completed Quizzes : 2</div>
-              <div class="quiz-info">Remaining Quizzes : 2</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart2"></canvas>
-                <div class="progress-text" id="text2">75%</div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart3"></canvas>
-                <div class="progress-text" id="text3">75%</div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart4"></canvas>
-                <div class="progress-text" id="text4"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
-            <div class="course-card">
-              <div class="progress-container">
-                <canvas class="progress-chart" id="chart5"></canvas>
-                <div class="progress-text" id="text5"></div>
-              </div>
-              <div class="course-title">Math 2</div>
-              <div class="quiz-info">Completed Quizzes : 3</div>
-              <div class="quiz-info">Remaining Quizzes : 1</div>
-              <button class="quiz-button">+ Create New Quiz</button>
-            </div>
           </div>
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
-              stroke="#1F507A" />
-            <path
-              d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
-              stroke="black" stroke-opacity="0.2" />
-            <g clip-path="url(#clip0_1317_8680)">
+          <button class="move-right">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
-                d="M27.0382 20.0806C27.0382 20.472 26.8697 20.8634 26.5333 21.1618L15.9441 30.552C15.2705 31.1493 14.1783 31.1493 13.505 30.552C12.8317 29.9549 12.8317 28.9866 13.505 28.3892L22.8749 20.0806L13.5053 11.772C12.832 11.1746 12.832 10.2064 13.5053 9.60939C14.1787 9.01176 15.2708 9.01176 15.9444 9.60939L26.5337 18.9995C26.8701 19.298 27.0382 19.6894 27.0382 20.0806V20.0806Z"
-                fill="#1F507A" />
+                d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
+                stroke="#1F507A" />
               <path
-                d="M27.0382 20.0806C27.0382 20.472 26.8697 20.8634 26.5333 21.1618L15.9441 30.552C15.2705 31.1493 14.1783 31.1493 13.505 30.552C12.8317 29.9549 12.8317 28.9866 13.505 28.3892L22.8749 20.0806L13.5053 11.772C12.832 11.1746 12.832 10.2064 13.5053 9.60939C14.1787 9.01176 15.2708 9.01176 15.9444 9.60939L26.5337 18.9995C26.8701 19.298 27.0382 19.6894 27.0382 20.0806V20.0806Z"
-                fill="black" fill-opacity="0.2" />
-            </g>
-            <defs>
-              <clipPath id="clip0_1317_8680">
-                <rect width="21.8388" height="13.6729" fill="white" transform="matrix(0 -1 1 0 13 31)" />
-              </clipPath>
-            </defs>
-          </svg>
+                d="M11.7647 0.5H28.2353C34.4566 0.5 39.5 5.54338 39.5 11.7647V28.2353C39.5 34.4566 34.4566 39.5 28.2353 39.5H11.7647C5.54338 39.5 0.5 34.4566 0.5 28.2353V11.7647C0.5 5.54338 5.54338 0.5 11.7647 0.5Z"
+                stroke="black" stroke-opacity="0.2" />
+              <g clip-path="url(#clip0_1317_8680)">
+                <path
+                  d="M27.0382 20.0806C27.0382 20.472 26.8697 20.8634 26.5333 21.1618L15.9441 30.552C15.2705 31.1493 14.1783 31.1493 13.505 30.552C12.8317 29.9549 12.8317 28.9866 13.505 28.3892L22.8749 20.0806L13.5053 11.772C12.832 11.1746 12.832 10.2064 13.5053 9.60939C14.1787 9.01176 15.2708 9.01176 15.9444 9.60939L26.5337 18.9995C26.8701 19.298 27.0382 19.6894 27.0382 20.0806V20.0806Z"
+                  fill="#1F507A" />
+                <path
+                  d="M27.0382 20.0806C27.0382 20.472 26.8697 20.8634 26.5333 21.1618L15.9441 30.552C15.2705 31.1493 14.1783 31.1493 13.505 30.552C12.8317 29.9549 12.8317 28.9866 13.505 28.3892L22.8749 20.0806L13.5053 11.772C12.832 11.1746 12.832 10.2064 13.5053 9.60939C14.1787 9.01176 15.2708 9.01176 15.9444 9.60939L26.5337 18.9995C26.8701 19.298 27.0382 19.6894 27.0382 20.0806V20.0806Z"
+                  fill="black" fill-opacity="0.2" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1317_8680">
+                  <rect width="21.8388" height="13.6729" fill="white" transform="matrix(0 -1 1 0 13 31)" />
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
         </div>
       </div>
       <!-- --------------------------------- Monthly Progress --------------------------------- -->
@@ -319,7 +123,7 @@
   
       </div>
       <!-- --------------------------------- Missed All Quizzes  --------------------------------- -->
-      <div class="missed-all-quizes">
+      <div class="missed-all-quizzes">
         <h2>Students who missed all the exams</h2>
         <div class="table-container">
           <table>

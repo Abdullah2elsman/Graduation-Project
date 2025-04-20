@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Instructor;
 use Exception;
 use Illuminate\Http\Request;
@@ -172,5 +173,18 @@ class InstructorController extends Controller
         } else {
             return response()->json(['error' => 'Failed to update image path in the database'], 500);
         }
+    }
+
+    public function getCourses($instructorId)
+    {
+        // Validate the instructor ID
+        $instructor = Instructor::find($instructorId);
+        if (!$instructor) {
+            return response()->json(['error' => 'Instructor not found'], 404);
+        }
+
+        $courses = Course::where('instructor_id', $instructorId)->get();
+
+        return response()->json($courses);
     }
 }

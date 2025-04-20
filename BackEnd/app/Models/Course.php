@@ -30,4 +30,9 @@ class Course extends Model
     {
         return $this->hasMany(Exam::class, 'course_id', 'id');
     }
+
+    public function examAttempts()
+    {
+        return $this->hasManyThrough(ExamAttempt::class, Exam::class);
+    }
 }
