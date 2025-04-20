@@ -6,262 +6,7 @@
   <title>Page Header with Page Number</title>
   <link rel="stylesheet" href="css/master.css">
   <link rel="stylesheet" href="css/instructor.css">
-  <style>
-
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 60px;
-      z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 24px;
-      padding-right: 80px;
-      padding-left: 80px;
-      padding-bottom: 24px;
-      box-shadow: 0px 1px 8px 0px #EAEAEA;
-      background-color: #FFFFFF;
-    }
-
-    header .back-btn,
-    header .nav-btn,
-    header .search-btn,
-    header .right-menu-btn{
-      border: none;
-      background: none;
-      cursor: pointer;
-    }
-
-    header .header-center{
-      display: flex;
-    }
-    header .back-btn,
-    header .right-menu-btn,
-    header .page-count {
-      font-weight: 500;
-      font-size: 20px;
-      padding: 10px;
-    }
-
-    header .right-menu-btn{
-      padding-left: 20px;
-    }
-
-    .page-number {
-      background-color: #e8eff5;
-      padding: 5px;
-      border-radius: 8px;
-    }
-
-    main {
-      display: flex;
-      margin-top: 60px;
-      padding: 20px;
-      width: 100%;
-    }
-
-    main .menu-btn{
-      background: none;
-      border: 1px solid #194062;
-      width:38px;
-      height: 35px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    main .menu-btn:hover{
-      background-color: #bdbdbd;
-      border-bottom: 3px solid #2c6da4;
-      transition: all 0.3s ease;
-
-    }
-
-    main .left-sidebar{
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      height: 100%;
-      transition: all 0.3 ease;
-
-    }
-
-    main .left-side-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    main .search-input {
-      padding: 9px;
-      border-radius: 8px;
-      border: 1px solid #757575;
-    }
-    
-    main .chapter-container {
-      width: 20vw;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      height: calc(100vh - 140px);
-      scrollbar-width: thin;
-      scrollbar-color: #c1c1c1 #fefefe;
-    }
-
-    main .chapter-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 5px;
-      border-bottom: 1px solid #eee;
-      color: #555;
-      font-size: 15px;
-    }
-
-    main .chapter-item.selected{
-      background-color: #e8eff5;
-      border-left: 4px solid #1F507A;
-      border-right: 4px solid #1F507A;
-      color: #1F507A;
-    }
-
-    main .chapter-item:last-child {
-      border-bottom: none;
-    }
-
-    main .content {
-      margin-left: 28px;
-      margin-right: 28px;
-      background-color: #FFFFFF;
-      box-shadow: 0px 0px 8px #DADADA;
-      flex: 1;
-      overflow-y: auto;
-      height: calc(100vh - 94px);
-      transition: all 0.3s ease-in-out;
-    }
-    main .right-sidebar{
-      background-color: #FFF;
-      box-shadow: 0px 0px 8px 0px #DADADA;
-      border-radius: 8px;
-      height: 90%;
-    }
-
-    main .right-sidebar .right-side-header{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px;
-      margin: 10px 0;
-    }
-    main .close-right-sidebar {
-
-    }
-
-  .tab-container {
-  position: relative;
-  display: flex;
-  border-bottom: 2px solid #ddd;
-  width: fit-content;
-  margin: 10px;
-}
-
-.tab {
-  background: none;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  position: relative;
-  transition: color 0.3s;
-}
-
-.tab:hover, .tab.active {
-  color: #2C6DA4;
-}
-
-
-
-.tab-indicator {
-  position: absolute;
-  bottom: 0;
-  height: 2px;
-  background-color: #2C6DA4;
-  transition: all 0.3s ease;
-}
-
-.tools {
-  display: flex;
-  gap: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.tools button {
-  display: flex;
-  background-color: white;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #757575;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #101010;
-  transition: all 0.3s ease;
-}
-
-.tools button:hover {
-  border-color: #2C6DA4;
-  color: #2C6DA4;
-}
-
-.tools button svg path {
-  fill: currentColor;
-}
-
-/* Active button style */
-.tools button.active {
-  color: #2C6DA4;
-  border-color: #2C6DA4;
-}
-
-.color-wheel {
-  margin-top: 10px;
-  padding: 10px;
-}
-
-.color-wheel canvas{
-  margin-left: 55px;
-}
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 80%;
-    height: 4px;
-    background-color: ;
-    background: linear-gradient(to right, black 50%, #BDBDBD 50%);
-    border-radius: 4px;
-    outline: none;
-    margin-left: 30px;
-    border:
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    background: black;
-    border-radius: 50%;
-    cursor: pointer;
-    
-  }
-
-  </style>
+  <link rel="stylesheet" href="css/book.css">
 </head>
 
 <body>
@@ -318,13 +63,13 @@
         </svg>
         </button>
 
-        <div class="form-group">
+        <div class="form-group search-input">
           <svg class="search-icon " width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M14 14.0002L11.0093 11.0042L14 14.0002ZM12.6666 7.00016C12.6666 8.50306 12.0696 9.9444 11.0069 11.0071C9.94421 12.0698 8.50287 12.6668 6.99998 12.6668C5.49709 12.6668 4.05575 12.0698 2.99304 11.0071C1.93034 9.9444 1.33331 8.50306 1.33331 7.00016C1.33331 5.49727 1.93034 4.05593 2.99304 2.99322C4.05575 1.93052 5.49709 1.3335 6.99998 1.3335C8.50287 1.3335 9.94421 1.93052 11.0069 2.99322C12.0696 4.05593 12.6666 5.49727 12.6666 7.00016V7.00016Z"
               stroke="#757575" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          <input type="text" placeholder="id" style="height: 37px; width:15vw;">
+          <input type="text" placeholder="id" style="height: 37px; width:17vw;">
         </div>
 
       </div>
@@ -424,7 +169,7 @@
       </div>
 
       <div class="tools">
-        <button class="active">
+        <button>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M2.7999 1.6001C2.90599 1.6001 3.00773 1.64224 3.08275 1.71726C3.15776 1.79227 3.1999 1.89401 3.1999 2.0001V5.2001C3.1999 5.30618 3.24205 5.40793 3.31706 5.48294C3.39207 5.55795 3.49382 5.6001 3.5999 5.6001H12.3999C12.506 5.6001 12.6077 5.55795 12.6827 5.48294C12.7578 5.40793 12.7999 5.30618 12.7999 5.2001V2.0001C12.7999 1.89401 12.842 1.79227 12.9171 1.71726C12.9921 1.64224 13.0938 1.6001 13.1999 1.6001C13.306 1.6001 13.4077 1.64224 13.4827 1.71726C13.5578 1.79227 13.5999 1.89401 13.5999 2.0001V5.2001C13.6 5.44836 13.5232 5.69055 13.3799 5.89329C13.2366 6.09603 13.034 6.24934 12.7999 6.3321V7.2001C12.7999 7.62444 12.6313 8.03141 12.3313 8.33147C12.0312 8.63153 11.6242 8.8001 11.1999 8.8001V10.4585C11.1999 10.7557 11.1171 11.047 10.9608 11.2998C10.8046 11.5526 10.581 11.7569 10.3151 11.8897L5.3791 14.3577C5.31812 14.3883 5.25033 14.4027 5.18219 14.3997C5.11405 14.3967 5.04781 14.3763 4.98977 14.3404C4.93173 14.3046 4.88381 14.2545 4.85058 14.195C4.81735 14.1354 4.79991 14.0683 4.7999 14.0001V8.8001C4.37556 8.8001 3.96859 8.63153 3.66853 8.33147C3.36847 8.03141 3.1999 7.62444 3.1999 7.2001V6.3321C2.96584 6.24934 2.76321 6.09603 2.61992 5.89329C2.47664 5.69055 2.39977 5.44836 2.3999 5.2001V2.0001C2.3999 1.89401 2.44205 1.79227 2.51706 1.71726C2.59207 1.64224 2.69382 1.6001 2.7999 1.6001ZM3.9999 6.4001V7.2001C3.9999 7.41227 4.08419 7.61575 4.23422 7.76578C4.38425 7.91581 4.58773 8.0001 4.7999 8.0001H11.1999C11.4121 8.0001 11.6156 7.91581 11.7656 7.76578C11.9156 7.61575 11.9999 7.41227 11.9999 7.2001V6.4001H3.9999ZM5.5999 8.8001V13.3529L9.9575 11.1737C10.0904 11.1073 10.2021 11.0052 10.2803 10.8789C10.3584 10.7526 10.3998 10.607 10.3999 10.4585V8.8001H5.5999Z"
@@ -432,7 +177,7 @@
           </svg>
           Highlights & Notes
         </button>
-        <button>
+        <button class="active">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_1457_12395)">
             <path

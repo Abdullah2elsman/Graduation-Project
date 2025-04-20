@@ -1,0 +1,255 @@
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  padding-right: 80px;
+  padding-left: 80px;
+  padding-bottom: 24px;
+  box-shadow: 0px 1px 8px 0px #EAEAEA;
+  background-color: #FFFFFF;
+}
+
+header .back-btn,
+header .nav-btn,
+header .search-btn,
+header .right-menu-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+header .header-center {
+  display: flex;
+}
+
+header .back-btn,
+header .right-menu-btn,
+header .page-count {
+  font-weight: 500;
+  font-size: 20px;
+  padding: 10px;
+}
+
+header .right-menu-btn {
+  padding-left: 20px;
+}
+
+.page-number {
+  background-color: #e8eff5;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+main {
+  display: flex;
+  margin-top: 60px;
+  padding: 20px;
+  width: 100%;
+}
+
+main .menu-btn {
+  background: none;
+  border: 1px solid #194062;
+  width: 38px;
+  height: 35px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+main .menu-btn:hover {
+  background-color: #bdbdbd;
+  border-bottom: 3px solid #2c6da4;
+  transition: all 0.3s ease;
+
+}
+
+main .left-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  transition: all 0.3 ease;
+
+}
+
+main .left-side-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+main .search-input {
+  display: none;
+}
+
+main .chapter-container {
+  width: 20vw;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  height: calc(100vh - 140px);
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #fefefe;
+  display: none;
+}
+
+main .chapter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5px;
+  border-bottom: 1px solid #eee;
+  color: #555;
+  font-size: 15px;
+}
+
+main .chapter-item.selected {
+  background-color: #e8eff5;
+  border-left: 4px solid #1F507A;
+  border-right: 4px solid #1F507A;
+  color: #1F507A;
+}
+
+main .chapter-item:last-child {
+  border-bottom: none;
+}
+
+main .content {
+  margin-left: 28px;
+  margin-right: 28px;
+  background-color: #FFFFFF;
+  box-shadow: 0px 0px 8px #DADADA;
+  flex: 1;
+  overflow-y: auto;
+  height: calc(100vh - 94px);
+  transition: all 0.3s ease-in-out;
+}
+
+main .right-sidebar {
+  background-color: #FFF;
+  box-shadow: 0px 0px 8px 0px #DADADA;
+  border-radius: 8px;
+  display: none;
+}
+
+main .right-sidebar .right-side-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+main .close-right-sidebar {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.tab-container {
+  position: relative;
+  display: flex;
+  border-bottom: 2px solid #ddd;
+  width: fit-content;
+  margin: 10px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.tab:hover,
+.tab.active {
+  color: #2C6DA4;
+}
+
+
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background-color: #2C6DA4;
+  transition: all 0.3s ease;
+}
+
+.tools {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tools button {
+  display: flex;
+  background-color: white;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #757575;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #101010;
+  transition: all 0.3s ease;
+}
+
+.tools button:hover {
+  border-color: #2C6DA4;
+  color: #2C6DA4;
+}
+
+.tools button svg path {
+  fill: currentColor;
+}
+
+/* Active button style */
+.tools button.active {
+  color: #2C6DA4;
+  border-color: #2C6DA4;
+}
+
+.color-wheel {
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.color-wheel canvas {
+  margin-left: 55px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 80%;
+  height: 4px;
+  background: linear-gradient(to right, black 50%, #BDBDBD 50%);
+  border-radius: 4px;
+  outline: none;
+  margin-left: 30px;
+  margin-top: 20px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: black;
+  border-radius: 50%;
+  cursor: pointer;
+
+}

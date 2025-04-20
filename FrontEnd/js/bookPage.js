@@ -1,22 +1,44 @@
 // Book Page => This script to control the actions in book page
 
-// display the left sidebar
+// display and hide the left sidebar
 const menuButton = document.querySelector('.menu-btn');
-const searchButton = document.querySelector('.form-group');
+const searchButton = document.querySelector('.search-input');
 const chaptersContainer = document.querySelector('.chapter-container');
-let flag = true;
+let leftSidebarFlag = false;
 menuButton.addEventListener('click', () => {
 
-  if (flag){
+  if (leftSidebarFlag){
     searchButton.style.display = "none";
     chaptersContainer.style.display = "none";
   } else {
     searchButton.style.display = "flex";
     chaptersContainer.style.display = "block";
   }
-  flag = !flag
+  leftSidebarFlag = !leftSidebarFlag
 });
 console.log(searchButton);
+
+// display and hide the right sidebar
+const rightMenuButton = document.querySelector(".right-menu-btn");
+console.log(rightMenuButton);
+const closeButton = document.querySelector(".close-right-sidebar");
+console.log(closeButton);
+const rightSidebar = document.querySelector('.right-sidebar');
+let rightSidebarFlag = false;
+
+[rightMenuButton, closeButton].forEach(button => {
+  button.addEventListener('click', () => {
+    if (rightSidebarFlag) {
+      rightSidebar.style.display = "none";
+    } else {
+      rightSidebar.style.display = "block";
+    }
+    rightSidebarFlag = !rightSidebarFlag;
+  });
+});
+
+console.log(searchButton);
+
 
 // Draw the color wheel canvas
 const canvas = document.getElementById("colorWheel");
