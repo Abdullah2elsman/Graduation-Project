@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title')->nullable(false);
             $table->text('description');
             $table->unsignedBigInteger('instructor_id');
+            $table->unsignedBigInteger('admin_id');
             $table->smallInteger('number_of_exams')->unsigned()->default(4);
             $table->smallInteger('completed_exams')->unsigned()->default(0);
+            $table->string('file_path')->nullable();
+            $table->string('file_type')->nullable();
+            $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade'); // Add foreign key
             $table->timestamps();
         });
     }

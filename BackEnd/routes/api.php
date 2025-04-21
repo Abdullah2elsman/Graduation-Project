@@ -66,7 +66,9 @@ Route::delete('deleteCourse/{id}', [CourseController::class, 'deleteCourse']);
 Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
 Route::get('/getCourse/{id}', [CourseController::class, 'getCourse']);
 Route::get('instructor/{id}/getCourseExamAttempts', [CourseController::class, 'getCourseExamAttempts']);
+Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
+Route::post('/course/store', [CourseController::class, 'storeBook']);
 
 
 // Test
-Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
+Route::get('/course/book/{id}', [CourseController::class,'show']);

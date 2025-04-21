@@ -115,8 +115,10 @@ tabs.forEach(tab => {
 
 // Initialize on page load => This to put the underline in tap when open or refresh the page
 window.addEventListener('load', () => {
+  rightSidebar.style.display = "block";
   const activeTab = document.querySelector('.tab.active');
   updateIndicator(activeTab);
+  rightSidebar.style.display = "none";
 });
 
 // Activation of tool button

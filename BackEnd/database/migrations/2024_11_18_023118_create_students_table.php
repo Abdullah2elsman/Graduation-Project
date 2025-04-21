@@ -17,8 +17,11 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->string('email')->unique(); // Add parentheses to `unique`
             $table->string('password');
+            $table->string('address');
+            $table->string('phone');
             $table->text('image')->nullable();
             $table->unsignedBigInteger('instructor_id')->nullable(); // Remove trailing space
+
             $table->timestamps();
         });
     }

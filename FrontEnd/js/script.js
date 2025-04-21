@@ -337,3 +337,4 @@ async function getReports(){
         console.error("Error fetching data:", error);
     }
 }
+

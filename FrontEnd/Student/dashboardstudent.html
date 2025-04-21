@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/master.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Dashboard Student</title>
+
+    <style>
+        .calender-sidebar {
+        position: fixed;
+        right: 0;
+        top: 0;
+        background-color: #f4f4f4;
+        width: 27vw;
+        padding: 20px;
+        height: 100vh;
+        box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        }
+
+        .calendar-container {
+        margin: 15px 0;
+        width: 24vw;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0px 0px 8px 0px #0077B633;
+        }
+
+        .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #023e8a;
+        padding: 3px;
+        border-radius: 10px;
+        }
+
+        .calendar-header div {
+        text-align: center;
+        flex-grow: 1;
+        font-size: 18px;
+        font-weight: bold;
+        }
+
+        .calendar-header span {
+        display: block;
+        }
+
+        .calendar-header button {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        }
+
+        .calendar-days,.day-labels {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(10px, 1fr));
+        }
+
+        .calendar-days div,
+        .day-labels div {
+        margin: 8px ;
+        padding: 6px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 400;
+        }
+
+        .day-labels {
+        color: #8f9bb3;
+        }
+
+        .calendar-days div{
+        font-size: 15px;
+        font-weight: 400;
+        }
+        .prev-month,
+        .next-month {
+        color: #8f9bb3  ;
+        }
+
+        .selected {
+        background-color: #0077b6;
+        color: white;
+        border-radius: 10px;
+        }
+        .schedule {
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        }
+
+        .schedule-item {
+            background: #fff;
+            border: 1.5px solid #2c6da4;
+            border-left: 5px solid #2c6da4;
+            border-radius: 10px;
+            padding: 10px;
+            line-height: 24px;
+        }
+        .schedule-item .details{
+            color: #585a66;
+        }
+        .book{
+            width: 275px;
+            height: 350px;
+            border: 3px solid #2C6DA4;
+            border-radius: 16px;
+            float: right;
+            position: relative;
+            
+        }
+
+        .books-container {
+          width: calc(100% - 27vw);
+          margin-top: 40px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          overflow-x: hidden; /* Ensures no extra horizontal scroll */
+        }
+        .books-container .books-parent {
+          width: 100%;
+          margin-top: 24px;
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          overflow: hidden; /* Hide overflowing content */
+          position: relative;
+          overflow-x: auto; /* Enables horizontal scrolling within */
+          overflow-y: hidden; /* Prevents vertical scroll */
+          flex-wrap: wrap; 
+          padding-bottom: 10px; /* Prevent scrollbar overlap */
+        }
+        .books-container .books-parent::-webkit-scrollbar {
+          display: none; /* Hides scrollbar in Chrome/Safari */
+        }
+        .up-frame{
+            width: 271px;
+            height: 77px;
+            border-radius: 14px;
+            background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
+            padding: 16px 8px 16px 8px;
+            overflow: auto;
+        }
+        .open{
+            width:82px;
+            height: 40px;
+            padding: 8px;
+            font-size: 18px;
+            color: #FFFFFF;
+            background-color: #2C6DA4;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            float: right;
+        }
+        .open i{
+            display: inline-block;
+            margin-left: 8px;
+        }
+        .down-frame{
+            width: 271px;
+            height: 100px;
+            border-radius: 14px;
+            background: linear-gradient( rgba(252, 252, 252, 0.5),rgba(44, 62, 80, 0.5));
+            padding: 10px;
+            overflow: auto;
+            position: absolute; 
+            bottom: 0; 
+            text-align: center;
+        }
+        .quiz{
+            background-color: #FCFCFC;
+            color: #2C6DA4;
+            padding: 8px;
+            border: 1px solid #2C6DA4;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 8px;
+            width: 240px;
+            height: 48px;
+        }
+        .down-frame p{
+            margin-bottom: 8px;
+        }
+        .message-box h3{
+          color: #757575;
+        }
+        .username {
+          color: #2C6DA4;
+          font-weight: bold;
+        }
+
+        .wave {
+          font-size: 22px;
+        }
+
+        .quiz-alert {
+          font-size: 18px;
+          font-weight: bold;
+          margin-top: 16px;
+        }
+
+        .quiz-number {
+          color: #2C6DA4;
+        }
+    </style>
+</head>
+<body>
+      <!-- --------------------------------- Side bar --------------------------------- -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+        <div class="logo"><img id="Logo" src="../imgs/logo.svg" alt="Logo Image"></div>
+        <button class="arrow-left"><img src="../imgs/arrow-left-circle.svg" alt="arrow-left-circle Image"></button>
+        </div>
+    
+        <nav class="menu">
+        <button class="arrow-right"><img src="../imgs/arrow-right-circle.svg" alt="arrow-right-circle Image"></button>
+        <a href="dashboard.html" class="menu-item selected">
+            <img src="../imgs/dash.svg" alt="Dashboard Icon"> <span>Dashboard</span>
+        </a>
+        <a href="userman.html" class="menu-item">
+            <img src="../imgs/usermanag.svg" alt="User Management Icon"> <span>User Management</span>
+        </a>
+        <a href="contentmang.html" class="menu-item">
+            <img src="../imgs/contentmanag.svg" alt="Content Management Icon"> <span>Content Management</span>
+        </a>
+        </nav>
+        
+        <nav class="settings-logout">
+        <a href="#settings" class="menu-item">
+            <img src="../imgs/setting.svg" alt="Setting Icon"> <span>Setting</span>
+        </a>
+        <button class="menu-item logout-button">
+            <img src="../imgs/logout.svg" alt="Logout Icon"> <span>Log Out</span>
+        </button>
+        </nav>
+        
+        <div class="footer">
+        <img src="../imgs/admin.webp" alt="User Avatar">
+        <div class="footer-info">
+            <p class="name">Loading...</p>
+            <p class="email">Loading...</p>
+        </div>
+        </div>
+    </div>
+    <!-- --------------------------------- content --------------------------------- -->
+    <div class="content" style="width: calc(100% - 27vw);">
+      <div class="message-box">
+        <h3>Hi, <span id="username" class="username">User</span><span class="wave">👋</span></h3>
+        <p class="quiz-alert">
+          You have <span id="quizCount" class="quiz-number">0</span> quizzes today!
+        </p>
+      </div>
+    <!-- --------------------------------- Courses Progress --------------------------------- -->
+      <div class="books-container">
+        <h3>Courses Progress</h3>
+        <div class="books-parent">
+          <div class="book">
+            <div class="up-frame">
+                <button id="open-btn1" class="open">open<i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="down-frame">
+                <p>mmm</p>
+                <button id="quiz-1" class="quiz">Quizzes</button>
+            </div>
+          </div>
+          <div class="book">
+            <div class="up-frame">
+                <button id="open-btn2" class="open">open<i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="down-frame">
+                <p>mmm</p>
+                <button id="quiz-2" class="quiz">Quizzes</button>
+            </div>
+          </div>
+          <div class="book">
+            <div class="up-frame">
+                <button id="open-btn3" class="open">open<i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="down-frame">
+                <p>mmm</p>
+                <button id="quiz-3"  class="quiz">Quizzes</button>
+            </div>
+          </div>
+          <div class="book">
+            <div class="up-frame">
+                <button id="open-btn4" class="open">open<i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="down-frame">
+                <p>mmm</p>
+                <button id="quiz-4" class="quiz">Quizzes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- --------------------------------- Calender Sidebar --------------------------------- -->
+    <div class="calender-sidebar">
+        <h2>Calender</h2>
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button onclick="prevMonth()">
+              <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.5"
+                  d="M24.5 34H10.5C5.25329 34 1 29.7467 1 24.5V10.5C1 5.25329 5.25329 1 10.5 1H24.5C29.7467 1 34 5.25329 34 10.5V24.5C34 29.7467 29.7467 34 24.5 34Z"
+                  stroke="#CED3DE" />
+                <g clip-path="url(#clip0_942_8926)">
+                  <path
+                    d="M12.5614 16.6401C12.5614 16.41 12.6579 16.1799 12.8505 16.0045L18.9138 10.4841C19.2995 10.1329 19.9249 10.1329 20.3105 10.4841C20.696 10.8351 20.696 11.4044 20.3105 11.7556L14.9453 16.6401L20.3103 21.5247C20.6958 21.8758 20.6958 22.445 20.3103 22.796C19.9247 23.1474 19.2994 23.1474 18.9137 22.796L12.8503 17.2757C12.6577 17.1002 12.5614 16.8701 12.5614 16.6401V16.6401Z"
+                    fill="#1F507A" />
+                  <path
+                    d="M12.5614 16.6401C12.5614 16.41 12.6579 16.1799 12.8505 16.0045L18.9138 10.4841C19.2995 10.1329 19.9249 10.1329 20.3105 10.4841C20.696 10.8351 20.696 11.4044 20.3105 11.7556L14.9453 16.6401L20.3103 21.5247C20.6958 21.8758 20.6958 22.445 20.3103 22.796C19.9247 23.1474 19.2994 23.1474 18.9137 22.796L12.8503 17.2757C12.6577 17.1002 12.5614 16.8701 12.5614 16.6401V16.6401Z"
+                    fill="black" fill-opacity="0.2" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_942_8926">
+                    <rect width="12.8388" height="8.03819" fill="white" transform="matrix(0 1 -1 0 20.5996 10.2207)" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </button>
+            <div>
+              <span id="month" style="color: #194062; font-size: 20px; font-weight: 600;"></span>
+              <span id="year" style="color: #8f9bb3; font-size: 12px; font-weight: 400;"></span>
+            </div>
+            <button onclick="nextMonth()">
+              <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.5"
+                  d="M10.5 1H24.5C29.7467 1 34 5.25329 34 10.5V24.5C34 29.7467 29.7467 34 24.5 34H10.5C5.25329 34 1 29.7467 1 24.5V10.5C1 5.25329 5.25329 1 10.5 1Z"
+                  stroke="#CED3DE" />
+                <g clip-path="url(#clip0_942_8933)">
+                  <path
+                    d="M22.4396 16.6399C22.4396 16.87 22.3431 17.1001 22.1505 17.2755L16.0871 22.7959C15.7014 23.1471 15.0761 23.1471 14.6905 22.7959C14.305 22.4449 14.305 21.8757 14.6905 21.5245L20.0557 16.6399L14.6907 11.7554C14.3052 11.4042 14.3052 10.835 14.6907 10.484C15.0763 10.1327 15.7016 10.1327 16.0873 10.484L22.1507 16.0043C22.3433 16.1799 22.4396 16.4099 22.4396 16.6399V16.6399Z"
+                    fill="#1F507A" />
+                  <path
+                    d="M22.4396 16.6399C22.4396 16.87 22.3431 17.1001 22.1505 17.2755L16.0871 22.7959C15.7014 23.1471 15.0761 23.1471 14.6905 22.7959C14.305 22.4449 14.305 21.8757 14.6905 21.5245L20.0557 16.6399L14.6907 11.7554C14.3052 11.4042 14.3052 10.835 14.6907 10.484C15.0763 10.1327 15.7016 10.1327 16.0873 10.484L22.1507 16.0043C22.3433 16.1799 22.4396 16.4099 22.4396 16.6399V16.6399Z"
+                    fill="black" fill-opacity="0.2" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_942_8933">
+                    <rect width="12.8388" height="8.03819" fill="white" transform="matrix(0 -1 1 0 14.4014 23.0593)" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </button>
+          </div>
+          <div class="day-labels">
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+            <div>Sun</div>
+          </div>
+          <div class="calendar-days"></div>
+        </div>
+        <h2>Today Schedule</h2>
+        <div class="schedule">
+          <div class="schedule-item">
+            <h3>Quiz2 Math2</h3>
+            <p class="details">Details of quiz Details of quiz Details of quiz Details of quiz Details of quiz Details of quiz</p>
+            <p>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M10.0441 9.91891C10.437 10.0499 10.8618 9.83753 10.9928 9.44457C11.1237 9.05161 10.9114 8.62687 10.5184 8.49588L10.0441 9.91891ZM7.75 8.36365H7C7 8.68647 7.20657 8.97307 7.51283 9.07516L7.75 8.36365ZM8.5 4.83555C8.5 4.42134 8.16421 4.08555 7.75 4.08555C7.33579 4.08555 7 4.42134 7 4.83555H8.5ZM10.5184 8.49588L7.98717 7.65213L7.51283 9.07516L10.0441 9.91891L10.5184 8.49588ZM8.5 8.36365V4.83555H7V8.36365H8.5ZM13.75 7.5199C13.75 10.8336 11.0637 13.5199 7.75 13.5199V15.0199C11.8921 15.0199 15.25 11.662 15.25 7.5199H13.75ZM7.75 13.5199C4.43629 13.5199 1.75 10.8336 1.75 7.5199H0.25C0.25 11.662 3.60786 15.0199 7.75 15.0199V13.5199ZM1.75 7.5199C1.75 4.20619 4.43629 1.5199 7.75 1.5199V0.0198975C3.60786 0.0198975 0.25 3.37776 0.25 7.5199H1.75ZM7.75 1.5199C11.0637 1.5199 13.75 4.20619 13.75 7.5199H15.25C15.25 3.37776 11.8921 0.0198975 7.75 0.0198975V1.5199Z"
+                  fill="#2C6DA4" />
+              </svg>
+              11:30 AM - 12:30 PM
+            </p>
+          </div>
+          <div class="schedule-item">
+            <h3>Quiz2 Math2</h3>
+            <p class="details">Details of quiz Details of quiz Details of quiz Details of quiz Details of quiz Details of quiz</p>
+            <p>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M10.0441 9.91891C10.437 10.0499 10.8618 9.83753 10.9928 9.44457C11.1237 9.05161 10.9114 8.62687 10.5184 8.49588L10.0441 9.91891ZM7.75 8.36365H7C7 8.68647 7.20657 8.97307 7.51283 9.07516L7.75 8.36365ZM8.5 4.83555C8.5 4.42134 8.16421 4.08555 7.75 4.08555C7.33579 4.08555 7 4.42134 7 4.83555H8.5ZM10.5184 8.49588L7.98717 7.65213L7.51283 9.07516L10.0441 9.91891L10.5184 8.49588ZM8.5 8.36365V4.83555H7V8.36365H8.5ZM13.75 7.5199C13.75 10.8336 11.0637 13.5199 7.75 13.5199V15.0199C11.8921 15.0199 15.25 11.662 15.25 7.5199H13.75ZM7.75 13.5199C4.43629 13.5199 1.75 10.8336 1.75 7.5199H0.25C0.25 11.662 3.60786 15.0199 7.75 15.0199V13.5199ZM1.75 7.5199C1.75 4.20619 4.43629 1.5199 7.75 1.5199V0.0198975C3.60786 0.0198975 0.25 3.37776 0.25 7.5199H1.75ZM7.75 1.5199C11.0637 1.5199 13.75 4.20619 13.75 7.5199H15.25C15.25 3.37776 11.8921 0.0198975 7.75 0.0198975V1.5199Z"
+                fill="#2C6DA4" />
+            </svg>
+              11:30 AM - 12:30 PM
+            </p>
+          </div>
+  
+        </div>
+    </div>  
+    <script src="../js/script.js"></script>
+    <script src="../js/calender.js"></script>
+</body>
+</html>

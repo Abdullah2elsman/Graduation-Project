@@ -8,14 +8,49 @@ use Illuminate\Http\JsonResponse;
 
 class CourseController extends Controller
 {
-    /**
-     * Create a new course.
-     */
     
-    
-    /**
-     * Read course details by name.
-     */
+    public function storeBook(Request $request){
+        
+        // return $request;
+        $request->validate([
+            'title' => 'required|string',
+            'file' => 'required|file|mimes:pdf,epub,doc,docx,txt|max:102400',
+        ]);
+        $file = $request->file('file');
+        $originalName = $file->getClientOriginalName();
+        $timestamp = now()->format('Y_m_d_His');
+        $filename = $timestamp . '_' . $originalName;
+        
+        $file->storeAs('books', $filename, 'public');
+
+        $book = Course::create([
+            'title' => $request->title,
+            'instructor_id' => $request->instructor_id,
+            'admin_id' => $request->admin_id,
+            'description' => $request->description,
+            'file_path' => 'books/' . $filename,
+            'file_type' => $file->getClientOriginalExtension(),
+        ]);
+        
+
+        return response()->json($book);
+    }
+
+    public function show($id){
+        $book = Course::findOrFail($id);
+
+        $fileUrl = asset('storage/', $book->file_path);
+        
+
+        return response()->json([
+            'id' => $book->id,
+            'title' => $book->title,
+            'description' => $book->description,
+            'file_type' => $book->file_type,
+            'file_url' => $fileUrl,
+        ]);
+    }
+
     public function readCourse(Request $request): JsonResponse
     {
         $name = $request->query('name');
