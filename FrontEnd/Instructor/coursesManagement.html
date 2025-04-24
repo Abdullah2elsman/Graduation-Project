@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/master.css">
+  <link rel="stylesheet" href="../css/instructor.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+
+</style>
+  <title>Course Management</title>
+</head>
+<body>
+
+    <!-- --------------------------------- Side bar --------------------------------- -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><img id="Logo" src="../imgs/logo.svg" alt="Logo Image"></div>
+        <button class="arrow-left"><img src="../imgs/arrow-left-circle.svg" alt="arrow-left-circle Image"></button>
+      </div>
+    
+      <nav class="menu">
+        <button class="arrow-right"><img src="../imgs/arrow-right-circle.svg" alt="arrow-right-circle Image"></button>
+        <a href="dashboard.html" class="menu-item">
+          <img src="../imgs/dash.svg" alt="Dashboard Icon"> <span>Dashboard</span>
+        </a>
+        <a href="coursesManagement.html" class="menu-item selected">
+          <img src="../imgs/contentmanag.svg" alt="Course Management Icon"> <span>Course Management</span>
+        </a>
+        <a href="StudentManagement.html" class="menu-item">
+          <img src="../imgs/usermanag.svg" alt="User Management Icon"> <span>Student Management</span>
+        </a>
+      </nav>
+    
+      <nav class="settings-logout">
+        <a href="#settings" class="menu-item">
+          <img src="../imgs/setting.svg" alt="Setting Icon"> <span>Setting</span>
+        </a>
+        <button class="menu-item logout-button">
+          <img src="../imgs/logout.svg" alt="Logout Icon"> <span>Log Out</span>
+        </button>
+      </nav>
+    
+      <div class="footer">
+        <img src="../imgs/admin.webp" alt="User Avatar">
+        <div class="footer-info">
+          <p class="name">Loading...</p>
+          <p class="email">Loading...</p>
+        </div>
+      </div>
+    </div>
+
+      <!-- --------------------------------- content --------------------------------- -->
+      <div class="content">
+        <div class="books-container">
+          <div class="books-parent">
+            <div class="book">
+              <div class="up-frame">
+                  <button id="open-btn1" class="open">open<i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div class="down-frame">
+                  <p>mmm</p>
+                  <button id="reportStd1" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a href = "CreateNewQuiz.html" id="quiz-1" class="quiz">Quizzes</a>
+              </div>
+            </div>
+            <div class="book">
+              <div class="up-frame">
+                  <button id="open-btn2" class="open">open<i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div class="down-frame">
+                  <p>mmm</p>
+                  <button id="reportStd2" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a id="quiz-2" class="quiz">Quizzes</a>
+              </div>
+            </div>
+            <div class="book">
+              <div class="up-frame">
+                  <button id="open-btn3" class="open">open<i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div class="down-frame">
+                  <p>mmm</p>
+                  <button id="reportStd3" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a id="quiz-3"  class="quiz">Quizzes</a>
+              </div>
+            </div>
+            <div class="book" style="margin-left: 0;">
+              <div class="up-frame">
+                  <button id="open-btn4" class="open">open<i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div class="down-frame">
+                  <p>mmm</p>
+                  <button id="reportStd4" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a id="quiz-4" class="quiz">Quizzes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <script src="../js/script.js"></script>
+    </body>
+    </html>

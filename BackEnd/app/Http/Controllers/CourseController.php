@@ -39,8 +39,7 @@ class CourseController extends Controller
     public function show($id){
         $book = Course::findOrFail($id);
 
-        $fileUrl = asset('storage/', $book->file_path);
-        
+        $fileUrl = asset('storage/'. $book->file_path);
 
         return response()->json([
             'id' => $book->id,

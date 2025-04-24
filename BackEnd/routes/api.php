@@ -72,3 +72,20 @@ Route::post('/course/store', [CourseController::class, 'storeBook']);
 
 // Test
 Route::get('/course/book/{id}', [CourseController::class,'show']);
+
+Route::get('/books/pdf/{id}', function ($id) {
+    
+    $book = Course::find($id);
+    
+    if (!$book) {
+        return response()->json(['error' => 'Book not found'], 404);
+    }
+
+    $path = storage_path('app/public/' . $book->file_path);
+
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'PDF file not found'], 404);
+    }
+
+    return response()->file($path);
+});

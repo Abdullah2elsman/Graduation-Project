@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="../css/CreateQuiz.css">
+</head>
+
+<body>
+    <section class="creationQuizSection">
+        <div class="quizContainer">
+            <p class="sectionTitle"><img src="../imgs/arrow left.svg" alt="">Create New Quiz</p>
+            <div class="formContainer">
+                <p class="formTitle">Details of quiz</p>
+
+                <!-- form1 -->
+                <form class="detailsForm">
+
+                    <div class="input1">
+                        <label for="quiz-name">Quiz Name</label>
+                        <input type="text" id="quiz-name" name="quiz-name" placeholder="Name of quiz">
+                    </div>
+
+                    <div class="input2">
+                        <label for="instructions">Instructions For Student</label>
+                        <textarea id="instructions" name="instructions" placeholder="Write Instructions"></textarea>
+                    </div>
+
+                    <div class="quizInfoInputs ">
+                        <div class="quizDataWrapper">
+                            <label for="quiz-date">Date of Quiz</label>
+                            <input type="text" id="quiz-date" name="quiz-date" placeholder="YYYY-MM-DD">
+                        </div>
+
+                        <div class="quizTimeWrapper">
+                            <label for="quiz-time">Time of Quiz</label>
+                            <input type="text" id="quiz-time" name="quiz-time" placeholder="HH:MM">
+                        </div>
+
+                        <div class="totalScoreWrapper">
+                            <label for="total-score">Total Score</label>
+                            <select id="total-score" name="total-score">
+                                <option value="">Select Score</option>
+                            </select>
+                        </div>
+
+                        <div class="attemptsWrapper">
+                            <label for="attempts">Quiz duration</label>
+                            <select id="attempts" name="attempts">
+                                <option value="">Select duration</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="creationMethodWrapper">
+                        <p>Creation Method</p>
+                        <div class="creationMethodButtons">
+                            <button type="button" class="creationWithAiButton notActive">
+                                <img id="notActiveAi" src="../imgs/not active ai.svg" alt="">
+                                <img id="ActiveAi" class="hidden" src="../imgs/active ai.svg" alt="">
+                                Creation with Ai
+                            </button>
+                            <button type="button" class="manualCreationButton">
+                                <img id="notActivebook" src="../imgs/Manual Creation logo.svg" alt="">
+                                <img id="activeBook" class="hidden" src="../imgs/active book.svg" alt="">
+                                Manual Creation
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+
+                <!--generated question by ai===================================================-->
+
+                <div class="aiGeneratorContainer hidden">
+                    <p>AI-Generated Quiz Details</p>
+                    <form class="aiForm" action="">
+                        <div class="">
+                            <div class="questionScoreWrapper ">
+                                <label for="Nquestions">Number of Questions</label>
+                                <select id="numberDropdown">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="attempts">Type of Questions</label>
+                                <select id="Tquestion" name="Tquestion">
+                                    <option value="">Select Type</option>
+                                    <option value="">MCQ</option>
+                                    <option value="">Asay</option>
+                                    <option value="">Truo or False</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="attempts">Level of Questions</label>
+                                <select id="Lquestion" name="Lquestion">
+                                    <option value="">Select Level</option>
+                                    <option value="">Easy</option>
+                                    <option value="">Medium</option>
+                                    <option value="">Hard</option>
+                                    <option value="">mix</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="attempts">Level of Questions</label>
+                                <select id="Lquestion" name="Lquestion">
+                                    <option value="">Select Level</option>
+                                    <option value="">Easy</option>
+                                    <option value="">Medium</option>
+                                    <option value="">Hard</option>
+                                    <option value="">mix</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="numberOfChapterWrapper">
+                            <div>
+                                <label for="Nchapter">Number of chapters</label>
+                                <select id="Nchapter" name="Nchapter">
+                                    <option value="">Select Number</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="generateButton" class="generateButtonWrapper">
+                            <button type="button" class="generateButton">Generate</button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="generatedQuestionsByAiContainer generatedQuestion hidden  ">
+                    <div class="">
+
+                        <p>Generated Questions By AI</p>
+
+                        <div id="aiQuestionsContainer">
+
+                        </div>
+
+                        <button id="aiAddAnotherQuestion" class="addAnotherBtn ">Add Another Question</button>
+
+                        <div class="publishBtnWrapper">
+                            <button class="publishBtn">Publish Quiz for Students</button>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+
+
+                <!--generated question manualy==================================================-->
+
+                <div class="generatedQuestionManualy generatedQuestion hidden   ">
+                    <div>
+
+                        <p>Manual Quiz Creation</p>
+
+                        <div id="manualQuestionsContainer" class="manualQuestionsContainer"><!---->
+
+                            <div id="manualQuestionWrapper" class="questionWrapper  manualQuestionWrapper ">
+                                <div class="questionHeader">
+                                    <p>Question 1</p>
+                                    <div class="actionsContainer">
+                                        <div class="questionScoreWrapper">
+                                            <label for="Nquestions">Question Score</label>
+                                            <select id="Nquestions" name="Nquestions">
+                                                <option value="">1</option>
+                                                <option value="">2</option>
+                                                <option value="">3</option>
+                                                <option value="">4</option>
+                                                <option value="">5</option>
+                                            </select>
+                                        </div>
+                                        <div class="addAndDeleteBtn ">
+                                            <button class="editBtn"><img src="imgs/edit logo.svg"
+                                                    alt="">Edit</button>
+                                            <button class="deleteBtn manualDeleteBtn"><img src="imgs/delete logo.svg"
+                                                    alt="">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addQuestionWrapper">
+                                    <input type="text"
+                                        placeholder="Add Question.............................................................................?">
+                                </div>
+                                <div class="optionsWrapper">
+                                    <input type="text" placeholder="Add Option 1">
+                                    <input type="text" placeholder="Add Option 2">
+                                    <input type="text" placeholder="Add Option 3">
+                                    <input type="text" placeholder="Add Option 4">
+                                    
+                                </div>
+                            </div>
+                            
+
+                            <div id="manualQuestionWrapper" class="questionWrapper manualQuestionWrapper ">
+                                <div class="questionHeader">
+                                    <p>Question 2</p>
+                                    <div class="actionsContainer">
+                                        <div class="questionScoreWrapper">
+                                            <label for="Nquestions">Question Score</label>
+                                            <select id="Nquestions" name="Nquestions">
+                                                <option value="">1</option>
+                                                <option value="">2</option>
+                                                <option value="">3</option>
+                                                <option value="">4</option>
+                                                <option value="">5</option>
+                                            </select>
+                                        </div>
+                                        <div class="addAndDeleteBtn ">
+                                            <button class="editBtn"><img src="imgs/edit logo.svg"
+                                                    alt="">Edit</button>
+                                            <button class="deleteBtn manualDeleteBtn"><img src="imgs/delete logo.svg"
+                                                    alt="">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addQuestionWrapper">
+                                    <input type="text"
+                                        placeholder="Add Question.............................................................................?">
+                                </div>
+                                <div class="optionsWrapper"><!---->
+                                    <input type="text" placeholder="Add Option 1">
+                                    <input type="text" placeholder="Add Option 2">
+                                </div>
+                                <button class="addOption">Add Option</button>
+                            </div>
+
+                        </div>
+
+                        <button id="manualAddAnotherQuestion" class="addAnotherBtn">Add Another Question</button>
+
+                        <div class="publishBtnWrapper">
+                            <button class="publishBtn">Publish Quiz for Students</button>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script src="CreateQuiz.js"></script>
+</body>

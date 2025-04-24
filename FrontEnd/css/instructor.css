@@ -1,3 +1,5 @@
+/* Dashboard Page */
+
 .courses-progress {
   width: calc(100% - 27vw);
   margin-top: 20px;
@@ -275,6 +277,91 @@
   color: #585a66;
 }
 
+/* Course Management Page */
+.book {
+  width: 275px;
+  height: 350px;
+  border: 3px solid #2C6DA4;
+  border-radius: 16px;
+  float: right;
+  margin-left: 30px;
+  position: relative;
+
+}
+
+.books-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 70px;
+}
+
+.up-frame {
+  width: 271px;
+  height: 77px;
+  border-radius: 14px;
+  background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
+  padding: 16px 8px 16px 8px;
+  overflow: auto;
+}
+
+.open {
+  width: 82px;
+  height: 40px;
+  padding: 8px;
+  font-size: 18px;
+  color: #FFFFFF;
+  background-color: #2C6DA4;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
+
+.open i {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.down-frame {
+  width: 271px;
+  height: 100px;
+  border-radius: 14px;
+  background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
+  padding: 10px;
+  overflow: auto;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+}
+
+.report-student {
+  background-color: #FCFCFC;
+  color: #2C6DA4;
+  padding: 8px;
+  border: 1px solid #2C6DA4;
+  border-radius: 8px;
+  width: 142px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.quiz {
+  background-color: #FCFCFC;
+  color: #2C6DA4;
+  padding: 8px;
+  border: 1px solid #2C6DA4;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+  text-decoration: none;
+}
+
+.down-frame p {
+  margin-bottom: 8px;
+}
+
+/* Student Management Page  */
 .show-excel {
   color: #194062;
   background-color: transparent;

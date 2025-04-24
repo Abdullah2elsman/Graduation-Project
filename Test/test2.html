@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>عرض PDF مع قائمة صفحات</title>
+
+  <!-- PDF.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/pdfjs-dist@3.4.120/web/pdf_viewer.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+
+    #page-list {
+      width: 100px;
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f8f8f8;
+    }
+
+    #page-list button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #viewerContainer {
+      flex: 1;
+      overflow: auto;
+      position: absolute;
+      left: 100px;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      background-color: #eee;
+    }
+
+    .pdfViewer .page {
+      margin: 10px auto;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="container">
+    <!-- قائمة الصفحات -->
+    <div id="page-list"></div>
+
+    <!-- عارض الـPDF -->
+    <div id="viewerContainer">
+      <div id="viewer" class="pdfViewer"></div>
+    </div>
+  </div>
+
+  <!-- PDF.js Scripts -->
+  <script src="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.js"></script>
+  <script src="https://unpkg.com/pdfjs-dist@3.4.120/web/pdf_viewer.js"></script>
+
+  <script>
+    const CMAP_URL = 'https://unpkg.com/pdfjs-dist@3.4.120/cmaps/';
+    const CMAP_PACKED = true;
+
+    const pdfUrl = 'http://localhost:8005/api/books/pdf/9'; // رابط الـ PDF الخاص بك
+
+    const eventBus = new pdfjsViewer.EventBus();
+    const pdfLinkService = new pdfjsViewer.PDFLinkService({ eventBus });
+    const pdfFindController = new pdfjsViewer.PDFFindController({ eventBus });
+    const pdfViewer = new pdfjsViewer.PDFViewer({
+      container: document.getElementById('viewerContainer'),
+      eventBus,
+      linkService: pdfLinkService,
+      findController: pdfFindController,
+      textLayerMode: 1,
+    });
+
+    pdfLinkService.setViewer(pdfViewer);
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js';
+
+    pdfjsLib.getDocument({ url: pdfUrl, cMapUrl: CMAP_URL, cMapPacked: CMAP_PACKED }).promise.then(pdfDocument => {
+      pdfViewer.setDocument(pdfDocument);
+      pdfLinkService.setDocument(pdfDocument, null);
+
+      // توليد أزرار قائمة الصفحات
+      const pageListDiv = document.getElementById('page-list');
+      for (let i = 1; i <= pdfDocument.numPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = `📄 ${i}`;
+        btn.onclick = () => {
+          pdfViewer.currentPageNumber = i;
+        };
+        pageListDiv.appendChild(btn);
+      }
+    });
+  </script>
+</body>
+
+</html>

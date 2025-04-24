@@ -133,7 +133,7 @@ const toolButtons = document.querySelectorAll('.tools button');
 
 // Control of the slider
 const thicknessSlider = document.getElementById('thickness');
-  const thicknessValue = document.getElementById('thicknessValue');
+const thicknessValue = document.getElementById('thicknessValue');
 
   let currentThickness = parseInt(thicknessSlider.value);
 
@@ -158,4 +158,20 @@ const thicknessSlider = document.getElementById('thickness');
   // Run on page load
   updateSliderBackground();
 
+// Edited by Aya
+function openTab(event, tabName) {
+  let i, tabContent, tabLinks;
+  
+  tabContent = document.getElementsByClassName("tab-content");
+  for (i = 0; i < tabContent.length; i++) {
+      tabContent[i].style.display = "none";
+  }
 
+  tabLinks = document.getElementsByClassName("tab");
+  for (i = 0; i < tabLinks.length; i++) {
+      tabLinks[i].classList.remove("active");
+  }
+
+  document.getElementById(tabName).style.display = "block";
+  event.currentTarget.classList.add("active");
+}
