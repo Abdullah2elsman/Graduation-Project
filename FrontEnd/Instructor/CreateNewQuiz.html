@@ -5,14 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Quiz</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="../css/CreateQuiz.css">
 </head>
 
 <body>
     <section class="creationQuizSection">
         <div class="quizContainer">
-            <p class="sectionTitle"><img src="../imgs/arrow left.svg" alt="">Create New Quiz</p>
+            <p class="sectionTitle"><img class="back-button" src="../imgs/arrow left.svg">Create New Quiz</p>
             <div class="formContainer">
                 <p class="formTitle">Details of quiz</p>
 
@@ -73,7 +72,7 @@
                 </form>
 
 
-                <!--generated question by ai===================================================-->
+                <!-- ============================= Generated Question AI ============================= -->
 
                 <div class="aiGeneratorContainer hidden">
                     <p>AI-Generated Quiz Details</p>
@@ -97,17 +96,17 @@
 
                             <div>
                                 <label for="attempts">Type of Questions</label>
-                                <select id="Tquestion" name="Tquestion">
+                                <select id="question-type" name="question-type">
                                     <option value="">Select Type</option>
                                     <option value="">MCQ</option>
-                                    <option value="">Asay</option>
-                                    <option value="">Truo or False</option>
+                                    <option value="">Assay</option>
+                                    <option value="">True or False</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label for="attempts">Level of Questions</label>
-                                <select id="Lquestion" name="Lquestion">
+                                <select id="question-level" name="question-level">
                                     <option value="">Select Level</option>
                                     <option value="">Easy</option>
                                     <option value="">Medium</option>
@@ -117,7 +116,7 @@
                             </div>
                             <div>
                                 <label for="attempts">Level of Questions</label>
-                                <select id="Lquestion" name="Lquestion">
+                                <select id="question-level" name="question-level">
                                     <option value="">Select Level</option>
                                     <option value="">Easy</option>
                                     <option value="">Medium</option>
@@ -166,16 +165,16 @@
 
 
 
-                <!--generated question manualy==================================================-->
+                <!-- ============================= Generated Question Manually ============================= -->
 
                 <div class="generatedQuestionManualy generatedQuestion hidden   ">
                     <div>
 
                         <p>Manual Quiz Creation</p>
 
-                        <div id="manualQuestionsContainer" class="manualQuestionsContainer"><!---->
+                        <div id="manuaquestion-levelsContainer" class="manuaquestion-levelsContainer"><!---->
 
-                            <div id="manualQuestionWrapper" class="questionWrapper  manualQuestionWrapper ">
+                            <div id="manuaquestion-levelWrapper" class="questionWrapper  manuaquestion-levelWrapper ">
                                 <div class="questionHeader">
                                     <p>Question 1</p>
                                     <div class="actionsContainer">
@@ -190,9 +189,9 @@
                                             </select>
                                         </div>
                                         <div class="addAndDeleteBtn ">
-                                            <button class="editBtn"><img src="imgs/edit logo.svg"
+                                            <button class="editBtn"><img src="../imgs/edit logo.svg"
                                                     alt="">Edit</button>
-                                            <button class="deleteBtn manualDeleteBtn"><img src="imgs/delete logo.svg"
+                                            <button class="deleteBtn manualDeleteBtn"><img src="../imgs/delete logo.svg"
                                                     alt="">Delete</button>
                                         </div>
                                     </div>
@@ -211,7 +210,7 @@
                             </div>
                             
 
-                            <div id="manualQuestionWrapper" class="questionWrapper manualQuestionWrapper ">
+                            <div id="manuaquestion-levelWrapper" class="questionWrapper manuaquestion-levelWrapper ">
                                 <div class="questionHeader">
                                     <p>Question 2</p>
                                     <div class="actionsContainer">
@@ -226,9 +225,9 @@
                                             </select>
                                         </div>
                                         <div class="addAndDeleteBtn ">
-                                            <button class="editBtn"><img src="imgs/edit logo.svg"
+                                            <button class="editBtn"><img src="../imgs/edit logo.svg"
                                                     alt="">Edit</button>
-                                            <button class="deleteBtn manualDeleteBtn"><img src="imgs/delete logo.svg"
+                                            <button class="deleteBtn manualDeleteBtn"><img src="../imgs/delete logo.svg"
                                                     alt="">Delete</button>
                                         </div>
                                     </div>
@@ -251,16 +250,11 @@
                         <div class="publishBtnWrapper">
                             <button class="publishBtn">Publish Quiz for Students</button>
                         </div>
-
-
-
-
                     </div>
                 </div>
 
             </div>
         </div>
     </section>
-
-    <script src="CreateQuiz.js"></script>
+    <script src="../js/quizPage.js"></script>
 </body>

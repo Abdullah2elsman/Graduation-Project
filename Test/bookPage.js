@@ -40,59 +40,59 @@ let rightSidebarFlag = false;
 console.log(searchButton);
 
 
-// Draw the color wheel canvas
-const canvas = document.getElementById("colorWheel");
-const ctx = canvas.getContext("2d");
+ // Draw the color wheel canvas
+ const canvas = document.getElementById("colorWheel");
+ const ctx = canvas.getContext("2d");
 
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
-const radius = 120;
+ const centerX = canvas.width / 2;
+ const centerY = canvas.height / 2;
+ const radius = 120;
 
-const angleSteps = 24;
-const ringSteps = 10;
+ const angleSteps = 24;
+ const ringSteps = 10;
 
-for (let ring = 0; ring < ringSteps; ring++) {
-  const innerRadius = (radius / ringSteps) * ring;
-  const outerRadius = (radius / ringSteps) * (ring + 1);
-  const lightness = 50 + (ring / ringSteps) * 30;
+ for (let ring = 0; ring < ringSteps; ring++) {
+   const innerRadius = (radius / ringSteps) * ring;
+   const outerRadius = (radius / ringSteps) * (ring + 1);
+   const lightness = 50 + (ring / ringSteps) * 30;
 
-  for (let i = 0; i < angleSteps; i++) {
-    const startAngle = (i * 2 * Math.PI) / angleSteps;
-    const endAngle = ((i + 1) * 2 * Math.PI) / angleSteps;
-    const hue = (i * 360) / angleSteps;
+   for (let i = 0; i < angleSteps; i++) {
+     const startAngle = (i * 2 * Math.PI) / angleSteps;
+     const endAngle = ((i + 1) * 2 * Math.PI) / angleSteps;
+     const hue = (i * 360) / angleSteps;
 
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle, false);
-    ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
-    ctx.closePath();
-    ctx.fillStyle = `hsl(${hue}, 100%, ${lightness}%)`;
-    ctx.fill();
-  }
-}
+     ctx.beginPath();
+     ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle, false);
+     ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
+     ctx.closePath();
+     ctx.fillStyle = `hsl(${hue}, 100%, ${lightness}%)`;
+     ctx.fill();
+   }
+ }
 
-// Choose the Color
-canvas.addEventListener("click", function (e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+ // Choose the Color
+ canvas.addEventListener("click", function (e) {
+     const rect = canvas.getBoundingClientRect();
+     const x = e.clientX - rect.left;
+     const y = e.clientY - rect.top;
 
-    const dx = x - centerX;
-    const dy = y - centerY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+     const dx = x - centerX;
+     const dy = y - centerY;
+     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (distance > radius) return; // out of circle
+     if (distance > radius) return; // out of circle
 
-    // Read color from the position clicked in
-    const pixel = ctx.getImageData(x, y, 1, 1).data;
-    const r = pixel[0];
-    const g = pixel[1];
-    const b = pixel[2];
+     // Read color from the position clicked in
+     const pixel = ctx.getImageData(x, y, 1, 1).data;
+     const r = pixel[0];
+     const g = pixel[1];
+     const b = pixel[2];
 
-    // Convert the color to HEX
-    const hex = `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+     // Convert the color to HEX
+     const hex = `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
 
-    console.log(hex);
-  });
+     console.log(hex);
+   });
 
 // Workbook tabs
 const tabs = document.querySelectorAll('.tab');
@@ -115,10 +115,8 @@ tabs.forEach(tab => {
 
 // Initialize on page load => This to put the underline in tap when open or refresh the page
 window.addEventListener('load', () => {
-  rightSidebar.style.display = "block";
   const activeTab = document.querySelector('.tab.active');
   updateIndicator(activeTab);
-  rightSidebar.style.display = "none";
 });
 
 // Activation of tool button
@@ -151,23 +149,9 @@ for (let i = 0; i < sliders.length; i++) {
   updateSliderBackground(sliders[i]);
 }
 
-// Edited by Aya
-function openTab(event, tabName) {
-  let i, tabContent, tabLinks;
-  
-  tabContent = document.getElementsByClassName("tab-content");
-  for (i = 0; i < tabContent.length; i++) {
-      tabContent[i].style.display = "none";
-  }
 
-  tabLinks = document.getElementsByClassName("tab");
-  for (i = 0; i < tabLinks.length; i++) {
-      tabLinks[i].classList.remove("active");
-  }
 
-  document.getElementById(tabName).style.display = "block";
-  event.currentTarget.classList.add("active");
-}
+//تعديلات آيه 
 
 function openTab(event, tabName) {
     let i, tabContent, tabLinks;
@@ -186,7 +170,7 @@ function openTab(event, tabName) {
     event.currentTarget.classList.add("active");
 }
 
-// عرض أول قسم عند التحميل
+// // عرض أول قسم عند التحميل
 // document.getElementById("annotations").style.display = "block";
 
 // switch sections inside Recommendation
