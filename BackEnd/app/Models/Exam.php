@@ -9,7 +9,16 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'exam', 'time', 'date'];
+    protected $fillable = [
+        'course_id',
+        'name',
+        'instructions',
+        'date',
+        'time',
+        'total_score',
+        'duration',
+        'creation_method'
+    ];
 
     public function course()
     {
@@ -19,6 +28,11 @@ class Exam extends Model
     public function attempts()
     {
         return $this->hasMany(ExamAttempt::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
     }
 
 }

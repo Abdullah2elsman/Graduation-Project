@@ -12,9 +12,8 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    function login(Request $request)
+    public function login(Request $request)
     {
-        // Validate the request
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:8',
@@ -25,37 +24,31 @@ class AuthController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        // Determine the user model based on the role
-        switch ($request->role) {
-            case 'student':
-                $userModel = Student::class;
-                $tokenName = 'student';
-                break;
-            case 'admin':
-                $userModel = Admin::class;
-                $tokenName = 'admin';
-                break;
-            case 'instructor':
-                $userModel = Instructor::class;
-                $tokenName = 'instructor';
-                break;
-            default:
-                return response()->json(['error' => 'Invalid role specified'], 400);
-        }
+        $model = match ($request->role) {
+            'student' => Student::class,
+            'admin' => Admin::class,
+            'instructor' => Instructor::class,
+        };
 
-        // Retrieve the user by email
-        $user = $userModel::where('email', $request->email)->first();
-        
-        // Check if the user exists and the password is correct
-        if ($user && Hash::check($request->password,$user->password)) {
-            // Generate token
-            $token = $user->createToken($tokenName."token", [$tokenName])->plainTextToken;
+        $user = $model::where('email', $request->email)->first();
 
-            return response()->json(['token' => $token, 'role' => $tokenName], 200);
-        } else {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
+
+        $token = $user->createToken('authToken', [$request->role])->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $request->role
+            ]
+        ], 200);
     }
+
 
     function register(Request $request)
     {
@@ -89,27 +82,45 @@ class AuthController extends Controller
         }
 
 
-        $user = $user::create([
+        $createdUser = $user::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
 
-        
-
-        return response()->json(['message' => 'success'], 200);
+        return response()->json([
+            'user' => [
+                'id' => $createdUser->id,
+                'name' => $createdUser->name,
+                'email' => $createdUser->email,
+                'role' => $request->role
+            ]
+        ], 201);
     }
 
     public function validateToken(Request $request)
     {
-        if ($request->user()) {
-            return response()->json([
-                'message' => 'Token is valid',
-                'user' => $request->user(), // Return the authenticated user's details
-            ], 200);
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Invalid token'], 401);
         }
 
-        return response()->json(['message' => 'Invalid token'], 401);
+        $role = match (get_class($user)) {
+            Admin::class => 'admin',
+            Instructor::class => 'instructor',
+            Student::class => 'student',
+            default => throw new \Exception('Unknown user type')
+        };
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $role
+            ]
+        ], 200);
     }
 
     public function logout(Request $request)

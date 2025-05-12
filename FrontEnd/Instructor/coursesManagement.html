@@ -55,46 +55,58 @@
       <div class="content">
         <div class="books-container">
           <div class="books-parent">
-            <div class="book">
+            <div class="book book1">
               <div class="up-frame">
-                  <button id="open-btn1" class="open">open<i class="fas fa-chevron-right"></i></button>
+                <button id="open-btn1" class="open">open<i class="fas fa-chevron-right"></i></button>
               </div>
               <div class="down-frame">
-                  <p>mmm</p>
-                  <button id="reportStd1" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a href = "CreateNewQuiz.html" id="quiz-1" class="quiz">Quizzes</a>
+                <p>Math 3</p>
+                <button id="reportStd1" class="report-student">Report of student <i
+                    class="far fa-chart-bar"></i></button><button id="quiz-1" class="quiz">Quizzes</button>
               </div>
             </div>
-            <div class="book">
+            <div class="book book2">
               <div class="up-frame">
-                  <button id="open-btn2" class="open">open<i class="fas fa-chevron-right"></i></button>
+                <button id="open-btn2" class="open">open<i class="fas fa-chevron-right"></i></button>
               </div>
               <div class="down-frame">
-                  <p>mmm</p>
-                  <button id="reportStd2" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a id="quiz-2" class="quiz">Quizzes</a>
+                <p>Math 2</p>
+                <button id="reportStd2" class="report-student">Report of student <i
+                    class="far fa-chart-bar"></i></button><button id="quiz-2" class="quiz">Quizzes</button>
               </div>
             </div>
-            <div class="book">
+            <div class="book book3">
               <div class="up-frame">
-                  <button id="open-btn3" class="open">open<i class="fas fa-chevron-right"></i></button>
+                <button id="open-btn3" class="open">open<i class="fas fa-chevron-right"></i></button>
               </div>
               <div class="down-frame">
-                  <p>mmm</p>
-                  <button id="reportStd3" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a id="quiz-3"  class="quiz">Quizzes</a>
+                <p>Math 1</p>
+                <button id="reportStd3" class="report-student">Report of student <i
+                    class="far fa-chart-bar"></i></button><button id="quiz-3" class="quiz">Quizzes</button>
               </div>
             </div>
-            <div class="book" style="margin-left: 0;">
+            <div class="book book4">
               <div class="up-frame">
-                  <button id="open-btn4" class="open">open<i class="fas fa-chevron-right"></i></button>
+                <button id="open-btn4" class="open">open<i class="fas fa-chevron-right"></i></button>
               </div>
               <div class="down-frame">
-                  <p>mmm</p>
-                  <button id="reportStd4" class="report-student">Report of student <i class="far fa-chart-bar"></i></button><a id="quiz-4" class="quiz">Quizzes</a>
+                <p>Math 0</p>
+                <button id="reportStd4" class="report-student">Report of student <i
+                    class="far fa-chart-bar"></i></button><button id="quiz-4" class="quiz">Quizzes</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    
+      <script>
+        const quizButton = document.querySelector('#quiz-4');
+        quizButton.addEventListener('click', function() {
+          window.location.href = 'CreateNewQuiz.html'; // Redirect to the quiz page
+          // Add your logic here to handle the quiz button click
+        })
+        console.log(quizButton);
+
+      </script>
       <script src="../js/script.js"></script>
     </body>
     </html>

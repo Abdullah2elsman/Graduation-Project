@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use setasign\Fpdi\Fpdi;
+use Smalot\PdfParser\Parser;
+
 
 class CourseController extends Controller
 {
     
     public function storeBook(Request $request){
         
-        // return $request;
         $request->validate([
             'title' => 'required|string',
             'file' => 'required|file|mimes:pdf,epub,doc,docx,txt|max:102400',
@@ -63,9 +66,132 @@ class CourseController extends Controller
         return response()->json($course);
     }
 
-    /**
-     * Update an existing course.
-     */
+    public function getBook($id) {
+    
+        $book = Course::find($id);
+        
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+
+        $path = storage_path('app/public/' . $book->file_path);
+
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'PDF file not found'], 404);
+        }
+
+        return response()->file($path);
+    }
+    
+    public function getBookPage(Request $request, $id)
+    {
+        
+        $pageNumber = $request->query('pageNumber'); 
+        
+        $book = Course::find($id);
+        
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+
+        $path = storage_path('app/public/' . $book->file_path);
+        
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'PDF file not found'], 404);
+        }
+
+        // preparing a new pdf file
+        $pdf = new Fpdi();
+
+        // Download the  original file
+        $pageCount = $pdf->setSourceFile($path);
+
+        if ($pageNumber < 1 || $pageNumber > $pageCount) {
+            return response()->json(['error' => 'Invalid page number'], 400);
+        }
+
+
+        $templateId = $pdf->importPage($pageNumber);
+        $size = $pdf->getTemplateSize($templateId);
+
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($templateId);
+
+        // Save the page temporarily
+        $tmpFile = tempnam(sys_get_temp_dir(), 'pdf_page_') . '.pdf';
+        $pdf->Output($tmpFile, 'F');
+
+        // Sent the page to user
+        $response = response()->file($tmpFile, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="page-' . $pageNumber . '.pdf"',
+        ]);
+        
+        // Clean up the temporary file after sending the response
+        register_shutdown_function(function () use ($tmpFile) {
+            @unlink($tmpFile);
+        });
+
+        return $response;
+    }
+
+    function decryptAndProcessPdf($path, $password)
+    {
+        $pdf = new Fpdi();
+
+        // فك تشفير الملف
+        if (!$pdf->setSourceFile($path, $password)) {
+            return response()->json(['error' => 'Unable to decrypt PDF'], 400);
+        }
+
+        // معالجة الملف كما هو
+        $pageCount = $pdf->setSourceFile($path);
+        $templateId = $pdf->importPage(1);
+        $size = $pdf->getTemplateSize($templateId);
+
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($templateId);
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'pdf_page_') . '.pdf';
+        $pdf->Output($tmpFile, 'F');
+
+        return response()->file($tmpFile, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="page-1.pdf"',
+        ]);
+    }
+
+
+    public function getBookContent($id)
+    {
+        $book = Course::find($id);
+
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+
+        $path = storage_path('app/public/' . $book->file_path);
+
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'PDF file not found'], 404);
+        }
+
+        $parser = new Parser();
+        $pdf = $parser->parseFile($path);
+
+        $pages = $pdf->getPages(); // يقسمه لصفحات
+
+        $pageTexts = [];
+        foreach ($pages as $index => $page) {
+            $pageTexts[$index + 1] = $page->getText(); // النص في كل صفحة
+        }
+
+        return response()->json([
+            'pages' => $pageTexts,
+        ]);
+    }
+
+
     public function updateCourse(Request $request): JsonResponse
     {
         $request->validate([
@@ -147,5 +273,38 @@ class CourseController extends Controller
         });
 
         return response()->json($data);
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $file = $request->file('image');
+
+        // Generate timestamp and sanitize original filename
+        $timestamp = now()->format('Y_m_d_His');
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $sanitizedOriginal = Str::slug($originalName); // replaces spaces & symbols with dashes
+        $extension = $file->getClientOriginalExtension();
+
+        // Final filename: 2025_05_11_143212_original-name.jpg
+        $filename = "{$timestamp}_{$sanitizedOriginal}.{$extension}";
+
+        // Store file
+        $path = $file->storeAs('course/images', $filename, 'public');
+
+        // Save to course
+        $course = Course::findOrFail($request->course_id);
+        $course->image_path = $path;
+        $course->save();
+
+        return response()->json([
+            'message' => 'Image uploaded and saved',
+            'course_id' => $course->id,
+            'image_url' => asset('storage/' . $path),
+        ]);
     }
 }

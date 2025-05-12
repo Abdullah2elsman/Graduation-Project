@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link rel="stylesheet" href="../css/login.css">
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <style>
+    #loading-indicator {
+  color: #4CAF50;
+  text-align: center;
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+.fa-spinner {
+  margin-right: 8px;
+  animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+  </style>
 </head>
+
 <body>
   <div class="container">
     <div class="form-card">
@@ -21,30 +41,39 @@
           <button class="role-btn active" value="admin">Admin</button>
         </div>
         <form id="loginForm">
-          <label class="email" > Email </label>
+          <label class="email">Email</label>
           <input type="email" id="email" placeholder="Enter your email" required>
+
           <label class="pass">Password</label>
-          <div class="password-container">    
-              <input type="password" id="password" class="password-input" placeholder="Enter your password" required>
-              <i id="toggleNewPassword" class="fa-regular fa-eye-slash"></i>
+          <div class="password-container">
+            <input type="password" id="password" class="password-input" placeholder="Enter your password" required>
+            <i id="toggleNewPassword" class="fa-regular fa-eye-slash"></i>
           </div>
+
+          <!-- Loading Indicator -->
+          <div id="loading-indicator" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </div>
+
           <div class="remember-me">
-              <input class="checkbox" type="checkbox" id="rememberMe">
-              <label class="rememberMe">Remember Me</label>
-              <p class="p3"><a href=""> Forget password?</p></a>
+            <input class="checkbox" type="checkbox" id="rememberMe">
+            <label class="rememberMe">Remember Me</label>
+            <p class="p3"><a href="">Forget password?</a></p>
           </div>
+
           <button type="submit" class="submit-button">Login</button>
         </form>
+
         <div class="divider">OR</div>
         <button class="google-button">
-          <img class="google-ic" src="../imgs/Google__G__logo.png" alt="notfound"> 
+          <img class="google-ic" src="../imgs/Google__G__logo.png" alt="notfound">
           <span>Continue with Google</span>
-        </button>    
-        <p class="login-link">Don't have an account ? <a href="signup.html">sign up</a></p>
+        </button>
+        <p class="login-link">Don't have an account? <a href="signup.html">Sign up</a></p>
       </div>
     </div>
   </div>
   <script src="../js/login.js" defer></script>
-
 </body>
+
 </html>

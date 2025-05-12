@@ -289,6 +289,30 @@
 
 }
 
+.book.book4 {
+  background-image: url("../imgs/image1.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.book.book3 {
+  background-image: url("../imgs/image2.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.book.book2 {
+  background-image: url("../imgs/image3.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.book.book1 {
+  background-image: url("../imgs/image4.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 .books-container {
   display: flex;
   justify-content: center;

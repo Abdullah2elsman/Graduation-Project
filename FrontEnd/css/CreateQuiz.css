@@ -191,12 +191,11 @@
 
 /* creationWithAiButton */
 .creationMethodWrapper .creationMethodButtons .creationWithAiButton {
-    color: #FDFDFD;
     display: flex;
     align-items: center;
     border: 1px solid #2C6DA4;
     transition: .3s all ease-in-out;
-    background-color: #2C6DA4;
+    background-color: #FFFFFF;
 }
 
 
@@ -481,12 +480,12 @@
     display: none;
 }
 
-.activeButton {
+.active {
     background-color: #2C6DA4 !important;
     color: #FDFDFD !important;
 }
 
-.notActive {
+.activeButton {
     color: #101010 !important;
     background-color: #FFFFFF !important;
 

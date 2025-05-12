@@ -6,18 +6,13 @@ use Illuminate\Http\Request;
 
 class FileController extends Controller
 {
-    function index()
-    {
-        return view('upload');
-    }
-
     function upload(Request $request)
     {
         $fileExtension = $request-> image -> getClientOriginalName();
 
         $year = date('Y'); // Current year
         $month = date('m'); // Current month
-        $day = date('d');
+        $day = date('d'); // Current day
 
         $fileName = $year . '_' . $month .'_' . $day . "_" . $fileExtension;
 

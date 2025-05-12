@@ -34,10 +34,12 @@ toggleIcon.addEventListener('click',togglePassword);
 
 
 // When Submit the login form
+const loadingIndicator = document.getElementById('loading-indicator');
 document.getElementById('loginForm').addEventListener(
   'submit',
   async function (e) {
     e.preventDefault(); 
+    loadingIndicator.style.display = 'block'; // Show loading indicator
     // Remove the data of user when user go to login page from the URL
     localStorage.removeItem('userData');
     localStorage.removeItem('token');

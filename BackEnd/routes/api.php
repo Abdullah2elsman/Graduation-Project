@@ -3,23 +3,21 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\InstructorController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleSheetsController;
-use App\Models\Admin;
-use App\Models\Course;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 // Authentication And Authorization API
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/validateToken', [AuthController::class, 'validateToken']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->get('/validateToken', [AuthController::class, 'validateToken']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+
 
 
 
@@ -58,7 +56,6 @@ Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
 Route::post('/sheets/write', [GoogleSheetsController::class, 'writeSheet']);
 
 // Course API
-
 Route::post('/createCourse', [CourseController::class, 'createCourse']);
 Route::post('/readCourse', [CourseController::class, 'readCourse']);
 Route::put('/updateCourse', [CourseController::class, 'updateCourse']);
@@ -68,24 +65,16 @@ Route::get('/getCourse/{id}', [CourseController::class, 'getCourse']);
 Route::get('instructor/{id}/getCourseExamAttempts', [CourseController::class, 'getCourseExamAttempts']);
 Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
 Route::post('/course/store', [CourseController::class, 'storeBook']);
+Route::get('/books/pdf/{id}', [CourseController::class, 'getBook']);
+Route::get('/course/createQuiz', [CourseController::class, 'createQuiz']);
+Route::post('/course/uploadImage', [CourseController::class, 'uploadImage']);
+
+
+// Exam API
+Route::post('exam/store', [ExamController::class, 'store']);
 
 
 // Test
 Route::get('/course/book/{id}', [CourseController::class,'show']);
-
-Route::get('/books/pdf/{id}', function ($id) {
-    
-    $book = Course::find($id);
-    
-    if (!$book) {
-        return response()->json(['error' => 'Book not found'], 404);
-    }
-
-    $path = storage_path('app/public/' . $book->file_path);
-
-    if (!file_exists($path)) {
-        return response()->json(['error' => 'PDF file not found'], 404);
-    }
-
-    return response()->file($path);
-});
+Route::get('/books/pdf/{id}/page', [CourseController::class, 'getBookPage']);
+Route::get('/books/pdf-content/{id}', [CourseController::class, 'getBookContent']);

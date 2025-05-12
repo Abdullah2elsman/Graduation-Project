@@ -12,6 +12,9 @@
         "laravel/passport": "^12.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.6",
+        "smalot/pdfparser": "^2.12",
         "spatie/pdf-to-image": "^1.2"
     },
     "require-dev": {

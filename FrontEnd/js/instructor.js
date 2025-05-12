@@ -193,11 +193,12 @@ const data = [
   { label: "quiz1.Math0", achieved: 8, remaining: 2 },
   { label: "quiz1.Math1", achieved: 7, remaining: 3 },
   { label: "quiz1.Math2", achieved: 9, remaining: 1 },
+  { label: "quiz1.Math2", achieved: 9, remaining: 1 },
   { label: "quiz1.Math3", achieved: 6, remaining: 4 }
 ];
 
 function createAverageGradesChart(data) {
-const ctxBar = document.getElementById('averageGrades').getContext('2d');
+  const ctxBar = document.getElementById('averageGrades').getContext('2d');
   const labelsBar = data.map(item => item.label);
   const achievedData = data.map(item => item.achieved);
   const remainingData = data.map(item => item.remaining);

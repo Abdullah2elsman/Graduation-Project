@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class Student extends Model
 {
@@ -16,6 +17,14 @@ class Student extends Model
     'password',
     'image'
   ];
+
+  protected $hidden = ['password', 'remember_token'];
+
+
+  public function token()
+  {
+    return $this->morphMany(PersonalAccessToken::class, 'tokenable');
+  }
 
   // Define relationships
   public function enrollments()

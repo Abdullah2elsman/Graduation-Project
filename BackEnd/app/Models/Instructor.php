@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class Instructor extends Model
 {
@@ -14,6 +15,14 @@ class Instructor extends Model
         'email',
         'password'
     ];
+
+    protected $hidden = ['password', 'remember_token'];
+
+
+    public function token()
+    {
+        return $this->morphMany(PersonalAccessToken::class, 'tokenable');
+    }
 
     public function courses()
     {

@@ -1,91 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <title>إحصائيات التعليم الإلكتروني 2019-2025</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
 
+        body {
+            background: #f0f7ff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .chart-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+        }
+    </style>
 </head>
+
 <body>
-    <div style="text-align:center;">
-        <button onclick="prevPage()">⬅️</button>
-        <span id="page-info">Page 1</span>
-        <button onclick="nextPage()">➡️</button>
+    <div class="container">
+        <h1>📊  E-Learning Statistics  (2019-2025)</h1>
+
+        <!-- نمو السوق -->
+        <div class="card">
+            <h2>Global market growth</h2>
+            <div class="chart-box">
+                <canvas id="marketGrowth"></canvas>
+            </div>
+        </div>
+
+        <!-- التوزيع الجغرافي -->
+        <div class="card">
+            <h2> Geographical distribution (2025)</h2>
+            <div class="chart-box">
+                <canvas id="regionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- أسباب النمو -->
+        <div class="card">
+            <h2>أسباب النمو الرئيسية</h2>
+            <div class="chart-box">
+                <canvas id="factorsChart"></canvas>
+            </div>
+        </div>
     </div>
-    
-    <canvas id="pdf-canvas" style="border:1px solid #ccc; display:block; margin:auto;"></canvas>
-<div id="pdf-container" style="position: relative; text-align:center;">
-    <canvas id="pdf-canvas" style="border:1px solid #ccc;"></canvas>
-    <div id="text-layer" style="position:absolute; top:0; left:0;"></div>
-</div>
+
     <script>
-        let pdf = null;
-        let currentPage = 1;
-
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        pdfjsLib.getDocument('http://localhost:8005/api/books/pdf/9').promise.then((pdfDoc) => {
-            pdf = pdfDoc;
-            renderPage(currentPage);
+        // بيانات نمو السوق
+        new Chart(document.getElementById('marketGrowth'), {
+            type: 'line',
+            data: {
+                labels: ['2019', '2020', '2023', '2025'],
+                datasets: [{
+                    label: 'Market Size ( Billion Dollars)',
+                    data: [200, 250, 400, 650],
+                    borderColor: '#2ecc71',
+                    tension: 0.3,
+                    fill: false
+                }]
+            }
         });
 
-        function renderPage(pageNumber) {
-            pdf.getPage(pageNumber).then(page => {
-                const scale = 1.5;
-                const viewport = page.getViewport({ scale: scale });
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                // render canvas
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                const renderTask = page.render(renderContext);
-
-                // render text layer
-                renderTask.promise.then(() => {
-                    return page.getTextContent();
-                }).then(textContent => {
-                    const textLayerDiv = document.getElementById('text-layer');
-                    textLayerDiv.innerHTML = ''; // clear previous
-
-                    textLayerDiv.style.height = `${viewport.height}px`;
-                    textLayerDiv.style.width = `${viewport.width}px`;
-
-                    const textLayer = new pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-
-                    textLayer.render();
-                });
-
-                document.getElementById('page-info').innerText = `Page ${pageNumber} of ${pdf.numPages}`;
-            });
-        }
-
-        function nextPage() {
-            if (currentPage < pdf.numPages) {
-                currentPage++;
-                renderPage(currentPage);
+        // بيانات التوزيع الجغرافي
+        new Chart(document.getElementById('regionChart'), {
+            type: 'pie',
+            data: {
+                labels: ['أمريكا الشمالية', 'آسيا والمحيط الهادئ', 'أوروبا', 'مناطق أخرى'],
+                datasets: [{
+                    data: [40, 30, 20, 10],
+                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f']
+                }]
             }
-        }
+        });
 
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderPage(currentPage);
+        // بيانات أسباب النمو
+        new Chart(document.getElementById('factorsChart'), {
+            type: 'bar',
+            data: {
+                labels: ['توفير التكاليف', 'التعلم بالجوال', 'الذكاء الاصطناعي'],
+                datasets: [{
+                    label: 'النسبة (%)',
+                    data: [70, 67, 45],
+                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71']
+                }]
             }
-        }
+        });
     </script>
-
 </body>
+
 </html>

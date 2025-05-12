@@ -60,6 +60,10 @@ renderCalendar(currentMonth, currentYear);
 
 renderCalendar(currentMonth, currentYear);
 
+
+
+
+// Edited by Aya
 // display and hide the calendar
 const openCalendarButton = document.querySelector(".opencalendar-btn");
 console.log(openCalendarButton);
