@@ -139,6 +139,7 @@
 }
 
 .monthly-progress .chart-container {
+  position: relative;
   margin-top: 35px;
   width: calc(100% - 27vw);
   height: 430px;
@@ -146,6 +147,16 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 8px 0px #D8DEF3;
+}
+
+ .chart-container #monthSelect {
+    position: absolute;
+    left: calc(100% - 43vw); 
+    padding: 5px 10px;
+    border: 1px solid #D5D5D5;
+    background-color:  #FCFDFD;
+    color: #2B303466;
+    border-radius: 5px;
 }
 
 .average-grades .chart-container {
@@ -284,31 +295,8 @@
   border: 3px solid #2C6DA4;
   border-radius: 16px;
   float: right;
-  margin-left: 30px;
+  margin: 15px;
   position: relative;
-
-}
-
-.book.book4 {
-  background-image: url("../imgs/image1.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-.book.book3 {
-  background-image: url("../imgs/image2.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-.book.book2 {
-  background-image: url("../imgs/image3.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-.book.book1 {
-  background-image: url("../imgs/image4.png");
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -379,6 +367,167 @@
   cursor: pointer;
   margin-left: 8px;
   text-decoration: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.header button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+
+/* Stats Cards */
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.stat-card {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 16px;
+  padding: 10px;
+  border: 1px solid #2C6DA4;
+  font-weight: 700;
+  font-size: 1.3vw;
+  white-space: nowrap;
+}
+
+.stat-card svg {
+  width: 1.6vw;
+}
+
+.stat-card span {
+  color: #2c6da4;
+}
+
+.reports-exams {
+  text-align: center;
+  display: flex;
+  justify-content: start;
+}
+
+.students-report-chart {
+  width: 305px;
+}
+
+.reports-exams h3 {
+  text-align: left;
+}
+
+.progress-container {
+  margin-top: 20px;
+  position: relative;
+  display: inline-block;
+  width: 200px;
+  height: 200px;
+}
+
+.reports-exams .progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-46%, -50%);
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.legend-container {
+  font-size: 12px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.blue {
+  background-color: #4682B4;
+}
+
+/* Adjust color to match */
+.pink {
+  background-color: #FFB6C1;
+}
+
+/* Adjust color to match */
+.bold-text {
+  font-weight: bold;
+}
+
+.top-students,
+.students-missed-all-exams {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  width: calc(100% - 53vw);
+  max-height: 365px;
+}
+
+.top-students .table-container,
+.students-missed-all-exams .table-container {
+  box-shadow: 0px 0px 8px 0px #D8DEF3;
+  border-radius: 10px;
+}
+
+.top-students h2,
+.students-missed-all-exams h2 {
+  text-align: left;
+  margin-bottom: 15px;
+  /* Adds spacing between the heading and table */
+}
+
+.students-missed-all-exams {
+  width: calc(100% - 62vw);
+
+}
+
+.activation-progress {
+  display: flex;
+  justify-content: start;
+}
+
+.monthly-statics {
+  width: calc(100% - 30vw);
+}
+
+.monthly-statics .chart-container,
+.average-grades-course .chart-container {
+  margin-top: 35px;
+  height: 430px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 8px 0px #D8DEF3;
+}
+
+.average-grades-course {
+  margin-left: 15px;
+  width: calc(100% - 66vw);
 }
 
 .down-frame p {

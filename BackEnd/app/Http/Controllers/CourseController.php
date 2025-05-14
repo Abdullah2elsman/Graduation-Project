@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Exam;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use setasign\Fpdi\Fpdi;
@@ -139,12 +140,10 @@ class CourseController extends Controller
     {
         $pdf = new Fpdi();
 
-        // فك تشفير الملف
         if (!$pdf->setSourceFile($path, $password)) {
             return response()->json(['error' => 'Unable to decrypt PDF'], 400);
         }
 
-        // معالجة الملف كما هو
         $pageCount = $pdf->setSourceFile($path);
         $templateId = $pdf->importPage(1);
         $size = $pdf->getTemplateSize($templateId);
@@ -179,11 +178,11 @@ class CourseController extends Controller
         $parser = new Parser();
         $pdf = $parser->parseFile($path);
 
-        $pages = $pdf->getPages(); // يقسمه لصفحات
+        $pages = $pdf->getPages();
 
         $pageTexts = [];
         foreach ($pages as $index => $page) {
-            $pageTexts[$index + 1] = $page->getText(); // النص في كل صفحة
+            $pageTexts[$index + 1] = $page->getText();
         }
 
         return response()->json([
@@ -231,11 +230,7 @@ class CourseController extends Controller
         return response()->json($courses);
     }
 
-    /**
-     * Get course details by ID.
-     */
-    
-    public function getCourseExamAttempts($instructorId)
+    public function getAllCoursesExamAttempts($instructorId)
     {
         $courses = Course::with(['exams.attempts'])
             ->where('instructor_id', $instructorId)
@@ -307,4 +302,5 @@ class CourseController extends Controller
             'image_url' => asset('storage/' . $path),
         ]);
     }
+
 }

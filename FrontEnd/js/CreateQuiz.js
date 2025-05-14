@@ -1,4 +1,5 @@
 // ===================== DOM References =====================
+const urlParams = new URLSearchParams(window.location.search);
 const elements = {
     // Form elements
     quizName: document.getElementById("quiz-name"),
@@ -28,7 +29,10 @@ const elements = {
     manualAddAnotherQuestion: document.getElementById("manualAddAnotherQuestion"),
     
     // Dropdowns
-    dropdown: document.getElementById("numberDropdown")
+    dropdown: document.getElementById("numberDropdown"),
+
+    // Query parameters
+    courseId: atob(urlParams.get('course_id')) // Decode course_id
 };
 
 // ===================== Global State =====================
@@ -47,7 +51,8 @@ function setupEventListeners() {
 
     // Back button
     elements.backBtn.addEventListener("click", () => {
-        window.location.href = "QuizzesManagement.html";
+        elements.courseId = btoa(elements.courseId); // encode courseId
+        window.location.href = `QuizzesManagement.html?course_id=${elements.courseId}`;
     });
     // Mode switching
     elements.creationWithAiButton.addEventListener("click", switchToAiMode);
@@ -257,7 +262,7 @@ function handleFormSubmission(e) {
     // Prepare final data
     const quizData = {
         metadata: {
-            course_id: 2,
+            course_id: parseInt(elements.courseId),
             name: elements.quizName.value.trim(),
             instructions: elements.instructions.value.trim(),
             date: elements.quizDate.value,

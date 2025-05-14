@@ -102,3 +102,23 @@ body {
   border-radius: 8px;
   cursor: pointer;
 }
+
+.no-quizzes {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.error-message {
+  color: #dc3545;
+  padding: 20px;
+  text-align: center;
+}
+
+.quiz-card[data-quiz-id] {
+  transition: transform 0.2s;
+}
+
+.quiz-card[data-quiz-id]:hover {
+  transform: translateY(-3px);
+}

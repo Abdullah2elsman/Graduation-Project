@@ -183,8 +183,14 @@ class InstructorController extends Controller
             return response()->json(['error' => 'Instructor not found'], 404);
         }
 
-        $courses = Course::where('instructor_id', $instructorId)->get();
+        // Fetch specific columns only
+        $courses = Course::where('instructor_id', $instructorId)
+            ->select('id', 'image_path', 'file_type', 'title', 'description', 'admin_id', 'file_path')
+            ->get();
 
-        return response()->json($courses);
+        return response()->json([
+            'success' => true,
+            'data' => $courses
+        ]);
     }
 }

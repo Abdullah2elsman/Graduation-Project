@@ -8,7 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\InstructorController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleSheetsController;
-
+use App\Http\Controllers\ReportsController;
 
 // Authentication And Authorization API
 Route::middleware('auth:sanctum')->group(function () {
@@ -56,23 +56,28 @@ Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
 Route::post('/sheets/write', [GoogleSheetsController::class, 'writeSheet']);
 
 // Course API
-Route::post('/createCourse', [CourseController::class, 'createCourse']);
 Route::post('/readCourse', [CourseController::class, 'readCourse']);
 Route::put('/updateCourse', [CourseController::class, 'updateCourse']);
 Route::delete('deleteCourse/{id}', [CourseController::class, 'deleteCourse']);
-Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
-Route::get('/getCourse/{id}', [CourseController::class, 'getCourse']);
-Route::get('instructor/{id}/getCourseExamAttempts', [CourseController::class, 'getCourseExamAttempts']);
-Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
 Route::post('/course/store', [CourseController::class, 'storeBook']);
 Route::get('/books/pdf/{id}', [CourseController::class, 'getBook']);
-Route::get('/course/createQuiz', [CourseController::class, 'createQuiz']);
+Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
+Route::get('instructor/{id}/getAllCoursesExamAttempts', [CourseController::class, 'getAllCoursesExamAttempts']);
+Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
 Route::post('/course/uploadImage', [CourseController::class, 'uploadImage']);
 
 
 // Exam API
 Route::post('exam/store', [ExamController::class, 'store']);
+Route::get('course/{courseId}/getExams', [ExamController::class, 'getExams']);
+Route::get('course/{courseId}/getFinishedExams', [ExamController::class, 'getFinishedExams']);
 
+// Reports API
+Route::get('/reports/course', [ReportsController::class, 'reportsOfCourse']);
+Route::get('/reports/topStudents', [ReportsController::class, 'topStudents']);
+Route::get('/reports/topStudentsMissedAllExams', [ReportsController::class, 'topStudentsMissedAllExams']);
+Route::get('/reports/averageGrades', [ReportsController::class, 'averageGrades']);
+Route::get('/reports/studentsInteraction', [ReportsController::class, 'studentsInteraction']);
 
 // Test
 Route::get('/course/book/{id}', [CourseController::class,'show']);
