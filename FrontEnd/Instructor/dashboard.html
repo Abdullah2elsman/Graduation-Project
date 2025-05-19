@@ -7,6 +7,7 @@
   
   <link rel="stylesheet" href="../css/master.css">
   <link rel="stylesheet" href="../css/instructor.css">
+  <link rel="stylesheet" href="../css/calender.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   </head>
@@ -54,8 +55,11 @@
     <div class="content" style="width: calc(100% - 27vw);">
   
       <!-- --------------------------------- Courses Progress --------------------------------- -->
+        <div class="content-header">
+            <h2>Courses Progress</h2>
+            <button class="open-calendar"><img src="../imgs/open-calender.svg"></button>
+        </div>
       <div class="courses-progress">
-        <h2>Courses Progress</h2>
         <div class="cards-container">
           <button class="move-left">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -81,6 +85,7 @@
             </svg>
           </button>
           <div class="cards-wrapper">
+            <!-- Filled Dynamically -->
           </div>
           <button class="move-right">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -516,7 +521,7 @@
       <!-- --------------------------------- Calender Sidebar --------------------------------- -->
       <div class="calender-sidebar">
         <div class="close-calendar">
-          <button class="closebtn-calendar"><img src="../imgs/closecalendar.svg"></button>
+          <button><img src="../imgs/close-calendar.svg"></button>
         </div>
         <h2>Calender</h2>
         <div class="calendar-container">

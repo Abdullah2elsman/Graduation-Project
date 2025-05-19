@@ -1,549 +1,497 @@
-/* Dashboard Page */
+:root {
+    --main-blue: #2c6da4;
+    --main-white: #fefefe;
+    --main-gray: #D8DEF3;
+    --main-dark: #194062;
+    --main-pink: #FFB6C1;
+    --main-light-blue: #4682B4;
+    --main-bg: #FCFCFC;
+    --main-border: #D5D5D5;
+    --main-gradient-dark: rgba(44, 62, 80, 0.5);
+    --main-gradient-light: rgba(252, 252, 252, 0.5);
+    --main-table-bg: #FCFDFD;
+    --main-table-text: #2B303466;
+    --main-hover: #E8EFF5;
 
-.courses-progress {
-  width: calc(100% - 27vw);
-  margin-top: 20px;
-  margin-left: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  overflow-x: hidden;
-  /* Ensures no extra horizontal scroll */
+    --content-width: calc(100% - 27vw);
 }
 
-.courses-progress h2 {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+/* ===================
+    Dashboard Page
+=================== */
+
+.courses-progress {
+    width: var(--content-width);
+    margin-top: 20px;
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow-x: hidden;
+    transition: all 0.3s ease;
+}
+
+.content-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
 }
 
 .courses-progress .cards-container {
-  width: 100%;
-  margin-top: 35px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  overflow: hidden;
-  /* Hide overflowing content */
-  justify-content: space-between;
-  position: relative;
+    width: 100%;
+    margin-top: 35px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    overflow: hidden;
+    justify-content: space-between;
+    position: relative;
 }
 
 .courses-progress .move-left,
 .courses-progress .move-right {
-  background: transparent;
-  border: none;
-  cursor: pointer;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .courses-progress .cards-wrapper {
-  display: flex;
-  gap: 28px;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-  flex-wrap: nowrap;
-  padding-bottom: 10px;
-  position: relative;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
+    display: flex;
+    gap: 28px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    padding-bottom: 10px;
+    position: relative;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
 }
-
-
 
 .courses-progress .card {
-  width: 264px;
-  padding: 24px;
-  border-radius: 16px;
-  background-color: #fefefe;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
-  flex-shrink: 0;
-  /* Prevents the card from resizing */
+    width: 264px;
+    padding: 24px;
+    border-radius: 16px;
+    background-color: var(--main-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
+    flex-shrink: 0;
 }
 
+/* ===================
+    Course Card Component
+=================== */
+
 .course-card {
-  width: 220px;
-  padding: 24px;
-  border-radius: 16px;
-  background-color: #fefefe;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
-  flex-shrink: 0;
-  /* Prevents the card from resizing */
+    width: 220px;
+    padding: 24px;
+    border-radius: 16px;
+    background-color: var(--main-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
+    flex-shrink: 0;
 }
 
 .course-card .progress-container {
-  position: relative;
-  width: 130px;
-  height: 130px;
-  margin-bottom: 5px;
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin-bottom: 5px;
 }
 
 .course-card .progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  font-size: 15px;
-  font-weight: 700;
-  color: #2c6da4;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--main-blue);
 }
 
 .course-card .progress-text span {
-  display: block;
-  font-size: 12px;
-  font-weight: normal;
-  color: #2c6da4;
-  margin-top: 5px;
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    color: var(--main-blue);
+    margin-top: 5px;
 }
 
 .course-card .course-title {
-  font-size: 23px;
-  font-weight: bold;
-  overflow-wrap: break-word;
-  white-space: normal;
-  text-align: center;
-  min-height: 55px;
-  display: flex;
-  align-items: center;
+    font-size: 23px;
+    font-weight: bold;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
 }
 
 .course-card .quiz-info {
-  font-size: 14px;
-  margin: 7px 0;
+    font-size: 14px;
+    margin: 7px 0;
 }
 
 .course-card .quiz-button {
-  width: 83%;
-  background: #2c6da4;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 10px;
-  font-family: 'Roboto', sans-serif;
-
+    width: 83%;
+    background: var(--main-blue);
+    color: var(--main-white);
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: 'Roboto', sans-serif;
 }
 
 .quiz-button:hover {
-  background: rgba(44, 109, 164, 1);
-
+    background: var(--main-blue);
 }
+
+/* ===================
+    Charts & Stats
+=================== */
 
 .monthly-progress .chart-container {
-  position: relative;
-  margin-top: 35px;
-  width: calc(100% - 27vw);
-  height: 430px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
+    position: relative;
+    margin-top: 35px;
+    width: var(--content-width);
+    height: 430px;
+    background: var(--main-white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
+    transition: all 0.3s ease;
 }
 
- .chart-container #monthSelect {
+.chart-container #monthSelect {
     position: absolute;
-    left: calc(100% - 43vw); 
+    left: calc(100% - 43vw);
     padding: 5px 10px;
-    border: 1px solid #D5D5D5;
-    background-color:  #FCFDFD;
-    color: #2B303466;
+    border: 1px solid var(--main-border);
+    background-color: var(--main-table-bg);
+    color: var(--main-table-text);
     border-radius: 5px;
 }
 
 .average-grades .chart-container {
-  margin-top: 35px;
-  width: calc(100% - 27vw);
-  height: 400px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
+    margin-top: 35px;
+    width: var(--content-width);
+    height: 400px;
+    background: var(--main-white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
+    transition: all 0.3s ease;
 }
 
 .missed-all-quizzes {
-  margin-top: 35px;
-  width: calc(100% - 27vw);
-  max-height: 400px;
+    margin-top: 35px;
+    width: var(--content-width);
+    max-height: 400px;
+    transition: all 0.3s ease;
 }
 
 .missed-all-quizzes .table-container {
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
-  border-radius: 10px;
-  max-height: 370px;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
+    border-radius: 10px;
+    max-height: 370px;
 }
 
-.calender-sidebar {
-  position: fixed;
-  right: 0;
-  top: 0;
-  background-color: #f4f4f4;
-  width: 27vw;
-  padding: 20px;
-  height: 100vh;
-  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
-}
+/* ===================
+    Course Management Page
+=================== */
 
-.calendar-container {
-  margin: 15px 0;
-  width: 24vw;
-  text-align: center;
-  font-family: Arial, sans-serif;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0px 0px 8px 0px #0077B633;
-}
-
-.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #023e8a;
-  padding: 3px;
-  border-radius: 10px;
-}
-
-.calendar-header div {
-  text-align: center;
-  flex-grow: 1;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.calendar-header span {
-  display: block;
-}
-
-.calendar-header button {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.calendar-days,
-.day-labels {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(10px, 1fr));
-}
-
-.calendar-days div,
-.day-labels div {
-  margin: 8px;
-  padding: 6px;
-  text-align: center;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 400;
-}
-
-.day-labels {
-  color: #8f9bb3;
-}
-
-.calendar-days div {
-  font-size: 15px;
-  font-weight: 400;
-}
-
-.prev-month,
-.next-month {
-  color: #8f9bb3;
-}
-
-.selected {
-  background-color: #0077b6;
-  color: white;
-  border-radius: 10px;
-}
-
-.schedule {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.schedule-item {
-  background: #fff;
-  border: 1.5px solid #2c6da4;
-  border-left: 5px solid #2c6da4;
-  border-radius: 10px;
-  padding: 10px;
-  line-height: 24px;
-}
-
-.schedule-item .details {
-  color: #585a66;
-}
-
-/* Course Management Page */
 .book {
-  width: 275px;
-  height: 350px;
-  border: 3px solid #2C6DA4;
-  border-radius: 16px;
-  float: right;
-  margin: 15px;
-  position: relative;
-  background-size: cover;
-  background-repeat: no-repeat;
+    width: 275px;
+    height: 350px;
+    border: 3px solid var(--main-blue);
+    border-radius: 16px;
+    float: right;
+    margin: 15px;
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .books-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 70px;
+    display: flex;
+    justify-content: center;
+    margin-top: 70px;
 }
 
 .up-frame {
-  width: 271px;
-  height: 77px;
-  border-radius: 14px;
-  background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
-  padding: 16px 8px 16px 8px;
-  overflow: auto;
+    width: 271px;
+    height: 77px;
+    border-radius: 14px;
+    background: linear-gradient(var(--main-gradient-light), var(--main-gradient-dark));
+    padding: 16px 8px 16px 8px;
+    overflow: auto;
 }
 
 .open {
-  width: 82px;
-  height: 40px;
-  padding: 8px;
-  font-size: 18px;
-  color: #FFFFFF;
-  background-color: #2C6DA4;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  float: right;
+    width: 82px;
+    height: 40px;
+    padding: 8px;
+    font-size: 18px;
+    color: var(--main-white);
+    background-color: var(--main-blue);
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    float: right;
 }
 
 .open i {
-  display: inline-block;
-  margin-left: 8px;
+    display: inline-block;
+    margin-left: 8px;
 }
 
 .down-frame {
-  width: 271px;
-  height: 100px;
-  border-radius: 14px;
-  background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
-  padding: 10px;
-  overflow: auto;
-  position: absolute;
-  bottom: 0;
-  text-align: center;
+    width: 271px;
+    height: 100px;
+    border-radius: 14px;
+    background: linear-gradient(var(--main-gradient-light), var(--main-gradient-dark));
+    padding: 10px;
+    overflow: auto;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+}
+
+.down-frame p {
+    margin-bottom: 8px;
 }
 
 .report-student {
-  background-color: #FCFCFC;
-  color: #2C6DA4;
-  padding: 8px;
-  border: 1px solid #2C6DA4;
-  border-radius: 8px;
-  width: 142px;
-  height: 40px;
-  cursor: pointer;
-  font-size: 13px;
+    background-color: var(--main-bg);
+    color: var(--main-blue);
+    padding: 8px;
+    border: 1px solid var(--main-blue);
+    border-radius: 8px;
+    width: 142px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 13px;
 }
 
 .quiz {
-  background-color: #FCFCFC;
-  color: #2C6DA4;
-  padding: 8px;
-  border: 1px solid #2C6DA4;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 8px;
-  text-decoration: none;
+    background-color: var(--main-bg);
+    color: var(--main-blue);
+    padding: 8px;
+    border: 1px solid var(--main-blue);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 8px;
+    text-decoration: none;
 }
 
+/* ===================
+    Header
+=================== */
+
 .header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0;
 }
 
 .header button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
+/* ===================
+    Stats Cards
+=================== */
 
-/* Stats Cards */
 .stats-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
 }
 
 .stat-card {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  border-radius: 16px;
-  padding: 10px;
-  border: 1px solid #2C6DA4;
-  font-weight: 700;
-  font-size: 1.3vw;
-  white-space: nowrap;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 16px;
+    padding: 10px;
+    border: 1px solid var(--main-blue);
+    font-weight: 700;
+    font-size: 1.3vw;
+    white-space: nowrap;
 }
 
 .stat-card svg {
-  width: 1.6vw;
+    width: 1.6vw;
 }
 
 .stat-card span {
-  color: #2c6da4;
+    color: var(--main-blue);
 }
 
+/* ===================
+    Reports & Progress
+=================== */
+
 .reports-exams {
-  text-align: center;
-  display: flex;
-  justify-content: start;
+    text-align: center;
+    display: flex;
+    justify-content: start;
 }
 
 .students-report-chart {
-  width: 305px;
+    width: 305px;
 }
 
 .reports-exams h3 {
-  text-align: left;
+    text-align: left;
 }
 
 .progress-container {
-  margin-top: 20px;
-  position: relative;
-  display: inline-block;
-  width: 200px;
-  height: 200px;
+    margin-top: 20px;
+    position: relative;
+    display: inline-block;
+    width: 200px;
+    height: 200px;
 }
 
 .reports-exams .progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-46%, -50%);
-  font-size: 28px;
-  font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-46%, -50%);
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .legend-container {
-  font-size: 12px;
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    font-size: 12px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
 }
 
 .legend-circle {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
 }
 
 .blue {
-  background-color: #4682B4;
+    background-color: var(--main-light-blue);
 }
 
-/* Adjust color to match */
 .pink {
-  background-color: #FFB6C1;
+    background-color: var(--main-pink);
 }
 
-/* Adjust color to match */
 .bold-text {
-  font-weight: bold;
+    font-weight: bold;
 }
+
+/* ===================
+    Top Students & Missed Exams
+=================== */
 
 .top-students,
 .students-missed-all-exams {
-  display: flex;
-  flex-direction: column;
-  margin-left: 20px;
-  width: calc(100% - 53vw);
-  max-height: 365px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    width: calc(100% - 53vw);
+    max-height: 365px;
 }
 
 .top-students .table-container,
 .students-missed-all-exams .table-container {
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
-  border-radius: 10px;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
+    border-radius: 10px;
 }
 
 .top-students h2,
 .students-missed-all-exams h2 {
-  text-align: left;
-  margin-bottom: 15px;
-  /* Adds spacing between the heading and table */
+    text-align: left;
+    margin-bottom: 15px;
 }
 
 .students-missed-all-exams {
-  width: calc(100% - 62vw);
-
+    width: calc(100% - 62vw);
 }
 
 .activation-progress {
-  display: flex;
-  justify-content: start;
+    display: flex;
+    justify-content: start;
 }
 
+/* ===================
+    Monthly Statics & Grades
+=================== */
+
 .monthly-statics {
-  width: calc(100% - 30vw);
+    width: calc(100% - 30vw);
 }
 
 .monthly-statics .chart-container,
 .average-grades-course .chart-container {
-  margin-top: 35px;
-  height: 430px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 8px 0px #D8DEF3;
+    margin-top: 35px;
+    height: 430px;
+    background: var(--main-white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 8px 0px var(--main-gray);
 }
 
 .average-grades-course {
-  margin-left: 15px;
-  width: calc(100% - 66vw);
+    margin-left: 15px;
+    width: calc(100% - 66vw);
 }
 
-.down-frame p {
-  margin-bottom: 8px;
+/* ===================
+    Student Management Page
+=================== */
+
+.download-excel {
+    color: var(--main-dark);
+    background-color: transparent;
+    height: 31px;
+    border: 1px solid var(--main-dark);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    min-width: 135px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* Student Management Page  */
-.show-excel {
-  color: #194062;
-  background-color: transparent;
-  height: 31px;
-  border: 1px solid #194062;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  min-width: 135px;
+.download-excel:hover {
+    background-color: var(--main-hover);
+}
+
+.download-excel svg {
+    stroke: currentColor;
+    fill: none;
 }

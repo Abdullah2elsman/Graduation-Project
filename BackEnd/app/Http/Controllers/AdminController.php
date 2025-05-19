@@ -129,9 +129,9 @@ class AdminController extends Controller
         $numberOfAdmins = Admin::count();
         $numberOfInstructors = Instructor::count();
         return response()->json([
-            'numberOfAdmins' => $numberOfAdmins,
-            'numberOfInstructors' => $numberOfInstructors,
-            'numberOfStudents' => $numberOfStudents,
+            'number_of_admins' => $numberOfAdmins,
+            'number_of_instructors' => $numberOfInstructors,
+            'number_of_students' => $numberOfStudents,
         ]);
     }
 
@@ -166,14 +166,12 @@ class AdminController extends Controller
     function getReports(){
         $examAttempts = ExamAttempt::with([
             'student:id,name,email',
-            'exam:id,exam,course_id',
+            'exam:id,course_id',
             'exam.course:id,title,description' // Fetch course details
         ])
             ->select('id', 'exam_id', 'student_id', 'grade') // Select only needed columns
             ->get();
 
-        return response()->json([
-            'data' => $examAttempts
-        ],200);
+        return response()->json($examAttempts,200);
     }
 }

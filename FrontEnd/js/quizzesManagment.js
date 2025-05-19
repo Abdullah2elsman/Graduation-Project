@@ -118,7 +118,7 @@ function createQuizCard(quiz) {
                 ${quiz.instructions ? `<p class="desc">Instructions: ${quiz.instructions}</p>` : ''}
             </div>
             <div class="actions">
-                <button class="view-quiz-btn" data-quiz-name="${quiz.name}">View Quiz</button>
+                <button class="view-quiz-btn" id="${quiz.id}">View Quiz</button>
             </div>
         </div>
     `;
@@ -136,8 +136,8 @@ function createFinishedQuizCard(quiz) {
                 </p>
             </div>
             <div class="actions">
-                <button class="regrade-quiz-btn">Regrade Quiz</button>
-                <button class="view-quiz-btn">View Quiz</button>
+                <button class="regrade-quiz-btn" id="${quiz.exam_id}">Regrade Quiz</button>
+                <button class="view-quiz-btn" id="${quiz.exam_id}">View Quiz</button>
             </div>
         </div>
     `;
@@ -150,22 +150,21 @@ function setupEventListeners() {
     });
 
     elements.createQuizBtn.addEventListener("click", () => {
-        const encodedCourseId = btoa(courseId); // encode courseId
+        const encodedCourseId = btoa(courseId);
         window.location.href = `CreateNewQuiz.html?course_id=${encodedCourseId}`;
     });
 
     elements.quizList.addEventListener('click', (e) => {
         if (e.target.classList.contains('view-quiz-btn')) {
-            const quizName = e.target.dataset.quizName;
-            handleViewQuiz(quizName);
-        }
+            const quizId = e.target.id;
+            handleViewQuiz(quizId);
+            }
     });
 }
 
 // ===================== Action Handlers =====================
-function handleViewQuiz(quizName) {
-    console.log(`Viewing quiz ${quizName}`);
-    // window.location.href = `quiz-details.html?course_id=${courseId}&quiz_name=${encodeURIComponent(quizName)}`;
+function handleViewQuiz(quizId) {
+    window.location.href = `viewQuiz.html?course_id=${encodedCourseId}&exam_id=${btoa(quizId)}`;
 }
 
 // ===================== Utility Functions =====================

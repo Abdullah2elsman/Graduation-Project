@@ -6,6 +6,9 @@ use App\Models\Course;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class ReportsController extends Controller
 {
@@ -28,10 +31,10 @@ class ReportsController extends Controller
         }
 
         $averagePercentage = DB::table('exam_attempts')
-        ->join('exams', 'exam_attempts.exam_id', '=', 'exams.id')
-        ->where('exams.course_id', $courseId)
-        ->select(DB::raw('AVG((exam_attempts.grade / exams.total_score) * 100) as avg_percentage'))
-        ->value('avg_percentage');
+            ->join('exams', 'exam_attempts.exam_id', '=', 'exams.id')
+            ->where('exams.course_id', $courseId)
+            ->select(DB::raw('AVG((exam_attempts.grade / exams.total_score) * 100) as avg_percentage'))
+            ->value('avg_percentage');
 
         $allStudentIds = DB::table('enrollments')
             ->where('cancelled', 0)
@@ -63,7 +66,7 @@ class ReportsController extends Controller
             ]
         ]);
     }
-    
+
     public function topStudents(Request $request)
     {
         $request->validate([
@@ -123,7 +126,7 @@ class ReportsController extends Controller
         $students = DB::table('students')
             ->whereIn('id', $missedStudentIds)
             ->select('id', 'name')
-            ->orderBy('name') 
+            ->orderBy('name')
             ->limit(20)
             ->get();
 
@@ -133,7 +136,8 @@ class ReportsController extends Controller
         ]);
     }
 
-    public function averageGrades(Request $request){
+    public function averageGrades(Request $request)
+    {
         $request->validate([
             'course_id' => 'required|integer'
         ]);
@@ -145,7 +149,7 @@ class ReportsController extends Controller
             ->where('exams.course_id', $courseId)
             ->select(
                 'exams.id as exam_id',
-                'exams.name as name', 
+                'exams.name as name',
                 'exams.total_score',
                 DB::raw('AVG(exam_attempts.grade) as average_grade'),
                 DB::raw('AVG((exam_attempts.grade / exams.total_score) * 100) as average_percentage')
@@ -194,5 +198,118 @@ class ReportsController extends Controller
             'number_of_students' => $enrolledStudents,
             'data' => $data
         ]);
+    }
+
+    protected function getStudentsExamData($instructorId)
+    {
+        return DB::table('exam_attempts')
+            ->join('exams', 'exam_attempts.exam_id', '=', 'exams.id')
+            ->join('courses', 'exams.course_id', '=', 'courses.id')
+            ->join('students', 'exam_attempts.student_id', '=', 'students.id')
+            ->where('courses.instructor_id', $instructorId)
+            ->select(
+                'students.id as student_id',
+                'students.name as student_name',
+                'courses.title as course_title',
+                'exams.name as exam_name',
+                'exam_attempts.grade',
+                'exams.total_score'
+            )
+            ->get();
+    }
+
+    public function studentsExamData(Request $request)
+    {
+        $request->validate([
+            'instructor_id' => 'required|integer'
+        ]);
+
+        $instructorId = $request->input('instructor_id');
+        $attempts = $this->getStudentsExamData($instructorId);
+
+        return response()->json([
+            'success' => true,
+            'data' => $attempts
+        ]);
+    }
+
+    public function downloadStudentReport(Request $request)
+    {
+        $request->validate([
+            'instructor_id' => 'required|integer'
+        ]);
+
+        $instructorId = $request->input('instructor_id');
+
+        // 1. Get the data using your existing query
+        $attempts = DB::table('exam_attempts')
+            ->join('exams', 'exam_attempts.exam_id', '=', 'exams.id')
+            ->join('courses', 'exams.course_id', '=', 'courses.id')
+            ->join('students', 'exam_attempts.student_id', '=', 'students.id')
+            ->where('courses.instructor_id', $instructorId)
+            ->select(
+                'students.id as student_id',
+                'students.name as student_name',
+                'courses.title as course_title',
+                'exams.name as exam_name',
+                'exam_attempts.grade',
+                'exams.total_score'
+            )
+            ->get();
+
+        // 2. Prepare data with headers
+        $data = collect([
+            ['Student ID', 'Student Name', 'Course Title', 'Exam Name', 'Grade', 'Total Score']
+        ])->merge(
+            $attempts->map(function ($row) {
+                return [
+                    $row->student_id,
+                    $row->student_name,
+                    $row->course_title,
+                    $row->exam_name,
+                    $row->grade,
+                    $row->total_score
+                ];
+            })
+        );
+
+        // 3. Export directly using an anonymous class
+        return Excel::download(
+            new class($attempts) implements FromCollection, WithHeadings {
+                private $data;
+
+                public function __construct($attempts)
+                {
+                    $this->data = $attempts;
+                }
+
+                public function collection()
+                {
+                    return collect($this->data)->map(function ($row) {
+                        return [
+                            $row->student_id,
+                            $row->student_name,
+                            $row->course_title,
+                            $row->exam_name,
+                            $row->grade,
+                            $row->total_score,
+                        ];
+                    });
+                }
+
+                public function headings(): array
+                {
+                    return [
+                        'Student ID',
+                        'Student Name',
+                        'Course Title',
+                        'Exam Name',
+                        'Grade',
+                        'Total Score',
+                    ];
+                }
+            },
+            'students_exam_report.xlsx'
+        );
     }
 }

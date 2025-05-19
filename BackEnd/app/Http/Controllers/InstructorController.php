@@ -185,7 +185,7 @@ class InstructorController extends Controller
 
         // Fetch specific columns only
         $courses = Course::where('instructor_id', $instructorId)
-            ->select('id', 'image_path', 'file_type', 'title', 'description', 'admin_id', 'file_path')
+            ->select('id', 'image_path', 'file_type', 'title', 'description', 'admin_id', 'file_path', 'number_of_exams', 'completed_exams')
             ->get();
 
         return response()->json([

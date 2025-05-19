@@ -9,6 +9,7 @@ use App\Http\Controllers\InstructorController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\ReportsController;
+use Illuminate\Http\Request;
 
 // Authentication And Authorization API
 Route::middleware('auth:sanctum')->group(function () {
@@ -30,15 +31,15 @@ Route::get('/getStudent/{id}', [StudentController::class, 'getStudent']);
 Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
 
 // Admin API
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::put('/updateAdmin/{id}', [AdminController::class, 'update'])->name('admin.update');
-    Route::post('/deleteAdmin/{id}', [AdminController::class, 'delete'])->name('admin.delete');
-    Route::post('/getAdmin/{id}', [AdminController::class, 'getAdmin']);
-    Route::post('/getNumOfUsers', [AdminController::class, 'getNumOfUsers']);
-    Route::post('/getAllCourses', [AdminController::class, 'getAllCourses']);
-    Route::post('/getAllUsersData', [AdminController::class, 'getAllUsersData']);
-    Route::post('/getReports', [AdminController::class, 'getReports']);
-});
+// Route::middleware(['auth:sanctum'])->group(function () {
+    Route::put('admin/update/{id}', [AdminController::class, 'update']);
+    Route::delete('admin/delete/{id}', [AdminController::class, 'delete']);
+    Route::get('admin/getAdmin/{id}', [AdminController::class, 'getAdmin']);
+    Route::get('admin/getNumOfUsers', [AdminController::class, 'getNumOfUsers']);
+    Route::get('admin/getAllCourses', [AdminController::class, 'getAllCourses']);
+    Route::get('admin/getAllUsersData', [AdminController::class, 'getAllUsersData']);
+    Route::get('admin/getReports', [AdminController::class, 'getReports']);
+// });
 
 
 // Instructor API
@@ -71,6 +72,11 @@ Route::post('/course/uploadImage', [CourseController::class, 'uploadImage']);
 Route::post('exam/store', [ExamController::class, 'store']);
 Route::get('course/{courseId}/getExams', [ExamController::class, 'getExams']);
 Route::get('course/{courseId}/getFinishedExams', [ExamController::class, 'getFinishedExams']);
+// This to instructors
+Route::get('/instructor/course/{courseId}/exams/getExamQuestions', [ExamController::class, 'getExamQuestions']); // This to instructors
+// This to students
+Route::get('/student/course/{courseId}/exams/getExamQuestions', function (Request $request, $courseId) {
+    return (new ExamController)->getExamQuestions($request, $courseId, false);}); 
 
 // Reports API
 Route::get('/reports/course', [ReportsController::class, 'reportsOfCourse']);
@@ -78,6 +84,8 @@ Route::get('/reports/topStudents', [ReportsController::class, 'topStudents']);
 Route::get('/reports/topStudentsMissedAllExams', [ReportsController::class, 'topStudentsMissedAllExams']);
 Route::get('/reports/averageGrades', [ReportsController::class, 'averageGrades']);
 Route::get('/reports/studentsInteraction', [ReportsController::class, 'studentsInteraction']);
+Route::get('/reports/studentsExamData', [ReportsController::class, 'studentsExamData']);
+Route::get('/reports/downloadStudentReport', [ReportsController::class, 'downloadStudentReport']);
 
 // Test
 Route::get('/course/book/{id}', [CourseController::class,'show']);

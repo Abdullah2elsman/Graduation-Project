@@ -27,7 +27,7 @@
     <a href="coursesManagement.html" class="menu-item">
       <img src="../imgs/contentmanag.svg" alt="Course Management Icon"> <span>Course Management</span>
     </a>
-    <a href="StudentManagement.html" class="menu-item selected">
+    <a href="StudentManagement.html?instructor_id=201" class="menu-item selected">
       <img src="../imgs/usermanag.svg" alt="User Management Icon"> <span>Student Management</span>
     </a>
   </nav>
@@ -59,7 +59,7 @@
 
     <div class="form-container">
       <label for="search">Show</label>
-      <div class="form-group">
+      <div class="form-group id-search">
         <svg class="search-icon" width="15" height="15" viewBox="0 0 15 15" fill="none"
           xmlns="http://www.w3.org/2000/svg">
           <path
@@ -68,16 +68,16 @@
         </svg>
         <input type="text" id="search" placeholder="id">
       </div>
-      <div class="form-group">
+      <div class="form-group book-search">
         <svg class="search-icon " width="15" height="15" viewBox="0 0 15 15" fill="none"
           xmlns="http://www.w3.org/2000/svg">
           <path
             d="M14 14.0002L11.0093 11.0042L14 14.0002ZM12.6666 7.00016C12.6666 8.50306 12.0696 9.9444 11.0069 11.0071C9.94421 12.0698 8.50287 12.6668 6.99998 12.6668C5.49709 12.6668 4.05575 12.0698 2.99304 11.0071C1.93034 9.9444 1.33331 8.50306 1.33331 7.00016C1.33331 5.49727 1.93034 4.05593 2.99304 2.99322C4.05575 1.93052 5.49709 1.3335 6.99998 1.3335C8.50287 1.3335 9.94421 1.93052 11.0069 2.99322C12.0696 4.05593 12.6666 5.49727 12.6666 7.00016V7.00016Z"
             stroke="#757575" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <input type="text" id="book-name" placeholder="Role of User">
+        <input type="text" id="book-name" placeholder="Book Name">
       </div>
-      <div class="form-group">
+      <div class="form-group exam-search">
         <svg class="search-icon " width="15" height="15" viewBox="0 0 15 15" fill="none"
           xmlns="http://www.w3.org/2000/svg">
           <path
@@ -86,18 +86,18 @@
         </svg>
         <input type="text" id="exam-title" placeholder="Exam Title">
       </div>
-      <button class="show-excel">
+      <button class="download-excel">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M2.66699 5.00004V2.00004C2.66699 1.82323 2.73723 1.65366 2.86225 1.52864C2.98728 1.40361 3.15685 1.33337 3.33366 1.33337H12.667C12.8438 1.33337 13.0134 1.40361 13.1384 1.52864C13.2634 1.65366 13.3337 1.82323 13.3337 2.00004V14C13.3337 14.1769 13.2634 14.3464 13.1384 14.4714C13.0134 14.5965 12.8438 14.6667 12.667 14.6667H3.33366C3.15685 14.6667 2.98728 14.5965 2.86225 14.4714C2.73723 14.3464 2.66699 14.1769 2.66699 14V11"
-            stroke="#1F507A" stroke-linecap="round" stroke-linejoin="round" />
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
           <path
             d="M2.66699 5.00004V2.00004C2.66699 1.82323 2.73723 1.65366 2.86225 1.52864C2.98728 1.40361 3.15685 1.33337 3.33366 1.33337H12.667C12.8438 1.33337 13.0134 1.40361 13.1384 1.52864C13.2634 1.65366 13.3337 1.82323 13.3337 2.00004V14C13.3337 14.1769 13.2634 14.3464 13.1384 14.4714C13.0134 14.5965 12.8438 14.6667 12.667 14.6667H3.33366C3.15685 14.6667 2.98728 14.5965 2.86225 14.4714C2.73723 14.3464 2.66699 14.1769 2.66699 14V11"
             stroke="black" stroke-opacity="0.2" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M10.3335 5H11.3335M9.3335 7.66667H11.3335M9.3335 10.3333H11.3335" stroke="#1F507A" stroke-linecap="round" />
+          <path d="M10.3335 5H11.3335M9.3335 7.66667H11.3335M9.3335 10.3333H11.3335" stroke="currentColor" stroke-linecap="round" />
           <path d="M10.3335 5H11.3335M9.3335 7.66667H11.3335M9.3335 10.3333H11.3335" stroke="black" stroke-opacity="0.2"
             stroke-linecap="round" />
-          <path d="M3.3335 7L5.3335 9M5.3335 7L3.3335 9M1.3335 5H7.3335V11H1.3335V5Z" stroke="#1F507A" stroke-linecap="round"
+          <path d="M3.3335 7L5.3335 9M5.3335 7L3.3335 9M1.3335 5H7.3335V11H1.3335V5Z" stroke="currentColor" stroke-linecap="round"
             stroke-linejoin="round" />
           <path d="M3.3335 7L5.3335 9M5.3335 7L3.3335 9M1.3335 5H7.3335V11H1.3335V5Z" stroke="black" stroke-opacity="0.2"
             stroke-linecap="round" stroke-linejoin="round" />
@@ -119,38 +119,13 @@
           </tr>
         </thead>
         <tbody>
-          <!-- <tr>
-                        <td>123</td>
-                        <td>Abdullah Elsman</td>
-                        <td>Math</td>
-                        <td>Math</td>
-                        <td style="display: flex; align-items: center;">
-                            <div class="progress-container">
-                                <div class="progress-bar"></div>
-                            </div>
-                            <span class="progress-text">8/10</span>
-                        </td>
-                        <td class="actions">
-                            <svg class="edit-action" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="1.1001" y="0.5" width="31" height="31" rx="3.5" stroke="#28A745" />
-                            <path
-                                d="M21.0868 8.86167L22.7743 7.17417C23.5065 6.44194 24.6937 6.44194 25.4259 7.17417C26.1582 7.90641 26.1582 9.09359 25.4259 9.82583L14.8073 20.4445C14.2786 20.9731 13.6265 21.3618 12.91 21.5752L10.2251 22.375L11.0249 19.6901C11.2383 18.9736 11.6269 18.3215 12.1556 17.7928L21.0868 8.86167ZM21.0868 8.86167L23.7251 11.5M22.2251 18.375V23.125C22.2251 24.3676 21.2177 25.375 19.9751 25.375H9.4751C8.23246 25.375 7.2251 24.3676 7.2251 23.125V12.625C7.2251 11.3824 8.23246 10.375 9.4751 10.375H14.2251"
-                                stroke="#28A745" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <svg class="delete-action" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="1.1001" y="0.5" width="31" height="31" rx="3.5" stroke="#D32F2F" />
-                                <path
-                                    d="M19.3405 13L18.9943 22M14.2059 22L13.8597 13M23.8277 9.79057C24.1697 9.84221 24.5105 9.89747 24.8501 9.95629M23.8277 9.79057L22.7599 23.6726C22.6697 24.8448 21.6922 25.75 20.5165 25.75H12.6837C11.508 25.75 10.5305 24.8448 10.4403 23.6726L9.37245 9.79057M23.8277 9.79057C22.6813 9.61744 21.5216 9.48485 20.3501 9.39432M8.3501 9.95629C8.68967 9.89747 9.03047 9.84221 9.37245 9.79057M9.37245 9.79057C10.5189 9.61744 11.6786 9.48485 12.8501 9.39432M20.3501 9.39432V8.47819C20.3501 7.29882 19.4394 6.31423 18.2607 6.27652C17.7093 6.25889 17.1557 6.25 16.6001 6.25C16.0444 6.25 15.4909 6.25889 14.9395 6.27652C13.7608 6.31423 12.8501 7.29882 12.8501 8.47819V9.39432M20.3501 9.39432C19.1127 9.2987 17.8621 9.25 16.6001 9.25C15.3381 9.25 14.0875 9.2987 12.8501 9.39432"
-                                    stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </td>
-                    </tr> -->
-
+          <!-- Dynamically Filled -->
         </tbody>
       </table>
     </div>
   </div>
   <script src="../js/script.js"></script>
+  <script src="../js/studentManagement.js"></script>
 </body>
 
 </html>

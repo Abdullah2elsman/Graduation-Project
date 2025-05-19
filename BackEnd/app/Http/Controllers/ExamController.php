@@ -133,4 +133,42 @@ class ExamController extends Controller
             'data' => $exams
         ]);
     }
+
+    public function getExamQuestions(Request $request, $courseId, $includeCorrect = true)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'exam_id' => 'required|exists:exams,id'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+        }
+        $examId = $request->input('exam_id');
+
+        if (!$examId) {
+            return response()->json(['message' => 'Exam ID is required'], 400);
+        }
+        $exam = Exam::where('course_id', $courseId)
+            ->where('id', $examId)
+            ->with(['questions.options' => function ($query) use ($includeCorrect) {
+                if ($includeCorrect) {
+                    $query->select('id', 'question_id', 'option', 'is_correct');
+                } else {
+                    $query->select('id', 'question_id', 'option');
+                }
+            }])
+            ->with(['questions' => function ($query) {
+                $query->select('id', 'exam_id', 'question');
+            }])
+            ->first();
+
+        if (!$exam) {
+            return response()->json(['message' => 'Exam not found'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'=> $exam
+        ]);
+    }
 }

@@ -1,125 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إحصائيات التعليم الإلكتروني 2019-2025</title>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            background: #f0f7ff;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        h1,
-        h2 {
-            color: #2c3e50;
-            text-align: center;
-        }
-
-        .charts-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .chart-box {
-            flex: 1;
-            min-width: 300px;
-            padding: 15px;
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <title>Download Excel Report</title>
 </head>
 
 <body>
-    <div class="container">
-        <h1>📊  E-Learning Statistics  (2019-2025)</h1>
+    <h1>Download Students Exam Report</h1>
 
-        <!-- نمو السوق -->
-        <div class="card">
-            <h2>Global market growth</h2>
-            <div class="chart-box">
-                <canvas id="marketGrowth"></canvas>
-            </div>
-        </div>
-
-        <!-- التوزيع الجغرافي -->
-        <div class="card">
-            <h2> Geographical distribution (2025)</h2>
-            <div class="chart-box">
-                <canvas id="regionChart"></canvas>
-            </div>
-        </div>
-
-        <!-- أسباب النمو -->
-        <div class="card">
-            <h2>أسباب النمو الرئيسية</h2>
-            <div class="chart-box">
-                <canvas id="factorsChart"></canvas>
-            </div>
-        </div>
-    </div>
+    <button id="downloadBtn">Download Excel</button>
 
     <script>
-        // بيانات نمو السوق
-        new Chart(document.getElementById('marketGrowth'), {
-            type: 'line',
-            data: {
-                labels: ['2019', '2020', '2023', '2025'],
-                datasets: [{
-                    label: 'Market Size ( Billion Dollars)',
-                    data: [200, 250, 400, 650],
-                    borderColor: '#2ecc71',
-                    tension: 0.3,
-                    fill: false
-                }]
-            }
-        });
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const url = 'http://localhost:8005/api/reports/downloadStudentReport?instructor_id=201';
 
-        // بيانات التوزيع الجغرافي
-        new Chart(document.getElementById('regionChart'), {
-            type: 'pie',
-            data: {
-                labels: ['أمريكا الشمالية', 'آسيا والمحيط الهادئ', 'أوروبا', 'مناطق أخرى'],
-                datasets: [{
-                    data: [40, 30, 20, 10],
-                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f']
-                }]
-            }
-        });
+            // Create a temporary <a> element
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = ''; // This tells browser to download the resource
 
-        // بيانات أسباب النمو
-        new Chart(document.getElementById('factorsChart'), {
-            type: 'bar',
-            data: {
-                labels: ['توفير التكاليف', 'التعلم بالجوال', 'الذكاء الاصطناعي'],
-                datasets: [{
-                    label: 'النسبة (%)',
-                    data: [70, 67, 45],
-                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71']
-                }]
-            }
+            // Append to body and click it
+            document.body.appendChild(a);
+            a.click();
+
+            // Remove after download is triggered
+            document.body.removeChild(a);
         });
     </script>
 </body>

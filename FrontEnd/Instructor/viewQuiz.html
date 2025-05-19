@@ -13,7 +13,9 @@
 
   <div class="container">
     <header class="quiz-header">
-      <a href="#" class="back-button">&#8592;</a>
+        <svg xmlns="http://www.w3.org/2000/svg" class="back-btn" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
       <h1>Quiz 1: Interaction to math</h1>
       <div class="action-buttons">
         <button class="edit-btn">Edit Quiz</button>
@@ -25,11 +27,27 @@
 
       <!-- بداية كارت سؤال -->
       <div class="question-wrapper">
-        <div class="question-status">
-          <h2>Question 1</h2>
-          <div class="status">Correct</div>
-          <div class="mark">Mark 1.00 out<br>of 1.00</div>
+        
+        <div class="question-card">
+          <div>
+            <div class="question-content">
+              <input type="text" placeholder="Add Question..............................?">
+              <div class="options">
+                <input type="text" placeholder="Add Option 1">
+                <input type="text" placeholder="Add Option 2" class="correct-option">
+                <input type="text" placeholder="Add Option 3">
+                <input type="text" placeholder="Add Option 4">
+              </div>
+
+          </div>
+            
+          </div>
         </div>
+      </div>
+      <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
+      <!-- بداية كارت سؤال -->
+      <div class="question-wrapper">
+        
         <div class="question-card">
           <div class="question-content">
             <input type="text" placeholder="Add Question..............................?">
@@ -41,16 +59,12 @@
             </div>
             
           </div>
-          <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
         </div>
       </div>
+      <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
       <!-- بداية كارت سؤال -->
       <div class="question-wrapper">
-        <div class="question-status">
-          <h2>Question 1</h2>
-          <div class="status">Correct</div>
-          <div class="mark">Mark 1.00 out<br>of 1.00</div>
-        </div>
+        
         <div class="question-card">
           <div class="question-content">
             <input type="text" placeholder="Add Question..............................?">
@@ -62,16 +76,12 @@
             </div>
             
           </div>
-          <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
         </div>
       </div>
+      <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
       <!-- بداية كارت سؤال -->
       <div class="question-wrapper">
-        <div class="question-status">
-          <h2>Question 1</h2>
-          <div class="status">Correct</div>
-          <div class="mark">Mark 1.00 out<br>of 1.00</div>
-        </div>
+        
         <div class="question-card">
           <div class="question-content">
             <input type="text" placeholder="Add Question..............................?">
@@ -83,16 +93,12 @@
             </div>
             
           </div>
-          <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
         </div>
       </div>
+      <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
       <!-- بداية كارت سؤال -->
       <div class="question-wrapper">
-        <div class="question-status">
-          <h2>Question 1</h2>
-          <div class="status">Correct</div>
-          <div class="mark">Mark 1.00 out<br>of 1.00</div>
-        </div>
+        
         <div class="question-card">
           <div class="question-content">
             <input type="text" placeholder="Add Question..............................?">
@@ -104,37 +110,12 @@
             </div>
             
           </div>
-          <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
         </div>
       </div>
+      <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
       <!-- بداية كارت سؤال -->
       <div class="question-wrapper">
-        <div class="question-status">
-          <h2>Question 1</h2>
-          <div class="status">Correct</div>
-          <div class="mark">Mark 1.00 out<br>of 1.00</div>
-        </div>
-        <div class="question-card">
-          <div class="question-content">
-            <input type="text" placeholder="Add Question..............................?">
-            <div class="options">
-              <input type="text" placeholder="Add Option 1">
-              <input type="text" placeholder="Add Option 2" class="correct-option">
-              <input type="text" placeholder="Add Option 3">
-              <input type="text" placeholder="Add Option 4">
-            </div>
-            
-          </div>
-          <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
-        </div>
-      </div>
-      <!-- بداية كارت سؤال -->
-      <div class="question-wrapper">
-        <div class="question-status">
-          <h2>Question 1</h2>
-          <div class="status">Correct</div>
-          <div class="mark">Mark 1.00 out<br>of 1.00</div>
-        </div>
+        
         <div class="question-card">
           <div class="question-content">
             <input type="text" placeholder="Add Question..............................?"> 
@@ -146,19 +127,16 @@
             </div>
             
           </div>
-          <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
         </div>
       </div>
-      
-     
-
+      <div class="correct-answer">The correct answer is: <strong>Option 2</strong></div>
     </div>
 
     <div class="average-grades">
       <div class="chart-container">
         <canvas id="averageGrades"></canvas>
       </div>
-      </div>
+  </div>
 <div class="chart-section">
   <h2>Student grades</h2>
   <canvas id="gradesChart" width="400" height="200"></canvas>
