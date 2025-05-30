@@ -1,8 +1,6 @@
 // ===================== URL Parameters =====================
 const urlParams = new URLSearchParams(window.location.search);
-const instructorId = 201
-
-const API_BASE_URL = 'http://localhost:8005/api';
+const instructorId = 202
 
 // ===================== DOM References =====================
 const elements = {

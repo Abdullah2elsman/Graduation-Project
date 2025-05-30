@@ -21,15 +21,6 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 
-
-// Student API
-Route::post('/readStudent', [StudentController::class, 'read'])->name('student.read');
-Route::put('/updateStudent', [StudentController::class, 'update'])->name('student.update');
-Route::delete('deleteStudent/{id}', [StudentController::class, 'delete'])->name('student.delete');
-Route::get('/getAllStudents', [StudentController::class, 'getAllStudents']);
-Route::get('/getStudent/{id}', [StudentController::class, 'getStudent']);
-Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
-
 // Admin API
 // Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('admin/update/{id}', [AdminController::class, 'update']);
@@ -39,8 +30,7 @@ Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->nam
     Route::get('admin/getAllCourses', [AdminController::class, 'getAllCourses']);
     Route::get('admin/getAllUsersData', [AdminController::class, 'getAllUsersData']);
     Route::get('admin/getReports', [AdminController::class, 'getReports']);
-// });
-
+    // });
 
 // Instructor API
 Route::post('/readInstructor', [InstructorController::class, 'read'])->name('instructor.read');
@@ -50,7 +40,18 @@ Route::get('/getAllInstructors', [InstructorController::class, 'getAllInstructor
 Route::get('/getInstructor/{id}', [InstructorController::class, 'getInstructor']);
 Route::post('/uploadImage/{id}', [InstructorController::class, 'uploadImage'])->name('instructor.uploadImage');
 Route::get('instructor/{id}/courses', [InstructorController::class, 'getCourses']);
+Route::get('instructor/{instructorId}/getTodayExams', [InstructorController::class, 'getTodayExams']);
 
+
+// Student API
+Route::post('/readStudent', [StudentController::class, 'read'])->name('student.read');
+Route::put('/updateStudent', [StudentController::class, 'update'])->name('student.update');
+Route::delete('deleteStudent/{id}', [StudentController::class, 'delete'])->name('student.delete');
+Route::get('/getAllStudents', [StudentController::class, 'getAllStudents']);
+Route::get('/getStudent/{id}', [StudentController::class, 'getStudent']);
+Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
+Route::get('student/{id}/courses', [StudentController::class, 'getCourses']);
+Route::get('student/{studentId}/getTodayExams', [StudentController::class, 'getTodayExams']);
 
 // Google Sheets API
 Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
@@ -66,17 +67,27 @@ Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
 Route::get('instructor/{id}/getAllCoursesExamAttempts', [CourseController::class, 'getAllCoursesExamAttempts']);
 Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
 Route::post('/course/uploadImage', [CourseController::class, 'uploadImage']);
+Route::get('instructor/{id}/coursesInteraction', [CourseController::class, 'coursesInteraction']);
+Route::get('instructor/{id}/coursesAverageGrades', [CourseController::class, 'coursesAverageGrades']);
+Route::get('instructor/{id}/studentsMissedAllExams', [CourseController::class, 'studentsMissedAllExams']);
 
 
 // Exam API
 Route::post('exam/store', [ExamController::class, 'store']);
 Route::get('course/{courseId}/getExams', [ExamController::class, 'getExams']);
-Route::get('course/{courseId}/getFinishedExams', [ExamController::class, 'getFinishedExams']);
+Route::get('course/{courseId}/getFinishedExams', [ExamController::class, 'getFinishedExamsForInstructor']);
+Route::get('course/{courseId}/student/{studentId}/getFinishedExams', [ExamController::class, 'getFinishedExamsForStudent']);
+
 // This to instructors
 Route::get('/instructor/course/{courseId}/exams/getExamQuestions', [ExamController::class, 'getExamQuestions']); // This to instructors
 // This to students
 Route::get('/student/course/{courseId}/exams/getExamQuestions', function (Request $request, $courseId) {
     return (new ExamController)->getExamQuestions($request, $courseId, false);}); 
+
+Route::put('exam/updateQuestions' , [ExamController::class, 'updateQuestions']);
+Route::post('exam/submitExam', [ExamController::class, 'submitExam']);
+Route::put('exam/regradeExam', [ExamController::class, 'regradeExam']);
+Route::get('exam/examGradesDistribution', [ExamController::class, 'examGradesDistribution']);
 
 // Reports API
 Route::get('/reports/course', [ReportsController::class, 'reportsOfCourse']);

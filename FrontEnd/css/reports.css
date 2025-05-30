@@ -6,7 +6,6 @@
 }
 body {
     display: flex;
-   
 }
 .sidebar {
     width: 240px;
@@ -111,7 +110,7 @@ body {
 form{
 position: relative;
 }
-.btn-ser{
+/* .btn-ser{
     position: absolute;
     top: 12px;
     right: 24px;
@@ -123,7 +122,7 @@ position: relative;
     color: #757575;
     background-color:#ffffff;
     font-size: 16px;
-}
+} */
 .show-container {
     display: flex; 
     padding: 10px 16px;
@@ -174,7 +173,7 @@ position: relative;
 .input2{
     padding-left: 8px;
 }
-.btn-ser2{
+/* .btn-ser2{
     position: absolute;
     top: 12px;
    right: 24px;
@@ -185,7 +184,7 @@ position: relative;
     color: #757575;
     background-color:#ffffff;
     font-size: 16px;
-}
+} */
 
 .add-user-btn{ 
     width: 74px;
@@ -231,12 +230,12 @@ table th {
     
 }
 table tbody tr:nth-child(even) {
-    background-color: #ffff; /* لون أزرق فاتح للصفوف الزوجية */
+    background-color: #ffff;
 
 }
 
 table tbody tr:nth-child(odd) {
-    background-color: #E8EFF5; /* لون أبيض للصفوف الفردية */
+    background-color: #E8EFF5;
     
 }
 

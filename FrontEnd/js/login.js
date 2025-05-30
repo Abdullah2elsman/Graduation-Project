@@ -1,6 +1,6 @@
 // Select role button
 const roleButtons = document.querySelectorAll('.role-btn');
-const url = 'http://localhost:8005/api';
+const API_BASE_URL = 'http://localhost:8005/api';
 
 let role = 'admin';
 roleButtons.forEach(button => {
@@ -50,7 +50,7 @@ document.getElementById('loginForm').addEventListener(
     console.log(JSON.stringify({ email, password, role }));
     try {
       // Send POST request to the API
-      const response = await fetch(`${url}/login`, {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 const token = localStorage.getItem('token');
 let userData = null;
-const url = "http://localhost:8005/api";
+const API_BASE_URL = "http://localhost:8005/api";
 
 
 const redirectToLogin = () => {
@@ -29,7 +29,7 @@ const checkUserLogin = async () => {
     
     try {
         // Send a request to validate the token
-        const response = await fetch(`${url}/validateToken`, {
+        const response = await fetch(`${API_BASE_URL}/validateToken`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -71,7 +71,7 @@ document.querySelector(".logout-button").addEventListener(
     "click",
     async () => {
         try {
-            const response = await fetch(`${url}/logout`, {
+            const response = await fetch(`${API_BASE_URL}/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

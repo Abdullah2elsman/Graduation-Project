@@ -474,6 +474,58 @@
     cursor: pointer;
 }
 
+.optionsWrapper .correct-option {
+    background-color: #5BCB3A1A;
+    border: 1px solid #28a745;
+}
+
+.circle-checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.circle-checkbox input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.custom-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #28a745;
+    background: #fff;
+    display: inline-block;
+    position: relative;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.circle-checkbox input[type="checkbox"]:checked+.custom-circle {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+.custom-circle::after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: scale(0) translate(-50%, -50%);
+    transition: 0.2s;
+}
+
+.circle-checkbox input[type="checkbox"]:checked+.custom-circle::after {
+    background: #fff;
+    transform: scale(1) translate(-50%, -50%);
+}
 
 
 .hidden {

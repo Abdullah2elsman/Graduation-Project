@@ -17,4 +17,9 @@ class ExamAttempt extends Model
     {
         return $this->belongsTo(Student::class, 'student_id', 'id');
     }
+
+    public function answers()
+    {
+        return $this->hasMany(StudentAnswer::class, 'exam_attempt_id');
+    }
 }

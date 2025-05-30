@@ -1,47 +1,88 @@
-// ===================== API & URL Parameters =====================
-const API_BASE_URL = 'http://localhost:8005/api';
-
 // ===================== DOM References =====================
 const elements = {
     cardsWrapper: document.querySelector('.cards-wrapper'),
     moveRight: document.querySelector('.move-right'),
     moveLeft: document.querySelector('.move-left'),
     monthlyChart: document.getElementById('MonthlyProgressChart'),
-    averageGradesChart: document.getElementById('averageGrades')
+    averageGradesChart: document.getElementById('averageGrades'),
+    missedExamsTable: document.querySelector('.missed-students-table tbody')
 };
 
-console.log('Elements:', elements);
 
 // ===================== Global Variables =====================
-let coursesList = [];
+let coursesList = []; // This to store courses list to download Courses Cards
 
 // ===================== Initial Setup =====================
 function initializeDashboard() {
-    loadCourses()
-    setupEventListeners
-        // .catch(handleError);
+    setupEventsListeners();
+    loadCourses();
 }
 
 // ===================== Core Functions =====================
 
 // Render all course cards and charts
 async function loadCourses() {
-    try {;
-        const userId = 201;
-        const response = await fetch(`${API_BASE_URL}/instructor/${userId}/courses`);
-        const courses = await response.json();
+    const userId = 201;
+    const endpoints = [
+        `${API_BASE_URL}/instructor/${userId}/courses`,
+        `${API_BASE_URL}/instructor/${userId}/coursesInteraction`,
+        `${API_BASE_URL}/instructor/${userId}/coursesAverageGrades`,
+        `${API_BASE_URL}/instructor/${userId}/studentsMissedAllExams`,
+    ];
 
+    Promise.all(endpoints.map(url => 
+    fetch(url)
+        .then(handleResponse)
+        .catch(handleError)
+    ))
+    .then(([courses, coursesInteraction, coursesAverageGrades, studentsMissedAllExams]) => { 
+        // Create Courses Card
         coursesList = Array.isArray(courses) ? courses : (courses.data || courses.courses || []);
-        
         renderCourseCards(coursesList);
 
-    } catch (error) {
-        handleError(error);
-    }
+        // Create Line Chart
+        createMonthlyProgressChart(coursesInteraction.data, coursesInteraction.number_of_students);
+
+        // create bar chart
+        if (coursesAverageGrades && coursesAverageGrades.data) {
+            const barData = [];
+            Object.entries(coursesAverageGrades.data).forEach(([courseTitle, exams]) => {
+                exams.forEach(exam => {
+                    barData.push({
+                        label: `${exam.exam_name}.${courseTitle}`,
+                        achieved: Number(exam.average_grade),
+                        remaining: Number(exam.total_score) - Number(exam.average_grade)
+                    });
+                });
+            });
+            createAverageGradesChart(barData);
+        }
+        fillMissedStudentsTable(studentsMissedAllExams);
+    });
+
+}
+
+async function handleResponse(response) {
+    if (!response.ok) throw new Error('Network response error');
+    return response.json().then(data => {
+        if (!data.success) throw new Error('API error: ' + (data.message || ''));
+        return data;
+    });
 }
 
 function renderCourseCards(courses) {
-    if (!elements.cardsWrapper) return;
+        if (!Array.isArray(courses) || courses.length === 0) {
+        elements.cardsWrapper.innerHTML = `
+            <div class="no-courses-message" style="text-align:center; color:#888; padding:40px; font-size: 2rem; font-weight: bold; justify-content: center;">
+                There are no courses available.
+            </div>
+        `;
+
+        elements.cardsWrapper.style.justifyContent = 'center'; // Center the message
+
+        return;
+    }
+    // if (!elements.cardsWrapper) return;
     elements.cardsWrapper.innerHTML = ''; 
     courses.forEach(course => {
         const card = createCourseCard(course);
@@ -145,57 +186,114 @@ function createProgressChart(canvasId, percentage) {
 
 // ===================== Chart Data & Rendering =====================
 
-function createMonthlyProgressChart(labels, dataValues) {
-    if (!elements.monthlyChart) return;
-    const ctxLine = elements.monthlyChart.getContext('2d');
-    new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: dataValues,
-                borderColor: '#2c6da4',
-                backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                borderWidth: 1,
-                pointRadius: 3,
-                pointBackgroundColor: '#2c6da4',
-                pointBorderWidth: 1,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { display: false } },
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        stepSize: 20,
-                        callback: value => value + '%'
-                    },
-                    drawBorder: false
-                }
+function createMonthlyProgressChart(interactionData, numberOfStudents) {
+    const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+    // if no interaction data or number of students, set defaults
+    if (!numberOfStudents || numberOfStudents === 0 || !interactionData || Object.keys(interactionData).length === 0) {
+        numberOfStudents = 1; // Avoid division by zero
+        interactionData = {};
+        monthOrder.forEach(month => {
+            interactionData[month] = Array(30).fill(0); 
+        });
+    }
+
+    // load interaction data into datasets
+    const datasets = {
+        interaction: Object.fromEntries(
+            Object.entries(interactionData).map(([month, days]) => [
+                month,
+                Object.values(days).map(value =>
+                    Math.round((Number(value) * 100 / numberOfStudents) * 100) / 100
+                )
+            ])
+        )
+    };
+
+    const monthSelect = document.getElementById('monthSelect');
+    const chartCanvas = document.getElementById('MonthlyProgressChart');
+    let chartInstance = null;
+
+    monthSelect.innerHTML = '';
+
+    const sortedMonths = Object.keys(datasets.interaction).sort((a, b) =>
+        monthOrder.indexOf(a) - monthOrder.indexOf(b)
+    );
+
+    if (sortedMonths.length === 0) {
+        sortedMonths.push('January');
+        datasets.interaction['January'] = Array(30).fill(0);
+    }
+
+    sortedMonths.forEach(month => {
+        const option = document.createElement('option');
+        option.value = month;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+    });
+
+    function createChart(month) {
+        return new Chart(chartCanvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: datasets.interaction[month].length }, (_, i) => i + 1),
+                datasets: [{
+                    data: datasets.interaction[month],
+                    label: 'Average Daily Interaction (%)',
+                    borderColor: '#2c6da4',
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                    borderWidth: 1,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#2c6da4',
+                    fill: true
+                }]
             },
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Average Student Interaction',
-                    align: 'start',
-                    font: { size: 24, weight: '700' },
-                    color: '#333'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: value => `${value}%`,
+                            stepSize: 10
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentage of Students'
+                        }
+                    }
                 },
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: tooltipItem => tooltipItem.raw + "%"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Average Daily Interaction - ${month}`,
+                        align: 'start',
+                        font: { size: 24, weight: '700' }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.parsed.y;
+                                return ` ${value}% of students interacted`;
+                            }
+                        }
                     }
                 }
             }
-        }
+        });
+    }
+
+    chartInstance = createChart(monthSelect.value || sortedMonths[0]);
+
+    monthSelect.addEventListener('change', () => {
+        chartInstance.destroy();
+        chartInstance = createChart(monthSelect.value);
     });
 }
+
 
 function createAverageGradesChart(data) {
     if (!elements.averageGradesChart) return;
@@ -248,28 +346,67 @@ function createAverageGradesChart(data) {
     });
 }
 
+// ===================== Full Missed Exam Table =====================
+
+function fillMissedStudentsTable(response) {
+    elements.missedExamsTable.innerHTML = ''; 
+
+    let hasData = false;
+
+    // Check if response.data exists and is not empty
+    if (!response.data || Object.keys(response.data).length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="4" style="text-align:center; font-size:1.3rem; color:#888; font-weight:bold;">
+                No students missed any exams.
+            </td>
+        `;
+        elements.missedExamsTable.appendChild(row);
+        return;
+    }
+
+    // Loop through each course
+    for (const [courseName, exams] of Object.entries(response.data)) {
+        exams.forEach(exam => {
+            exam.missed_students.forEach(student => {
+                hasData = true;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${courseName}</td>
+                    <td class="actions">
+                        <!-- actions here -->
+                    </td>
+                `;
+                elements.missedExamsTable.appendChild(row);
+            });
+        });
+    }
+
+    // لو مفيش أي بيانات بعد اللف
+    if (!hasData) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="4" style="text-align:center; font-size:1.3rem; color:#888; font-weight:bold;">
+                No students missed any exams. 👌
+            </td>
+        `;
+        elements.missedExamsTable.appendChild(row);
+    }
+}
+
+
 // ===================== Event Listeners =====================
-function setupEventListeners() {
-    console.log('Setting up event listeners...');
+function setupEventsListeners() {
         elements.moveRight.addEventListener('click', () => {
             elements.cardsWrapper.scrollBy(300, 0);
         });
         elements.moveLeft.addEventListener('click', () => {
             elements.cardsWrapper.scrollBy(-300, 0);
         });
-    
 }
 
-const moveRight = document.querySelector('.move-right');
-const moveLeft = document.querySelector('.move-left');
-const courses = document.querySelector('.cards-wrapper');
-moveRight.addEventListener('click', () => {
-  courses.scrollBy(300, 0);
-});
-
-moveLeft.addEventListener('click', () => {
-  courses.scrollBy(-300, 0);
-});
 
 // ===================== Error Handling =====================
 function handleError(error) {
@@ -278,20 +415,4 @@ function handleError(error) {
 }
 
 // ===================== Initialize Dashboard =====================
-document.addEventListener('DOMContentLoaded', () => {
-    initializeDashboard();
-
-    // Static Data for Demo Charts (replace with API data if needed)
-    const labelsLine = Array.from({ length: 30 }, (_, i) => i + 1);
-    const dataValues = [20, 25, 40, 55, 45, 50, 35, 42, 38, 64, 42, 47, 43, 46, 50, 55, 20, 60, 35, 55, 40, 52, 49, 48, 50, 45, 47, 49, 52, 55];
-    createMonthlyProgressChart(labelsLine, dataValues);
-
-    const barData = [
-        { label: "quiz1.Math0", achieved: 8, remaining: 2 },
-        { label: "quiz1.Math1", achieved: 7, remaining: 3 },
-        { label: "quiz1.Math2", achieved: 9, remaining: 1 },
-        { label: "quiz1.Math2", achieved: 9, remaining: 1 },
-        { label: "quiz1.Math3", achieved: 6, remaining: 4 }
-    ];
-    createAverageGradesChart(barData);
-});
+document.addEventListener('DOMContentLoaded', initializeDashboard);

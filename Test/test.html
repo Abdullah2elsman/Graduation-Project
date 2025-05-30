@@ -2,30 +2,108 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Download Excel Report</title>
+    <meta charset="UTF-8">
+    <title>AI Quiz Generator Test (CORS Proxy)</title>
 </head>
 
 <body>
-    <h1>Download Students Exam Report</h1>
+    <h2>AI Quiz Generator</h2>
+    <form id="quizForm">
+        <label>File:
+            <input type="file" id="fileInput" required>
+        </label><br>
+        <label>Start Page:
+            <input type="number" id="startPage" value="1" required>
+        </label><br>
+        <label>End Page:
+            <input type="number" id="endPage" value="10" required>
+        </label><br>
+        <label>Number of Questions:
+            <input type="number" id="numQuestions" value="5" required>
+        </label><br>
+        <label>Difficulty:
+            <select id="difficulty" required>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </label><br>
+        <label>Direct:
+            <select id="direct" required>
+                <option value="true">True</option>
+                <option value="false">False</option>
+            </select>
+        </label><br>
+        <label>Question Type:
+            <select id="qaType" required>
+                <option value="true and false">True and False</option>
+                <option value="mcq">MCQ</option>
+                <option value="mcq and true or false">MCQ and True or False</option>
+                <option value="normal qa">Normal QA</option>
+            </select>
+        </label><br><br>
+        <button type="submit">Generate Quiz</button>
+    </form>
 
-    <button id="downloadBtn">Download Excel</button>
+    <div id="quizResult"></div>
 
     <script>
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            const url = 'http://localhost:8005/api/reports/downloadStudentReport?instructor_id=201';
+        document.getElementById('quizForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-            // Create a temporary <a> element
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = ''; // This tells browser to download the resource
+            const file = document.getElementById('fileInput').files[0];
+            const start_page = document.getElementById('startPage').value;
+            const end_page = document.getElementById('endPage').value;
+            const num_questions = document.getElementById('numQuestions').value;
+            const difficulty = document.getElementById('difficulty').value;
+            const direct = document.getElementById('direct').value === "true";
+            const qa_type = document.getElementById('qaType').value;
 
-            // Append to body and click it
-            document.body.appendChild(a);
-            a.click();
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('start_page', start_page);
+            formData.append('end_page', end_page);
+            formData.append('num_questions', num_questions);
+            formData.append('difficulty', difficulty);
+            formData.append('direct', direct);
+            formData.append('qa_type', qa_type);
 
-            // Remove after download is triggered
-            document.body.removeChild(a);
+            // استخدم CORS.SH كبروكسي
+            const url = 'https://cors.sh/https://free.codezm.cloud/generate-quiz/';
+
+            let resultDiv = document.getElementById('quizResult');
+            resultDiv.innerHTML = 'جاري التحميل... ⏳';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    resultDiv.innerHTML = 'حصلت مشكلة في الطلب أو البيانات غلط!';
+                    return;
+                }
+
+                const data = await response.json();
+
+                resultDiv.innerHTML = '<h3>الأسئلة اللي اتولدت:</h3>';
+                if (data && data.questions) {
+                    data.questions.forEach((q, i) => {
+                        resultDiv.innerHTML += `<b>س${i + 1}:</b> ${q.question}<br>`;
+                        if (q.choices) {
+                            q.choices.forEach(choice => {
+                                resultDiv.innerHTML += `- ${choice}<br>`;
+                            });
+                        }
+                        resultDiv.innerHTML += '<br>';
+                    });
+                } else {
+                    resultDiv.innerHTML += '<br>مفيش أسئلة أو فيه مشكلة في الرد!';
+                }
+            } catch (err) {
+                resultDiv.innerHTML = 'حصل Error في الاتصال بالسيرفر!';
+            }
         });
     </script>
 </body>

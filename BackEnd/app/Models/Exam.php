@@ -17,7 +17,12 @@ class Exam extends Model
         'time',
         'total_score',
         'duration',
-        'creation_method'
+        'creation_method',
+        'available_review'
+    ];
+
+    protected $casts = [
+        'available_review' => 'boolean',
     ];
 
     public function course()

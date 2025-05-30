@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Question extends Model
 {
-    protected $fillable = ['quiz_id', 'text', 'score'];
+    protected $fillable = ['quiz_id', 'question', 'score'];
 
     public function options()
     {
@@ -16,5 +16,10 @@ class Question extends Model
     public function quiz()
     {
         return $this->belongsTo(Exam::class);
+    }
+
+    public function studentAnswers()
+    {
+        return $this->hasMany(StudentAnswer::class, 'question_id');
     }
 }

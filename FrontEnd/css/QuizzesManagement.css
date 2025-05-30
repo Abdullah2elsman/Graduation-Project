@@ -94,7 +94,7 @@ body {
   cursor: pointer;
 }
 
-.view-quiz-btn {
+.view-quiz-btn, .join-quiz-btn ,.review-quiz-btn {
   background-color: #ffffff;
   color: #2C6DA4;
   border: 1px #2C6DA4 solid;
@@ -102,6 +102,14 @@ body {
   border-radius: 8px;
   cursor: pointer;
 }
+
+.quiz-card .not-available {
+  background-color: #FCFCFC;
+  color: #757575;
+  border-color: #757575;
+  cursor: not-allowed;
+}
+
 
 .no-quizzes {
   text-align: center;

@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
-use App\Models\Exam;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use setasign\Fpdi\Fpdi;
 use Smalot\PdfParser\Parser;
 
@@ -303,4 +304,145 @@ class CourseController extends Controller
         ]);
     }
 
+    public function coursesInteraction($instructorId)
+    {
+        // Get all course IDs for this instructor
+        $courseIds = DB::table('courses')
+            ->where('instructor_id', $instructorId)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($courseIds)) {
+            return response()->json([
+                'success' => true,
+                'number_of_students' => 0,
+                'data' => []
+            ]);
+        }
+
+        // Aggregate interactions for all these courses
+        $rawData = DB::table('book_interactions')
+            ->selectRaw('YEAR(interacted_date) as year, MONTH(interacted_date) as month, DAY(interacted_date) as day, COUNT(*) as total')
+            ->whereIn('course_id', $courseIds)
+            ->groupBy('year', 'month', 'day')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('day')
+            ->get();
+
+        $data = [];
+
+        foreach ($rawData as $item) {
+            $monthName = Carbon::createFromDate($item->year, $item->month, 1)->format('F');
+            $data[$monthName][$item->day] = $item->total;
+        }
+
+        // Count enrolled students across all courses (excluding cancelled)
+        $enrolledStudents = DB::table('enrollments')
+            ->whereIn('course_id', $courseIds)
+            ->where('cancelled', 0)
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'number_of_students' => $enrolledStudents,
+            'data' => $data
+        ]);
+    }
+
+    public function coursesAverageGrades($instructorId)
+    {
+        $averageGradesPerExam = DB::table('exam_attempts')
+            ->join('exams', 'exam_attempts.exam_id', '=', 'exams.id')
+            ->join('courses', 'exams.course_id', '=', 'courses.id')
+            ->where('courses.instructor_id', $instructorId)
+            ->select(
+                'exams.id as exam_id',
+                'exams.name as exam_name',
+                'exams.total_score',
+                'courses.id as course_id',
+                'courses.title as course_title',
+                DB::raw('AVG(exam_attempts.grade) as average_grade'),
+                DB::raw('AVG((exam_attempts.grade / exams.total_score) * 100) as average_percentage')
+            )
+            ->groupBy('exams.id', 'exams.name', 'exams.total_score', 'courses.id', 'courses.title')
+            ->orderBy('courses.id')
+            ->orderBy('exams.id')
+            ->get();
+
+        // Group exams by course title
+        $grouped = [];
+        foreach ($averageGradesPerExam as $exam) {
+            $grouped[$exam->course_title][] = [
+                'exam_id' => $exam->exam_id,
+                'exam_name' => $exam->exam_name,
+                'total_score' => $exam->total_score,
+                'average_grade' => $exam->average_grade,
+                'average_percentage' => $exam->average_percentage
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $grouped
+        ]);
+    }
+
+    public function studentsMissedAllExams($instructorId)
+    {
+        // Get all courses for the instructor
+        $courses = DB::table('courses')
+            ->where('instructor_id', $instructorId)
+            ->select('id', 'title')
+            ->get();
+
+        $result = [];
+
+        foreach ($courses as $course) {
+            // Get all enrolled students in this course
+            $enrolledStudentIds = DB::table('enrollments')
+                ->where('cancelled', 0)
+                ->where('course_id', $course->id)
+                ->pluck('student_id');
+
+            // Get all exams for this course
+            $exams = DB::table('exams')
+                ->where('course_id', $course->id)
+                ->select('id', 'name')
+                ->get();
+
+            $examsList = [];
+
+            foreach ($exams as $exam) {
+                // Students who attended this exam
+                $attendedStudentIds = DB::table('exam_attempts')
+                    ->where('exam_id', $exam->id)
+                    ->distinct()
+                    ->pluck('student_id');
+
+                // Students who missed this exam
+                $missedStudentIds = $enrolledStudentIds->diff($attendedStudentIds);
+
+                // Get student info (replace 'full_name' with your actual column)
+                $missedStudents = DB::table('students')
+                    ->whereIn('id', $missedStudentIds)
+                    ->select('id', 'name')
+                    ->orderBy('name')
+                    ->get();
+
+                $examsList[] = [
+                    'exam_id' => $exam->id,
+                    'exam_name' => $exam->name,
+                    'missed_students' => $missedStudents
+                ];
+            }
+
+            $result[$course->title] = $examsList;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $result
+        ]);
+    }
 }

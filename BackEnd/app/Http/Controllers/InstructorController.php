@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Exam;
 use App\Models\Instructor;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -191,6 +193,25 @@ class InstructorController extends Controller
         return response()->json([
             'success' => true,
             'data' => $courses
+        ]);
+    }
+
+    public function getTodayExams($instructorId){
+        // Get today's date (format: Y-m-d)
+        $today = Carbon::today()->toDateString();
+
+        // Get all courses for this instructor
+        $courses = Course::where('instructor_id', $instructorId)->pluck('id');
+
+        // Get all quizzes (exams) for today for these courses
+        $quizzes = Exam::whereIn('course_id', $courses)
+            ->where('date', $today)
+            ->with('course:id,title') 
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $quizzes
         ]);
     }
 }

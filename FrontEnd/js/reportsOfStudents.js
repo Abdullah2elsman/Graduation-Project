@@ -47,7 +47,6 @@ async function fetchReports() {
         `${API_BASE_URL}/reports/topStudentsMissedAllExams?course_id=${courseId}`,
         `${API_BASE_URL}/reports/averageGrades?course_id=${courseId}`,
         `${API_BASE_URL}/reports/studentsInteraction?course_id=${courseId}`
-
     ];
 
     Promise.all(endpoints.map(url => 
@@ -60,7 +59,8 @@ async function fetchReports() {
         populateTable(elements.topStudentRow, topStudents);
         populateTable(elements.missedStudentRow, missedStudents, true);
         initializeBarChart(examsGrades); 
-        initializeLineChart(interactionData, courseData.number_of_students);    });
+        initializeLineChart(interactionData, courseData.number_of_students);
+    });
 }
 
 async function handleResponse(response) {
@@ -279,8 +279,6 @@ function initializeLineChart(interactionData, numberOfStudents) {
 }
 
 function initializeBarChart(data) {
-    // return console.log(data);
-
     new Chart(document.getElementById('averageGrades').getContext('2d'), {
         type: 'bar',
         data: {

@@ -2,6 +2,7 @@
 const calendarElements = {
     // content container
     content: document.querySelector('.content'),
+    booksContainer: document.querySelector('.books-container'),
 
     // Calendar Elements
     monthText: document.getElementById("month"),
@@ -58,7 +59,6 @@ function renderCalendar(month, year) {
     }
 }
 
-
 function prevMonth() {
     currentMonth--;
     if (currentMonth < 0) {
@@ -77,11 +77,125 @@ function nextMonth() {
     renderCalendar(currentMonth, currentYear);
 }
 
+async function todaySchedule() {
+    if (document.body.getAttribute('data-page') == 'instructor-dashboard'){
+
+        const scheduleContainer = document.querySelector('.schedule');
+        if (!scheduleContainer) return;
+
+        const instructorId = 201; 
+
+        try {
+            const endpoint = `${API_BASE_URL}/instructor/${instructorId}/getTodayExams`;
+            const response = await fetch(endpoint);
+            const data = await response.json();
+
+            if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+                scheduleContainer.innerHTML = `
+                    <div class="schedule-item" style="text-align:center; color:#888; font-size:1.2rem;">
+                        No quizzes scheduled for today.
+                    </div>
+                `;
+                return;
+            }
+
+            scheduleContainer.innerHTML = data.data.map(quiz => {
+
+                const [hours, minutes, seconds] = quiz.time.split(':');
+                const start = `${hours}:${minutes}`;
+                const endObj = new Date(`1970-01-01T${quiz.time}`);
+                endObj.setMinutes(endObj.getMinutes() + quiz.duration);
+                const end = `${String(endObj.getHours()).padStart(2, '0')}:${String(endObj.getMinutes()).padStart(2, '0')}`;
+
+                return `
+                    <div class="schedule-item">
+                        <h3>${quiz.name} ${quiz.course?.title ? ' - ' + quiz.course.title : ''}</h3>
+                        <p class="details">${quiz.instructions || 'No details available.'}</p>
+                        <p>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10.0441 9.91891C10.437 10.0499 10.8618 9.83753 10.9928 9.44457C11.1237 9.05161 10.9114 8.62687 10.5184 8.49588L10.0441 9.91891ZM7.75 8.36365H7C7 8.68647 7.20657 8.97307 7.51283 9.07516L7.75 8.36365ZM8.5 4.83555C8.5 4.42134 8.16421 4.08555 7.75 4.08555C7.33579 4.08555 7 4.42134 7 4.83555H8.5ZM10.5184 8.49588L7.98717 7.65213L7.51283 9.07516L10.0441 9.91891L10.5184 8.49588ZM8.5 8.36365V4.83555H7V8.36365H8.5ZM13.75 7.5199C13.75 10.8336 11.0637 13.5199 7.75 13.5199V15.0199C11.8921 15.0199 15.25 11.662 15.25 7.5199H13.75ZM7.75 13.5199C4.43629 13.5199 1.75 10.8336 1.75 7.5199H0.25C0.25 11.662 3.60786 15.0199 7.75 15.0199V13.5199ZM1.75 7.5199C1.75 4.20619 4.43629 1.5199 7.75 1.5199V0.0198975C3.60786 0.0198975 0.25 3.37776 0.25 7.5199H1.75ZM7.75 1.5199C11.0637 1.5199 13.75 4.20619 13.75 7.5199H15.25C15.25 3.37776 11.8921 0.0198975 7.75 0.0198975V1.5199Z"
+                                    fill="#2C6DA4" />
+                            </svg>
+                            ${start} - ${end}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (err) {
+            scheduleContainer.innerHTML = `
+                <div class="schedule-item" style="text-align:center; color:#D32F2F; font-size:1.2rem;">
+                    Error loading today's schedule.
+                </div>
+            `;
+        }
+    }
+    if (document.body.getAttribute('data-page') == 'student-dashboard'){
+
+        const scheduleContainer = document.querySelector('.schedule');
+        if (!scheduleContainer) return;
+
+        const studentId = 301; 
+
+        try {
+            const endpoint = `${API_BASE_URL}/student/${studentId}/getTodayExams`;
+            const response = await fetch(endpoint);
+            const data = await response.json();
+
+            if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+                scheduleContainer.innerHTML = `
+                    <div class="schedule-item" style="text-align:center; color:#888; font-size:1.2rem;">
+                        No quizzes scheduled for today.
+                    </div>
+                `;
+                return;
+            }
+            numberOfQuizzesToday(data.count)
+
+            scheduleContainer.innerHTML = data.data.map(quiz => {
+
+                const [hours, minutes, seconds] = quiz.time.split(':');
+                const start = `${hours}:${minutes}`;
+                const endObj = new Date(`1970-01-01T${quiz.time}`);
+                endObj.setMinutes(endObj.getMinutes() + quiz.duration);
+                const end = `${String(endObj.getHours()).padStart(2, '0')}:${String(endObj.getMinutes()).padStart(2, '0')}`;
+
+                return `
+                    <div class="schedule-item">
+                        <h3>${quiz.name} ${quiz.course?.title ? ' - ' + quiz.course.title : ''}</h3>
+                        <p class="details">${quiz.instructions || 'No details available.'}</p>
+                        <p>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10.0441 9.91891C10.437 10.0499 10.8618 9.83753 10.9928 9.44457C11.1237 9.05161 10.9114 8.62687 10.5184 8.49588L10.0441 9.91891ZM7.75 8.36365H7C7 8.68647 7.20657 8.97307 7.51283 9.07516L7.75 8.36365ZM8.5 4.83555C8.5 4.42134 8.16421 4.08555 7.75 4.08555C7.33579 4.08555 7 4.42134 7 4.83555H8.5ZM10.5184 8.49588L7.98717 7.65213L7.51283 9.07516L10.0441 9.91891L10.5184 8.49588ZM8.5 8.36365V4.83555H7V8.36365H8.5ZM13.75 7.5199C13.75 10.8336 11.0637 13.5199 7.75 13.5199V15.0199C11.8921 15.0199 15.25 11.662 15.25 7.5199H13.75ZM7.75 13.5199C4.43629 13.5199 1.75 10.8336 1.75 7.5199H0.25C0.25 11.662 3.60786 15.0199 7.75 15.0199V13.5199ZM1.75 7.5199C1.75 4.20619 4.43629 1.5199 7.75 1.5199V0.0198975C3.60786 0.0198975 0.25 3.37776 0.25 7.5199H1.75ZM7.75 1.5199C11.0637 1.5199 13.75 4.20619 13.75 7.5199H15.25C15.25 3.37776 11.8921 0.0198975 7.75 0.0198975V1.5199Z"
+                                    fill="#2C6DA4" />
+                            </svg>
+                            ${start} - ${end}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (err) {
+            scheduleContainer.innerHTML = `
+                <div class="schedule-item" style="text-align:center; color:#D32F2F; font-size:1.2rem;">
+                    Error loading today's schedule.
+                </div>
+            `;
+        }
+    }
+}
+
 // ===================== Calendar Sidebar Toggle =====================
 function toggleCalendarSidebar() {
     if (calendarSidebarFlag) {
         calendarElements.calendarSidebar.style.width = "0px";
         document.documentElement.style.setProperty('--content-width', 'calc(100% - 5vw)');
+        if(calendarElements.booksContainer){
+            calendarElements.booksContainer.style.width = "calc(100% - 5vw)";
+        }
+
         setTimeout(function() {
             calendarElements.calendarSidebar.style.display = "none";
         }, 250);
@@ -92,13 +206,19 @@ function toggleCalendarSidebar() {
         calendarElements.openCalendarButton.style.display = "none";
         calendarElements.calendarSidebar.style.display = "block";
         setTimeout(() => {
-            
             calendarElements.calendarSidebar.style.width = "27vw";
         }, 1);
-        
         document.documentElement.style.setProperty('--content-width', 'calc(100% - 27vw)');
+        if(calendarElements.booksContainer){
+            calendarElements.booksContainer.style.width = "calc(100% - 25vw)";
+        }
     }
     calendarSidebarFlag = !calendarSidebarFlag;
+}
+
+// ===================== Number of Quizzes today =====================
+function numberOfQuizzesToday(numOfQuizzes){
+    elements.quizzesToday.innerHTML = numOfQuizzes;
 }
 
 // ===================== Event Listeners =====================
@@ -111,4 +231,5 @@ function setupEventListeners() {
 document.addEventListener("DOMContentLoaded", () => {
     renderCalendar(currentMonth, currentYear);
     setupEventListeners();
+    todaySchedule();
 });

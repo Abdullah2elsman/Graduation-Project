@@ -1,17 +1,20 @@
 // ===================== DOM References =====================
-const booksParent = document.querySelector('.books-parent');
-console.log("Okay, here are 5 easy, direct, and factual quiz questions covering pages 2 through 5 of the provided document. There's a mix of true/false and multiple-choice questions:\n\n**Quiz Questions:**\n\n1.  **True or False:** A network switch connects nodes with each other and with other racks.\n2.  **Multiple Choice:** Physical Infrastructure consists mainly of which of the following?\n    a) Servers, Storage, and Network\n    b) Monitors, Keyboards, and Mice\n    c) Printers, Scanners, and Routers\n    d) Cables, Connectors, and Power supplies\n3.  **True or False:** 1 Rack Unit (1U) is equal to 2.75 inches.\n4. **Multiple Choice:** Which of the following is a type of server configuration?\n    a) Tower\n    b) Rack-mountable\n    c) Blade\n    d) All of the above\n5.  **True or False:** Cables can affect cooling in a server rack.\n\n**Answer Key:**\n\n1.  True\n2.  a) Servers, Storage, and Network\n3.  False\n4.  d) All of the above\n5.  True")
+const elements = {
+    userName: document.querySelector('.user-name'),
+    quizzesToday: document.querySelector('.quiz-alert .quiz-number'),
+    booksParent: document.querySelector('.books-parent'),
+}
 
-// ===================== Global Variables =====================
-const userId = 201;
 // ===================== Initial Setup =====================
 function initializeApp() {
+    setupEventListeners();
     fetchCourses();
 }
 
 // ===================== Core Functions =====================
 function fetchCourses() {
-    fetch(`${API_BASE_URL}/instructor/${userId}/courses`)
+    let userId = 301;
+    fetch(`${API_BASE_URL}/student/${userId}/courses`)
         .then(response => response.json())
         .then(data => {
             if (!data.success) throw new Error('Failed to fetch courses');
@@ -21,20 +24,19 @@ function fetchCourses() {
 }
 
 function renderCourses(courses) {
-    booksParent.innerHTML = '';
+    elements.booksParent.innerHTML = '';
     if (!Array.isArray(courses) || courses.length === 0) {
-        booksParent.innerHTML = `
-            <div style="text-align:center; color:#888; font-size:1.5rem; font-weight:bold; padding:40px;">
+        elements.booksParent.innerHTML = `
+            <div style="text-align:center; color:#888; font-size:1.5rem; font-weight:bold; padding:40px; margin: auto;">
                 No courses available at the moment. 📚
             </div>
         `;
         return;
     }
     courses.forEach(course => {
-        booksParent.appendChild(createCourseElement(course));
+        elements.booksParent.appendChild(createCourseElement(course));
     });
 }
-
 
 function createCourseElement(course) {
     const bookDiv = document.createElement('div');
@@ -56,9 +58,6 @@ function createCourseElement(course) {
         <div class="down-frame">
             <p>${course.title}</p>
             <div class="course-info"></div>
-            <button class="report-student">
-                Report of student <i class="far fa-chart-bar"></i>
-            </button>
             <button class="quiz">Quizzes</button>
         </div>
     `;
@@ -66,6 +65,7 @@ function createCourseElement(course) {
     addCourseEventListeners(bookDiv, course.id);
     return bookDiv;
 }
+
 
 // ===================== Event Handlers =====================
 
@@ -86,11 +86,6 @@ function addCourseEventListeners(bookDiv, courseId) {
     bookDiv.querySelector('.quiz').addEventListener('click', () => {
         handleQuizNavigation(courseId);
     });
-
-    // Report button handler
-    bookDiv.querySelector('.report-student').addEventListener('click', () => {
-        handleReportStudent(courseId);
-    });
 }
 
 function handleCourseClick(courseId) {
@@ -108,20 +103,15 @@ function handleQuizNavigation(courseId) {
     window.location.href = `QuizzesManagement.html?course_id=${encodedCourseId}`;
 }
 
-function handleReportStudent(courseId) {
-    const encodedCourseId = btoa(courseId);
-    window.location.href = `reportsOfStudents.html?course_id=${encodedCourseId}`;
+// ===================== Event Listeners Setup =====================
+function setupEventListeners() {
+
 }
 
-
-// ===================== Utility Functions =====================
+// ===================== Handle Error Functions =====================
 function handleError(error) {
     console.error('Error:', error);
-    booksParent.innerHTML = `
-        <p class="error-message">
-            Error loading courses: ${error.message}
-        </p>
-    `;
+    alert('An error occurred while processing your request. Please try again later.');
 }
 
 // ===================== Initialize Application =====================

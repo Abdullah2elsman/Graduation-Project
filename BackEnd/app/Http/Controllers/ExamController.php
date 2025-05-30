@@ -5,18 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Exam;
+use App\Models\ExamAttempt;
+use App\Models\Option;
+use App\Models\Question;
+use App\Models\StudentAnswer;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ExamController extends Controller
 {
 
     // Store exam that come from the request (Front-End)
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $validator = Validator::make($request->all(), [
             'metadata.course_id' => 'required|exists:courses,id',
             'metadata.name' => 'required|string',
@@ -27,10 +31,11 @@ class ExamController extends Controller
             'metadata.duration' => 'required|numeric',
             'metadata.creationMethod' => 'required|string|in:AI,Manual',
             'questions' => 'required|array|min:1',
-            'questions.*.text' => 'required|string',
+            'questions.*.question' => 'required|string',
             'questions.*.score' => 'required|numeric',
             'questions.*.options' => 'required|array|min:2',
-            'questions.*.options.*' => 'required|string'
+            'questions.*.options.*.option' => 'required|string',
+            'questions.*.options.*.is_correct' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -52,13 +57,15 @@ class ExamController extends Controller
         // Save questions and options
         foreach ($request->input('questions') as $q) {
             $question = $quiz->questions()->create([
-                'text' => $q['text'],
+                'question' => $q['question'],
                 'score' => $q['score']
             ]);
 
-            foreach ($q['options'] as $optionText) {
+
+            foreach ($q['options'] as $optionData) {
                 $question->options()->create([
-                    'text' => $optionText
+                    'option' => $optionData['option'],
+                    'is_correct' => filter_var($optionData['is_correct'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                 ]);
             }
         }
@@ -78,14 +85,28 @@ class ExamController extends Controller
         $now = Carbon::now();
 
         $exams = Exam::where('course_id', $courseId)
-            ->select('id', 'name', 'date', 'time', 'total_score', 'duration', 'instructions')
+            ->select('id', 'name', 'date', 'time', 'total_score', 'duration', 'instructions', 'number_of_attempts')
             ->get()
-            ->filter(function ($exam) use ($now) {
+            ->map(function ($exam) use ($now) {
                 $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
                 $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
-                return $now->lessThan($endDateTime); // quiz not over
+
+                // available if the current time is between start and end time
+                $available = $now->greaterThanOrEqualTo($startDateTime) && $now->lessThan($endDateTime);
+
+                return [
+                    'id' => $exam->id,
+                    'name' => $exam->name,
+                    'date' => $exam->date,
+                    'time' => $exam->time,
+                    'total_score' => $exam->total_score,
+                    'duration' => $exam->duration,
+                    'instructions' => $exam->instructions,
+                    'number_of_attempts' => $exam->number_of_attempts,
+                    'available' => $available,
+                ];
             })
-            ->values(); // reset keys
+            ->values();
 
         return response()->json([
             'success' => true,
@@ -94,7 +115,8 @@ class ExamController extends Controller
     }
 
 
-    public function getFinishedExams($courseId)
+
+    public function getFinishedExamsForInstructor($courseId)
     {
         $exams = Exam::where('course_id', $courseId)->get();
 
@@ -104,16 +126,14 @@ class ExamController extends Controller
 
         $now = Carbon::now();
 
-        $exams = $exams->filter(function ($exam) use ($now) {
-            // Combine date and time into a single Carbon instance
+        $finishedExams = $exams->filter(function ($exam) use ($now) {
             $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
             $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
-
             return $now->greaterThan($endDateTime);
         })->map(function ($exam) {
-            $questionCount = DB::table('questions')->where('exam_id', $exam->id)->count();
-            $averageGrade = DB::table('exam_attempts')->where('exam_id', $exam->id)->avg('grade');
-            $numberOfAttempts = DB::table('exam_attempts')->where('exam_id', $exam->id)->count();
+            $questionCount = $exam->questions()->count();
+            $averageGrade = $exam->attempts()->avg('grade');
+            $numberOfAttempts = $exam->attempts()->count();
 
             $percentage = ($exam->total_score > 0 && $averageGrade !== null)
                 ? round(($averageGrade / $exam->total_score) * 100, 2) . '%'
@@ -126,11 +146,49 @@ class ExamController extends Controller
                 'number_of_attempts' => $numberOfAttempts,
                 'average_grade_percentage' => $percentage,
             ];
-        })->values(); // Reset array keys after filter
+        })->values();
 
         return response()->json([
             'success' => true,
-            'data' => $exams
+            'data' => $finishedExams
+        ]);
+    }
+
+    public function getFinishedExamsForStudent($courseId, $studentId)
+    {
+        $exams = Exam::with(['questions', 'attempts' => function ($q) use ($studentId) {
+            $q->where('student_id', $studentId);
+        }])
+            ->where('course_id', $courseId)
+            ->get();
+
+        if ($exams->isEmpty()) {
+            return response()->json(['message' => 'No exams found'], 404);
+        }
+
+        $now = \Carbon\Carbon::now();
+
+        $finishedExams = $exams->filter(function ($exam) use ($now) {
+            $startDateTime = \Carbon\Carbon::parse($exam->date . ' ' . $exam->time);
+            $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
+            return $now->greaterThan($endDateTime);
+        })->map(function ($exam) use ($studentId) {
+            $questionCount = $exam->questions->count();
+            $studentAttempt = $exam->attempts->first();
+            $studentGrade = $studentAttempt ? $studentAttempt->grade : null;
+
+            return [
+                'exam_id' => $exam->id,
+                'name' => $exam->name,
+                'number_of_questions' => $questionCount,
+                'grade' => $studentGrade,
+                'available_review' => $exam->available_review,
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $finishedExams
         ]);
     }
 
@@ -158,7 +216,7 @@ class ExamController extends Controller
                 }
             }])
             ->with(['questions' => function ($query) {
-                $query->select('id', 'exam_id', 'question');
+                $query->select('id', 'exam_id', 'question', 'score');
             }])
             ->first();
 
@@ -169,6 +227,193 @@ class ExamController extends Controller
         return response()->json([
             'success' => true,
             'data'=> $exam
+        ]);
+    }
+
+    public function updateQuestions(Request $request)
+    {
+        // Validate the request
+        $data = $request->validate([
+            'questions' => 'required|array',
+            'questions.*.id' => 'required|exists:questions,id',
+            'questions.*.question' => 'required|string',
+            'questions.*.score' => 'required|numeric',
+            'questions.*.options' => 'required|array',
+            'questions.*.options.*.option' => 'required|string',
+            'questions.*.options.*.is_correct' => 'required|boolean',
+            'deleted_ids' => 'nullable|array',
+            'deleted_ids.*' => 'integer|exists:questions,id',
+        ]);
+
+        // 1. Delete questions if any IDs are provided
+        if (!empty($data['deleted_ids'])) {
+            // This will also delete options if you set up cascading deletes in your database
+            Question::whereIn('id', $data['deleted_ids'])->delete();
+        }
+
+        // 2. Update existing questions and their options
+        foreach ($data['questions'] as $q) {
+            $question = Question::find($q['id']);
+            $question->question = $q['question'];
+            $question->score = $q['score'];
+            $question->save();
+
+            // Update options (assuming options are in the same order)
+            foreach ($q['options'] as $index => $opt) {
+                // Find option by question_id and order
+                $option = $question->options()->skip($index)->first();
+                if ($option) {
+                    $option->option = $opt['option'];
+                    $option->is_correct = $opt['is_correct'];
+                    $option->save();
+                }
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Questions updated and deleted as needed!']);
+    }
+
+    public function submitExam(Request $request)
+    {
+        $request->validate([
+            'exam_id' => 'required|integer|exists:exams,id',
+            'student_id' => 'required|integer|exists:students,id',
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|integer|exists:questions,id',
+            'answers.*.option_id' => 'required|integer|exists:options,id',
+        ]);
+
+        // 1. save each attempt in (ExamAttempt)
+        $attempt = ExamAttempt::create([
+            'exam_id' => $request->exam_id,
+            'student_id' => $request->student_id,
+            'grade' => 0, // will calculate after
+        ]);
+
+        // 2. save each answer in student_answers
+        foreach ($request->answers as $answer) {
+            StudentAnswer::create([
+                'exam_attempt_id' => $attempt->id,
+                'question_id' => $answer['question_id'],
+                'option_id' => $answer['option_id'],
+            ]);
+        }
+
+        // 3. Calculate the grade immediately
+        $grade = 0;
+        foreach ($request->answers as $answer) {
+            $option = Option::find($answer['option_id']);
+            $question = Question::find($answer['question_id']);
+            if ($option && $option->is_correct && $question) {
+                $grade += $question->score;
+            }
+        }
+        $attempt->grade = $grade;
+        $attempt->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Exam submitted successfully!',
+            'attempt_id' => $attempt->id,
+            'grade' => $grade
+        ]);
+    }
+
+    public function regradeExam(Request $request)
+    {
+        $request->validate([
+            'exam_id' => 'required|integer|exists:exams,id'
+        ]);
+
+        $examId = $request->exam_id;
+        // Get all questions for the exam
+        $questions = Question::where('exam_id', $examId)->get();
+
+        // Get all attempts for this exam
+        $attempts = ExamAttempt::where('exam_id', $examId)->get();
+
+        foreach ($attempts as $attempt) {
+            $totalGrade = 0;
+
+            foreach ($questions as $question) {
+                // Get the student's answer for this question in this attempt
+                $studentAnswer = StudentAnswer::where('exam_attempt_id', $attempt->id)
+                    ->where('question_id', $question->id)
+                    ->first();
+
+                if ($studentAnswer) {
+                    // Get the option chosen by the student
+                    $chosenOption = Option::find($studentAnswer->option_id);
+
+                    // If the chosen option is currently correct, add the question's score
+                    if ($chosenOption && $chosenOption->is_correct) {
+                        $totalGrade += $question->score;
+                    }
+                }
+            }
+
+            // Update the student's grade
+            $attempt->grade = $totalGrade;
+            $attempt->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Exam regraded for all students!',
+        ]);
+    }
+
+    public function examGradesDistribution(Request $request){
+        $request->validate([
+            'exam_id' => 'required|integer|exists:exams,id'
+        ]);
+        $examId = $request->exam_id;
+        $exam = Exam::find($examId);
+
+        $attempts = ExamAttempt::where('exam_id', $examId)->pluck('grade');
+        $now = Carbon::now();
+        $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+        $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
+
+
+        $available = $now->greaterThan($endDateTime);
+
+
+        if ($attempts->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'distribution' => []
+            ]);
+        }
+
+        $min = $attempts->min();
+        $max = $attempts->max();
+
+        $distribution = [];
+        for ($i = $min; $i <= $max; $i++) {
+            $distribution[$i] = 0;
+        }
+
+        foreach ($attempts as $grade) {
+            if (isset($distribution[$grade])) {
+                $distribution[$grade]++;
+            }
+        }
+
+        $distributionArray = [];
+        foreach ($distribution as $degree => $count) {
+            if ($count > 0) {
+                $distributionArray[] = [
+                    'degree' => (int)$degree,
+                    'count' => $count
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'available' => $available,
+            'distribution' => $distributionArray
         ]);
     }
 }

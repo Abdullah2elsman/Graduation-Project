@@ -1,0 +1,122 @@
+.book {
+    width: 275px;
+    height: 350px;
+    border: 3px solid #2C6DA4;
+    border-radius: 16px;
+    float: right;
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.books-container {
+    width: calc(100% - 25vw);
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow-x: hidden;
+}
+
+.books-container .books-parent {
+    width: 100%;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+    gap: 10px;
+}
+
+.books-container .books-parent::-webkit-scrollbar {
+    display: none;
+}
+
+.up-frame {
+    width: 271px;
+    height: 77px;
+    border-radius: 14px;
+    background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
+    padding: 16px 8px 16px 8px;
+    overflow: auto;
+}
+
+.open {
+    width: 82px;
+    height: 40px;
+    padding: 8px;
+    font-size: 18px;
+    color: #FFFFFF;
+    background-color: #2C6DA4;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    float: right;
+}
+
+.open i {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.down-frame {
+    width: 271px;
+    height: 100px;
+    border-radius: 14px;
+    background: linear-gradient(rgba(252, 252, 252, 0.5), rgba(44, 62, 80, 0.5));
+    padding: 10px;
+    overflow: auto;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+}
+
+.quiz {
+    background-color: #FCFCFC;
+    color: #2C6DA4;
+    padding: 8px;
+    border: 1px solid #2C6DA4;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 8px;
+    width: 240px;
+    height: 48px;
+}
+
+.down-frame p {
+    margin-bottom: 8px;
+}
+
+.message-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.message-box h3 {
+    color: #757575;
+}
+
+.user-name {
+    color: #2C6DA4;
+    font-weight: bold;
+}
+
+.wave {
+    font-size: 22px;
+}
+
+.quiz-alert {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 16px;
+}
+
+.quiz-number {
+    color: #2C6DA4;
+}

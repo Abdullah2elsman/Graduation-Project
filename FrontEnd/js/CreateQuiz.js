@@ -134,17 +134,25 @@ function addQuestion(type) {
             </div>
             <div class="optionsWrapper">
                 ${Array.from({length: type === 'ai' ? 4 : 2}, (_, i) => `
-                    <input type="text" placeholder="Option ${i+1}" class="option-input">
+                    <div class="option-row" style="display: flex; align-items: center; gap: 8px;">
+                        <label class="circle-checkbox" style="margin-right: 6px;">
+                            <input type="checkbox" class="correct-checkbox">
+                            <span class="custom-circle"></span>
+                        </label>
+                        <input type="text" placeholder="Option ${i+1}" class="option-input" style="flex: 1;">
+                    </div>
                 `).join('')}
             </div>
             <button type="button" class="addOption">Add Option</button>
         </div>
     `;
+
+
     
     container.insertAdjacentHTML('beforeend', questionHTML);
 }
 
-function createQuestionHeader(number, type) {
+function createQuestionHeader(number) {
     return `
         <div class="questionHeader">
             <p>Question ${number}</p>
@@ -191,11 +199,33 @@ function handleDynamicActions(e) {
             return;
         }
         
-        const newOption = document.createElement('input');
-        newOption.type = 'text';
-        newOption.placeholder = `Option ${optionsWrapper.children.length + 1}`;
-        optionsWrapper.appendChild(newOption);
+        // Create option row with checkbox and input
+        const optionRow = document.createElement('div');
+        optionRow.className = 'option-row';
+        optionRow.style = 'display: flex; align-items: center; gap: 8px;';
+        optionRow.innerHTML = `
+            <label class="circle-checkbox" style="margin-right: 6px;">
+                <input type="checkbox" class="correct-checkbox">
+                <span class="custom-circle"></span>
+            </label>
+            <input type="text" placeholder="Option ${optionsWrapper.children.length + 1}" class="option-input" style="flex: 1;">
+        `;
+        optionsWrapper.appendChild(optionRow);
+
     }
+
+    // Select the correct option
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('correct-checkbox')) {
+            const checkbox = e.target;
+            const optionInput = checkbox.closest('.option-row').querySelector('input[type="text"]');
+            if (checkbox.checked) {
+                optionInput.classList.add('correct-option');
+            } else {
+                optionInput.classList.remove('correct-option');
+            }
+        }
+    });
 }
 
 // ===================== Helper Functions =====================
@@ -217,6 +247,7 @@ function renumberQuestions() {
         question.querySelector('.questionHeader p').textContent = `Question ${index + 1}`;
     });
 }
+
 function createOptions(count) {
     return `
         <div class="optionsWrapper">
@@ -317,11 +348,7 @@ function collectAndValidateQuestions() {
     for (const wrapper of questionWrappers) {
         const questionInput = wrapper.querySelector('.addQuestionWrapper input');
         const scoreSelect = wrapper.querySelector('.questionScoreWrapper.Manual select');
-        
-        console.log(questionInput);
-        console.log(questionInput.value);
-        console.log(scoreSelect);
-        console.log(scoreSelect.value);
+
         // Validate question text
         if (!questionInput.value.trim()) {
             alert('Please fill in all question texts');
@@ -338,27 +365,22 @@ function collectAndValidateQuestions() {
             scoreSelect.focus();
             return null;
         }
-        console.log('Form submission triggered');
         
         // Validate options
-        const options = wrapper.querySelectorAll('.optionsWrapper input');
-        const validOptions = Array.from(options)
-            .map(input => input.value.trim())
-            .filter(option => option);
-
-        if (validOptions.length < 2) {
-            alert('Each question needs at least 2 valid options');
-            wrapper.querySelector('.optionsWrapper input').focus();
-            return null;
-        }
+        const optionRows = wrapper.querySelectorAll('.option-row');
+        const options = Array.from(optionRows).map(row => {
+            return {
+                option: row.querySelector('input[type="text"]').value.trim(),
+                is_correct: row.querySelector('input[type="checkbox"]').checked
+            };
+        }).filter(opt => opt.option);
 
         questions.push({
-            text: questionInput.value.trim(),
+            question: questionInput.value.trim(),
             score: score,
-            options: validOptions
+            options: options
         });
     }
-
     return questions;
 }
 
@@ -405,11 +427,6 @@ function validateQuizMetadata() {
     }
     return true;
 }
-
-// ===================== Keep everything else unchanged below =====================
-// ...
-// Keep all your existing functions below
-// ...
 
 // ===================== Initialize Application =====================
 document.addEventListener('DOMContentLoaded', initializeApp);

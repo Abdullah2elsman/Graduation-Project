@@ -1,4 +1,4 @@
-/* مسح الديفولت بتاع البراوزر */
+/* Reset browser default styles */
 * {
   margin: 0;
   padding: 0;
@@ -6,10 +6,12 @@
   font-family: 'Roboto', sans-serif;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
-  overflow-x: hidden; /* أهم حاجة عشان ميحصلش حركة يمين شمال */
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
   background-color: #f9fafb;
   font-family: 'Roboto', sans-serif;
   font-size: 20px;
@@ -23,27 +25,16 @@ html, body {
 }
 
 .container {
-  width: 100%; 
-  margin: 0 auto; 
-  padding: 80px; 
+  width: 100%;
+  margin: 0 auto;
+  padding: 80px;
   box-sizing: border-box;
 }
-
-
 
 .quiz-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
-}
-
-
-.back-button {
-  font-size: 24px;
-  text-decoration: none;
-  color: black;
-  /* margin-right: 10px; */
 }
 
 .quiz-header h1 {
@@ -56,16 +47,23 @@ html, body {
   gap: 10px;
 }
 
-.edit-btn, .view-btn {
+.edit-btn,
+.view-btn {
   padding: 8px 16px;
   border: none;
   cursor: pointer;
   border-radius: 6px;
   font-size: 16px;
+  display: flex;
+  max-width: 130px;
+  align-items: center;
+  justify-content: space-between;
+  transition: ease all 0.3s;
 }
 
 .edit-btn {
   background-color: #5BCB3A1A;
+  background-color: #fff;
   border: 1px solid #28a745;
   color: #28a745;
 }
@@ -76,35 +74,100 @@ html, body {
   color: #2C6DA4;
 }
 
-/* الأسئلة */
+/* Questions section */
 .questions-section {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  margin-top: 56px; 
+  margin-top: 56px;
 }
 
-
 .question-wrapper {
-  width: 100%; 
+  width: 100%;
   display: flex;
   margin: auto;
 }
 
-/* محتوى السؤال */
+/* Question card content */
 .question-card {
   flex: 1;
-  background: #e8eff5;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
   display: flex;
   flex-direction: column;
+  border-radius: 8px;
+  gap: 16px;
 }
-.question-number{
-  font-size: 24px;
+
+.question-row {
+  display: flex;
+  gap: 24px;
+}
+
+.question-status {
+  display: none;
+  max-width: 160px;
+  padding: 20px;
+  background: #F8F9FA;
+  border-radius: 8px;
+  border: 1px solid #2C6DA4;
+  box-sizing: border-box;
+  height: 160px;
+}
+
+.question-content{
+  flex: 1;
+}
+
+.question-content .question{
+  background: #E8EFF5;
+  padding: 20px;
+  border-radius: 8px;
+}
+.question-content .question-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.question-content .question .edit-question{
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.question-content .question .edit-question button {
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+.question-content .question .edit-question p{
   font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 20px;
+}
+.question-content .question .edit-question select {
+    border: 1.5px solid #BDBDBD;
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 8px;
+    font-size: 16px;
+    color: #BDBDBD;
+    width: 60px;
+    outline: none;
+    cursor: pointer;
+}
+.question-content .question-number{
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 .question-content input[type="text"] {
@@ -121,30 +184,129 @@ html, body {
   border: 1px solid #28a745;
 }
 
+/* Check Box */
+
+.circle-checkbox {
+  display: none;
+  align-items: center;
+  cursor: pointer;
+}
+
+.circle-checkbox input[type="checkbox"] {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.custom-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #28a745;
+  background: #fff;
+  display: inline-block;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.circle-checkbox input[type="checkbox"]:checked+.custom-circle {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+.custom-circle::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: scale(0) translate(-50%, -50%);
+  transition: 0.2s;
+}
+
+.circle-checkbox input[type="checkbox"]:checked+.custom-circle::after {
+  background: #fff;
+  transform: scale(1) translate(-50%, -50%);
+}
+
 .correct-answer {
   background-color: #fcefdc;
   color: #8e662e;
   padding: 10px;
   border-radius: 6px;
   font-size: 14px;
+  margin-top: 0;
+  font-weight: 500;
+  margin-top: 20px;
 }
 
+.submit-all-edit-btn {
+    display: none;
+    background-color: #fff;
+    border: 1px solid #1F507A;
+    color: #1F507A;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 600;
+    transition: ease all 0.3s;
+    margin-left: auto;
+    margin-top: 40px;
+}
+
+.submit-all-edit-btn:hover {
+  background-color: #E8EFF5;
+}
+
+/* Chart section */
+.average-grades,
 .chart-section {
   background: white;
   align-items: center;
   padding: 16px;
-  margin: 0 auto;
-  width: 570px; /* العرض مضبوط */
-  height: 438px;
+  margin: 40px auto 0 auto;
+  width: 570px;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
 }
 
 .chart-section h2 {
   margin-bottom: 20px;
 }
 
-.chart-section canvas {
+.chart-section canvas,
+.average-grades canvas {
   width: 100% !important;
   height: auto !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .container {
+    padding: 24px;
+  }
+
+  .average-grades,
+  .chart-section {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .question-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .question-status {
+    max-width: 100%;
+    min-width: unset;
+    margin-bottom: 12px;
+  }
 }
