@@ -15,7 +15,8 @@ use Smalot\PdfParser\Parser;
 class CourseController extends Controller
 {
 
-    public function storeBook(Request $request){
+    public function storeBook(Request $request)
+    {
         $request->validate([
             'title' => 'required|string',
             'file' => 'required|file|mimetypes:application/pdf,application/octet-stream|max:102400',
@@ -30,8 +31,10 @@ class CourseController extends Controller
         $timestamp = now()->format('Y_m_d_His');
         $filename = $timestamp . '_' . $originalName . '.' . $extension;
 
+        // تخزين ملف الكتاب PDF
         $file->storeAs('books', $filename, 'public');
 
+        // إنشاء الكورس في الداتا بيز
         $book = Course::create([
             'title' => $request->title,
             'instructor_id' => $request->instructor_id,
@@ -47,7 +50,8 @@ class CourseController extends Controller
 
         exec("\"$popplerBin\" -f 1 -l 1 -png -scale-to-x 275 -scale-to-y 375 \"$pdfPath\" \"$outputBase\"");
 
-        $generatedImage = $outputBase . '-1.png';
+        $generatedImage = $outputBase . '-01.png';
+
         $finalImage = $outputBase . '.png';
 
         if (file_exists($generatedImage)) {
@@ -62,7 +66,8 @@ class CourseController extends Controller
     }
 
 
-    public function uploadImage(Request $request){
+
+    public function uploadBackground(Request $request){
         $request->validate([
             'course_id' => 'required|exists:courses,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'

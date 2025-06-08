@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 
 // ========== Auth Routes ==========
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
     //Login
     Route::post('login/admin', [AuthController::class, 'adminLogin']);
     Route::post('login/student', [AuthController::class, 'studentLogin']);

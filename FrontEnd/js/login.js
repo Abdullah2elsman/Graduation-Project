@@ -60,7 +60,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         });
 
         // 2. Get CSRF token from cookie
-        const xsrfToken = getCookie('XSRF-TOKEN');
+        const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
 
         // 3. Send login request to the backend
         const response = await fetch(`${API_BASE_URL}/auth/login/${role}`, {
@@ -69,7 +69,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-XSRF-TOKEN': decodeURIComponent(xsrfToken)
+                'X-XSRF-TOKEN': xsrfToken
             },
             body: JSON.stringify({ email, password })
         });
