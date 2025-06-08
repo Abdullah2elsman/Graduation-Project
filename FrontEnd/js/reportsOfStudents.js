@@ -3,8 +3,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const encodedCourseId = urlParams.get('course_id');
 const courseId = atob(encodedCourseId); // decode courseId
 
-const API_BASE_URL = 'http://localhost:8005/api';
-
 // ===================== DOM References =====================
 const statCards = document.querySelectorAll('.stat-card span');
 

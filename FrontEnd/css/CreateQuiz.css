@@ -378,7 +378,7 @@
 
 /* deleteBtn */
 
-.questionHeader .deleteBtn {
+.deleteBtn {
     padding: .5rem;
     border-radius: .5rem;
     border: 1px solid #D32F2F;

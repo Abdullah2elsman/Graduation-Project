@@ -40,10 +40,22 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-    'api' => [
-        'driver' => 'passport',
-        'provider' => 'users',
-    ],
+
+        // Type of users guards
+        'student' => [
+            'driver' => 'session',
+            'provider' => 'students',
+        ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+        'instructor' => [
+            'driver' => 'session',
+            'provider' => 'instructors',
+        ],
+
+        
     ],
 
     /*
@@ -69,10 +81,19 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        // Type of users providers
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Student::class,
+        ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
+        'instructors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Instructor::class,
+        ],
     ],
 
     /*

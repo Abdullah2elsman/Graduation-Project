@@ -1,24 +1,52 @@
 // ===================== DOM References =====================
 const booksParent = document.querySelector('.books-parent');
-console.log("Okay, here are 5 easy, direct, and factual quiz questions covering pages 2 through 5 of the provided document. There's a mix of true/false and multiple-choice questions:\n\n**Quiz Questions:**\n\n1.  **True or False:** A network switch connects nodes with each other and with other racks.\n2.  **Multiple Choice:** Physical Infrastructure consists mainly of which of the following?\n    a) Servers, Storage, and Network\n    b) Monitors, Keyboards, and Mice\n    c) Printers, Scanners, and Routers\n    d) Cables, Connectors, and Power supplies\n3.  **True or False:** 1 Rack Unit (1U) is equal to 2.75 inches.\n4. **Multiple Choice:** Which of the following is a type of server configuration?\n    a) Tower\n    b) Rack-mountable\n    c) Blade\n    d) All of the above\n5.  **True or False:** Cables can affect cooling in a server rack.\n\n**Answer Key:**\n\n1.  True\n2.  a) Servers, Storage, and Network\n3.  False\n4.  d) All of the above\n5.  True")
 
 // ===================== Global Variables =====================
-const userId = 201;
-// ===================== Initial Setup =====================
+let userId = null;
+
+// ===================== Initialize Application =====================
+document.addEventListener('DOMContentLoaded', initializeApp);
+
 function initializeApp() {
+    // Load user id safely
+    const userDataString = localStorage.getItem('userData');
+    if (userDataString) {
+        try {
+            const userData = JSON.parse(userDataString);
+            userId = userData?.user?.id ?? null;
+        } catch (err) {
+            console.error('Invalid user data in localStorage:', err);
+        }
+    }
+
+    if (!userId) {
+        console.error('User not logged in or invalid user data');
+        redirectToLogin();
+        return;
+    }
+
     fetchCourses();
 }
 
 // ===================== Core Functions =====================
 function fetchCourses() {
-    fetch(`${API_BASE_URL}/instructor/${userId}/courses`)
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) throw new Error('Failed to fetch courses');
-            renderCourses(data.data);
-        })
-        .catch(handleError);
+    
+    fetch(`${API_BASE_URL}/instructor/${userId}/courses`, {
+        method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) throw new Error('Failed to fetch courses');
+        renderCourses(data.data);
+    })
+    .catch(handleError);
 }
+
 
 function renderCourses(courses) {
     booksParent.innerHTML = '';
@@ -35,18 +63,17 @@ function renderCourses(courses) {
     });
 }
 
-
 function createCourseElement(course) {
     const bookDiv = document.createElement('div');
     bookDiv.className = 'book';
     bookDiv.id = `course-${course.id}`;
-    
-    const imagePath = course.image_path 
+
+    const imagePath = course.image_path
         ? `${API_BASE_URL}/../storage/${course.image_path}`
         : '../imgs/default-course.png';
 
     bookDiv.style.backgroundImage = `url(${imagePath})`;
-    
+
     bookDiv.innerHTML = `
         <div class="up-frame">
             <button class="open">
@@ -68,26 +95,25 @@ function createCourseElement(course) {
 }
 
 // ===================== Event Handlers =====================
-
 function addCourseEventListeners(bookDiv, courseId) {
-    // Book click handler
+    // Click on the course card but not on buttons
     bookDiv.addEventListener('click', (e) => {
         if (!e.target.closest('button')) {
             handleCourseClick(courseId);
         }
     });
 
-    // Open button handler
+    // Open course content button
     bookDiv.querySelector('.open').addEventListener('click', () => {
         handleOpenCourse(courseId);
     });
 
-    // Quiz button handler
+    // Navigate to quizzes page
     bookDiv.querySelector('.quiz').addEventListener('click', () => {
         handleQuizNavigation(courseId);
     });
 
-    // Report button handler
+    // Navigate to report of students page
     bookDiv.querySelector('.report-student').addEventListener('click', () => {
         handleReportStudent(courseId);
     });
@@ -95,16 +121,18 @@ function addCourseEventListeners(bookDiv, courseId) {
 
 function handleCourseClick(courseId) {
     console.log(`Course ${courseId} clicked`);
+    // Uncomment to navigate
     // window.location.href = `/course.html?id=${courseId}`;
 }
 
 function handleOpenCourse(courseId) {
     console.log(`Opening course ${courseId}`);
+    // Uncomment to navigate
     // window.location.href = `course-content.html?id=${courseId}`;
 }
 
 function handleQuizNavigation(courseId) {
-    const encodedCourseId = btoa(courseId); // encode courseId
+    const encodedCourseId = btoa(courseId); // base64 encode the course ID
     window.location.href = `QuizzesManagement.html?course_id=${encodedCourseId}`;
 }
 
@@ -112,7 +140,6 @@ function handleReportStudent(courseId) {
     const encodedCourseId = btoa(courseId);
     window.location.href = `reportsOfStudents.html?course_id=${encodedCourseId}`;
 }
-
 
 // ===================== Utility Functions =====================
 function handleError(error) {
@@ -123,6 +150,3 @@ function handleError(error) {
         </p>
     `;
 }
-
-// ===================== Initialize Application =====================
-document.addEventListener('DOMContentLoaded', initializeApp);

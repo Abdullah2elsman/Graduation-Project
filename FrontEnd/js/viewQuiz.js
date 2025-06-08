@@ -4,14 +4,13 @@ const encodedExamId = urlParams.get('exam_id');
 const encodedCourseId = urlParams.get('course_id'); 
 const examId = atob(encodedExamId); 
 const courseId = atob(encodedCourseId); 
-const instructorId = 201;
+const instructorId = JSON.parse(localStorage.getItem('userData')).user.id;
+console.log(courseId)
 
 // ===================== Global Variables =====================
-const API_BASE_URL = 'http://localhost:8005/api';
 let totalScore = 0; // this to check the total score of the quiz == sum of all questions scores after edit
 let deletedQuestionIds = []; // Store deleted question IDs here to send it to back end
-
-
+let deletedOptionIds = [];
 
 // ===================== DOM References =====================
 const elements = {
@@ -19,7 +18,9 @@ const elements = {
     backBtn: document.querySelector(".back-btn"),
     editBtn: document.querySelector('.edit-btn'),
     viewBtn: document.querySelector('.view-btn'),
+    addQuestionBtn: document.querySelector('.add-question-btn'),
     submitBtn: document.querySelector('.submit-all-edit-btn'),
+
 
     // Sections
     quizName: document.querySelector(".quiz-header h1"),
@@ -38,24 +39,37 @@ function initializeApp() {
 // ===================== Core Functions =====================
 async function fetchReports() {
     const endpoints = [
-    `${API_BASE_URL}/instructor/course/${courseId}/exams/getExamQuestions?exam_id=${examId}`,
-    `${API_BASE_URL}/exam/examGradesDistribution?exam_id=${examId}`,
+        `${API_BASE_URL}/instructor/course/${courseId}/exams/get-exam-questions?exam_id=${examId}`,
+        `${API_BASE_URL}/instructor/exam/exam-grades-distribution?exam_id=${examId}`,
     ];
 
     try {
         const [getQuiz, gradesDistribution] = await Promise.all(
-            endpoints.map(url => fetch(url).then(handleResponse))
+            endpoints.map(url =>
+                fetch(url, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }).then(handleResponse)
+            )
         );
-
         updateQuizName(getQuiz.data.name);
         renderQuestions(getQuiz.data.questions);
         totalScore = getQuiz.data.total_score;
         setupChart(gradesDistribution.distribution, gradesDistribution.available);
-
     } catch (error) {
         handleError(error);
     }
+}
 
+async function handleResponse(response) {
+    if (!response.ok) {
+        throw new Error('Failed to get data from server');
+    }
+    return await response.json();
 }
 
 function updateQuizName(quizName) {
@@ -79,7 +93,7 @@ function renderQuestions(questions) {
                     <p>Mark ${(question.score).toFixed(2)} out of ${(question.score).toFixed(2)}</p>
                     </div>
                     <div class="question-content">
-                    <div class="question">
+                    <div class="question" id="${question.id}">
                         <div class="question-header">
                             <div class="question-number">Question ${index + 1}</div>
                                 <div class="edit-question">
@@ -105,7 +119,7 @@ function renderQuestions(questions) {
                             <input type="text" placeholder="Add Question..............................?" value="${question.question}" readonly style = "margin-bottom: 35px;">
                             <div class="options">
                                 ${question.options.map((opt, optIdx) => `
-                                <div class="option-row" style="display: flex; align-items: center; gap: 8px;">
+                                <div class="option-row">
                                     <label class="circle-checkbox" style="margin-right: 6px;">
                                     <input 
                                         type="checkbox" 
@@ -116,17 +130,19 @@ function renderQuestions(questions) {
                                     >
                                     <span class="custom-circle"></span>
                                     </label>
-
+                                    
                                     <input 
-                                        type="text" 
-                                        value="${opt.option}" 
-                                        class="${opt.is_correct ? "correct-option" : "incorrect-option"}" 
-                                        readonly
-                                        style="flex: 1;"
+                                    type="text" 
+                                    value="${opt.option}" 
+                                    class="${opt.is_correct ? "correct-option" : "incorrect-option"}" 
+                                    readonly
+                                    style="flex: 1;"
                                     >
+                                    <button class="delete-option-btn" id=${opt.id} style="color: #D32F2F;border-color: #D32F2F; display: none"><img src="../imgs/delete logo.svg" alt=""></button>
                                 </div>
                                 `).join('')}
-                            </div>
+                                </div>
+                                <button class="add-option-btn">Add Option</button>
                         </div>
                         <div class="correct-answer">
                             The Correct Answer is:
@@ -156,14 +172,6 @@ function renderQuestions(questions) {
         
         elements.questionsSection.insertAdjacentHTML('beforeend', questionHTML);
     });
-}
-
-
-async function handleResponse(response) {
-    if (!response.ok) {
-        throw new Error('Failed to get data from server');
-    }
-    return await response.json();
 }
 
 
@@ -198,24 +206,39 @@ function setupEventListeners() {
             deactivateEditMode(elements);
             editFlag = false;
         }
-    });
 
+        // const firstQuestion = document.querySelector('.question-edit .editBtn');
+        // if (firstQuestion) {
+        //     firstQuestion.click();
+        // } else {
+        //     deactivateEditMode(elements);
+        //     editFlag = false;
+        // }
+    });
     elements.questionsSection.addEventListener('click', function(event) {
         const btn = event.target.closest('button');
         if (!btn) return;
 
         const questionId = btn.id; // This is the unique question ID
-
+        
         if (btn.classList.contains('editBtn')) {
             editQuestion(questionId);
         } else if (btn.classList.contains('deleteBtn')) {
-            deleteQuestion(questionId);
+            deleteQuestion(questionId, btn);
+        } else if (btn.classList.contains('delete-option-btn')) {
+            deleteOption(btn);
+        }else if (btn.classList.contains('add-option-btn')) {
+            addOption(btn);
         }
     });
 
-    elements.submitBtn.addEventListener('click', function() {
+    elements.addQuestionBtn.addEventListener('click', function() {
+        addQuestion();
+    });
+
+    elements.submitBtn.addEventListener('click', function(e) {
         confirm('Are you sure you want to update question?');
-        submitAllQuestions();
+        submitAllQuestions(e);
     });
 }
 
@@ -248,6 +271,7 @@ function activateEditMode(elements) {
     elements.editBtn.style.backgroundColor = '#5BCB3A1A';
     elements.viewBtn.style.backgroundColor = '#fff';
     showElements('.edit-question', 'flex');
+    showElements('.add-question-btn', 'block');
     hideElements('.question-status');
     elements.submitBtn.style.display = 'block';
 }
@@ -255,65 +279,89 @@ function activateEditMode(elements) {
 function deactivateEditMode(elements) {
     elements.editBtn.style.backgroundColor = '#fff';
     hideElements('.edit-question');
+    hideElements('.submit-all-edit-btn');
+    hideElements('.add-question-btn');
 }
 
 
 function editQuestion(questionId) {
     // Find the question-wrapper for this question
+
     const questionWrapper = document.querySelector(`button.editBtn[id="${questionId}"]`)?.closest('.question-wrapper');
     if (!questionWrapper) {
         console.warn(`Question wrapper for ID ${questionId} not found.`);
         return;
     }
+    
+        // Show all elements in this question
+        const checkboxes = questionWrapper.querySelectorAll('.circle-checkbox');
+        const deleteOptionButtons = questionWrapper.querySelectorAll('.delete-option-btn');
+        const addOptionButton = questionWrapper.querySelector('.add-option-btn');
 
-    // Show all circle-checkbox elements in this question
-    const checkboxes = questionWrapper.querySelectorAll('.circle-checkbox');
-    checkboxes.forEach(cb => {
-        cb.style.display = 'inline-flex';
-    });
+        checkboxes.forEach(cb => {
+            cb.style.display = (cb.style.display) == 'block'? 'none' : 'block';
+        });
 
-    // Make the main question input editable
-    const questionInput = questionWrapper.querySelector('.question-content > .question > input[type="text"]');
-    if (questionInput) {
-        questionInput.removeAttribute('readonly');
-        questionInput.focus();
-    }
+        deleteOptionButtons.forEach(btn => {
+            btn.style.display = (btn.style.display) == 'block'? 'none' : 'block';
+        });
 
-    // Make all option text inputs editable
-    const optionInputs = questionWrapper.querySelectorAll('.options input[type="text"]');
-    optionInputs.forEach(input => {
-        input.removeAttribute('readonly');
-    });
+        addOptionButton.style.display = (addOptionButton.style.display) == 'block'? 'none' : 'block';
+        
 
-    // Enable all checkboxes and add change event
-    const optionRows = questionWrapper.querySelectorAll('.option-row');
-    optionRows.forEach(row => {
-        const checkbox = row.querySelector('.correct-checkbox');
-        const input = row.querySelector('input[type="text"]');
-        if (checkbox) {
-            checkbox.disabled = false;
-            // Remove any previous event to avoid duplicates
-            checkbox.onchange = null;
-            checkbox.addEventListener('change', function() {
-                if (checkbox.checked) {
-                    input.classList.remove('incorrect-option');
-                    input.classList.add('correct-option');
-                } else {
-                    input.classList.remove('correct-option');
-                    input.classList.add('incorrect-option');
-                }
-            });
+        // Make the main question input editable
+        const questionInput = questionWrapper.querySelector('.question-content > .question > input[type="text"]');
+        
+        if (questionInput.hasAttribute('readonly')) {
+            questionInput.removeAttribute('readonly');
+            questionInput.focus();
+        } else {
+            questionInput.setAttribute('readonly', true);
         }
-    });
+        
+        // Make all option text inputs editable
+        const optionInputs = questionWrapper.querySelectorAll('.options input[type="text"]');
+        optionInputs.forEach(input => {
+            if (input.hasAttribute('readonly')) {
+            input.removeAttribute('readonly');
+            input.focus();
+            } else {
+                input.setAttribute('readonly', true);
+            }
+        });
 
+        // Enable all checkboxes and add change event
+        const optionRows = questionWrapper.querySelectorAll('.option-row');
+        optionRows.forEach(row => {
+            const checkbox = row.querySelector('.correct-checkbox');
+            const input = row.querySelector('input[type="text"]');
+            if (checkbox) {
+                checkbox.disabled = false;
+                // Remove any previous event to avoid duplicates
+                checkbox.onchange = null;
+                checkbox.addEventListener('change', function() {
+                    if (checkbox.checked) {
+                        input.classList.remove('incorrect-option');
+                        input.classList.add('correct-option');
+                    } else {
+                        input.classList.remove('correct-option');
+                        input.classList.add('incorrect-option');
+                    }
+                });
+            }
+        });
+    
     // Optionally, add an "editing" class for styling
     questionWrapper.classList.add('editing');
-
 }
 
 
-function deleteQuestion(questionId) {
+function deleteQuestion(questionId ,btn) {
     // Remove the question from the DOM as before
+    
+    if (Number(questionId) === 0) {
+        btn.closest('.question-wrapper').remove();
+    }
     const questionWrapper = document.querySelector(`button.deleteBtn[id="${questionId}"]`)?.closest('.question-wrapper');
     if (questionWrapper) {
         questionWrapper.remove();
@@ -322,83 +370,246 @@ function deleteQuestion(questionId) {
     deletedQuestionIds.push(Number(questionId));
 }
 
-function submitAllQuestions() {
-    // Collect all question wrappers
+function deleteOption(button) {
+    const optionRow = button.closest('.option-row');
+    if (!optionRow) return;
+    
+    const optionId = button.getAttribute('id');
+    if (optionId) {
+        deletedOptionIds.push(Number(optionId));
+    }
+
+    optionRow.remove();
+}
+
+
+function addOption(button) {
+    const questionDiv = button.closest('.question');
+    const optionsContainer = questionDiv.querySelector('.options');
+
+    // Check current number of option rows
+    const currentOptionCount = optionsContainer.querySelectorAll('.option-row').length;
+
+    if (currentOptionCount >= 7) {
+        alert('You can only add up to 7 options per question.');
+        return;
+    }
+
+    const optionHTML = `
+        <div class="option-row">
+            <label class="circle-checkbox" style="margin-right: 6px; display:block;">
+            <input 
+                type="checkbox" 
+                class="correct-checkbox" 
+            >
+            <span class="custom-circle"></span>
+            </label>
+            
+            <input 
+                type="text"
+                placeholder="Add Option"
+                style="flex: 1;"
+                class="new-option"
+            >
+            
+            <button class="delete-option-btn" style="color: #D32F2F;border-color: #D32F2F;">
+                <img src="../imgs/delete logo.svg" alt="">
+            </button>
+        </div>
+    `;
+
+    optionsContainer.insertAdjacentHTML('beforeend', optionHTML);
+
+    const newRow = optionsContainer.lastElementChild;
+    const checkbox = newRow.querySelector('.correct-checkbox');
+    const input = newRow.querySelector('input[type="text"]');
+
+    // Attach the event listener to the newly added checkbox
+    checkbox.addEventListener('change', function () {
+        if (checkbox.checked) {
+            input.classList.remove('incorrect-option');
+            input.classList.add('correct-option');
+        } else {
+            input.classList.remove('correct-option');
+            input.classList.add('incorrect-option');
+        }
+    });
+}
+
+function addQuestion(){
+    const questionHTML = `
+    <div class="question-wrapper editing">
+        <div class="question-card">
+            <div class="question-row">
+                <div class="question-content">
+                    <div class="question new-question">
+                        <div class="question-header">
+                            <div class="question-number">New Question</div>
+                            <div class="edit-question" style="display: flex;">
+                                <p>Question Score</p>
+                                <select name="score">
+                                    ${[1, 2, 3, 4, 5].map(val => `<option value="${val}">${val}</option>`).join('')}
+                                </select>
+                                <button class="editBtn" 
+                                        style="color: #28a745; border-color: #28A745; width: 70px;" 
+                                        id= "">
+                                        <img src="../imgs/edit logo.svg" alt="">Edit
+                                </button>
+                                <button class="deleteBtn manualDeleteBtn" style="color: #D32F2F; border-color: #D32F2F; width: 90px;">
+                                    <img src="../imgs/delete logo.svg" alt="">Delete
+                                </button>
+                            </div>
+                        </div>
+                        <input type="text" placeholder="Add Question..............................?" value="" style="margin-bottom: 35px;">
+                        <div class="options">
+                        
+                        </div>
+                        <button class="add-option-btn" style="display: block">Add Option</button>
+                        <div class="correct-answer">The Correct Answer is: <strong>Not set</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    elements.questionsSection.insertAdjacentHTML('beforeend', questionHTML);
+    
+}
+
+function submitAllQuestions(e) {
     const questionWrappers = document.querySelectorAll('.question-wrapper');
     const updatedQuestions = [];
+    const newQuestions = [];
 
-    const requestBody = {
-        questions: updatedQuestions,
-        deleted_ids: deletedQuestionIds
-    };
+    // deletedQuestionIds, deletedOptionIds
 
     questionWrappers.forEach(wrapper => {
-        // Get question ID from the edit button
-        const questionId = wrapper.querySelector('.editBtn')?.id;
-        if (!questionId) return;
+        // Get question main div
+        const questionDiv = wrapper.querySelector('.question');
+        const questionId = questionDiv.id || null;
 
-        // Get updated question text
-        const questionInput = wrapper.querySelector('.question-content > .question > input[type="text"]');
+        // Get question text
+        const questionInput = questionDiv.querySelector('input[type="text"]');
         const questionText = questionInput ? questionInput.value : '';
 
-        // Get updated score
-        const scoreSelect = wrapper.querySelector('select[name="score"]');
+        // Get question score
+        const scoreSelect = questionDiv.querySelector('select[name="score"]');
         const scoreValue = scoreSelect ? Number(scoreSelect.value) : 1;
 
-        // Get updated options with correct answers
-        const optionRows = wrapper.querySelectorAll('.option-row');
+        // Get options
+        const optionRows = questionDiv.querySelectorAll('.option-row');
         const options = Array.from(optionRows).map(row => {
             const input = row.querySelector('input[type="text"]');
             const checkbox = row.querySelector('input[type="checkbox"]');
+            // لو عندك id للاختيار (قديم)، هاته
+            const optionId = row.querySelector('.delete-option-btn')?.id || null;
             return {
+                id: optionId, // ممكن يكون null لو جديد
                 option: input.value,
                 is_correct: checkbox && checkbox.checked ? 1 : 0
             };
         });
 
-        updatedQuestions.push({
-            id: questionId,
-            question: questionText,
-            score: scoreValue,
-            options: options
-        });
+        if (questionId) {
+            updatedQuestions.push({
+                id: questionId,
+                question: questionText,
+                score: scoreValue,
+                options: options
+            });
+        } else {
+            newQuestions.push({
+                question: questionText,
+                score: scoreValue,
+                exam_id: Number(examId),
+                options: options
+            });
+        }
     });
 
-    // Calculate the sum of all question scores
-    const sumScores = updatedQuestions.reduce((sum, q) => sum + q.score, 0);
+    const sumScores =
+        updatedQuestions.reduce((sum, q) => sum + q.score, 0) +
+        newQuestions.reduce((sum, q) => sum + q.score, 0);
 
-    // Check if the total matches the quiz total score
     if (sumScores !== totalScore) {
         alert(`Total of all question scores (${sumScores}) must equal quiz total score (${totalScore})!`);
-        return; // Do not send the request
+        return;
     }
+
+    const filteredDeletedIds = deletedQuestionIds.filter(id => id !== null && id !== undefined && id !== "" && id !== 0);
+    
+    const requestBody = {
+        updated_questions: updatedQuestions, 
+        new_questions: newQuestions,
+        deleted_question_ids: filteredDeletedIds,
+        deleted_option_ids: deletedOptionIds
+    };
+
+    // Debug
+    console.log("Request Body:", requestBody);
 
     deactivateEditMode(elements);
     deactivateViewMode(elements);
 
-    // Send to backend
-    fetch(`${API_BASE_URL}/exam/updateQuestions`, {
-        method: 'PUT', // or 'POST' depending on your backend
+    fetchSubmitCode(`${API_BASE_URL}/instructor/exam/update-questions`, requestBody)
+}
+
+async function validateSession() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/validate-token`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) return false; // Not authenticated        
+        const data = await response.json();
+        if( data.user.role !== 'instructor') {
+            return false;
+        }
+        return response.ok;    
+    } catch (error) {
+        
+        return false;
+    }
+}
+
+async function fetchSubmitCode(url, requestBody) {
+    await getCsrfCookie();
+
+    const isAuthenticated = await validateSession();
+    if (!isAuthenticated) return redirectToLogin();
+
+    const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
+
+    fetch(url, {
+        method: 'PUT',
+        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-XSRF-TOKEN': xsrfToken
         },
         body: JSON.stringify(requestBody)
     })
-    .then(response => {
-        if (!response.ok) throw new Error('Failed to update questions');
-        return response.json();
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh the page after successful submission
+            window.location.reload();
+        } else {
+            console.error('API Error:', data);
+            alert(data && data.message ? data.message : 'Something went wrong!');
+        }
     })
-    .then( () => {
-        alert('Questions updated successfully!');
-        window.location.reload(); // <--- This will refresh the page
-    })
-    .catch(error => {
-        console.error(error);
-        alert('Error updating questions.');
+    .catch(err => {
+        console.error('Network or fetch error:', err);
+        alert('Network error!');
     });
-
-    console.log(JSON.stringify(requestBody, null, 2));
-
 }
 
 

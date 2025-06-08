@@ -12,37 +12,96 @@ const elements = {
 // ===================== Global Variables =====================
 let coursesList = []; // This to store courses list to download Courses Cards
 
-// ===================== Initial Setup =====================
-function initializeDashboard() {
-    setupEventsListeners();
-    loadCourses();
+// ===================== Auth Helpers =====================
+
+/**
+ * Validate the current session by checking the HttpOnly cookie with the backend.
+ * Returns true if authenticated, false otherwise.
+ */
+async function validateSession() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/validate-token`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) return false; // Not authenticated        
+        const data = await response.json();
+        if( data.user.role !== 'instructor') {
+            return false;
+        }
+        return response.ok;    
+    } catch (error) {
+        return false;
+    }
 }
 
+// ===================== Initial Setup =====================
+async function initializeDashboard() {
+    try {
+        // Always get CSRF cookie before any protected request
+        await getCsrfCookie();
+        
+        // Check if user is authenticated first
+        const isAuthenticated = await validateSession();
+        if (!isAuthenticated) return redirectToLogin(); // Ensure CSRF token is set before any requests
+        
+        setupEventsListeners();
+        loadDashboard();
+    } catch (error) {
+        console.error("App Error:", error);
+        alert("Failed to load page data");
+        redirectToLogin();
+    }
+}
 // ===================== Core Functions =====================
 
 // Render all course cards and charts
-async function loadCourses() {
-    const userId = 201;
-    const endpoints = [
-        `${API_BASE_URL}/instructor/${userId}/courses`,
-        `${API_BASE_URL}/instructor/${userId}/coursesInteraction`,
-        `${API_BASE_URL}/instructor/${userId}/coursesAverageGrades`,
-        `${API_BASE_URL}/instructor/${userId}/studentsMissedAllExams`,
-    ];
-
-    Promise.all(endpoints.map(url => 
-    fetch(url)
-        .then(handleResponse)
-        .catch(handleError)
-    ))
-    .then(([courses, coursesInteraction, coursesAverageGrades, studentsMissedAllExams]) => { 
-        // Create Courses Card
-        coursesList = Array.isArray(courses) ? courses : (courses.data || courses.courses || []);
+async function loadDashboard() {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.user) {
+        return redirectToLogin();
+    }
+const userId = userData.user.id;
+    try {
+        // 1. Get List of the courses
+        const coursesRes = await fetch(`${API_BASE_URL}/instructor/${userId}/courses`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const coursesData = await handleResponse(coursesRes);
+        const courses = Array.isArray(coursesData.data) ? coursesData.data : [];
+        coursesList = courses;
         renderCourseCards(coursesList);
 
-        // Create Line Chart
-        createMonthlyProgressChart(coursesInteraction.data, coursesInteraction.number_of_students);
+        const coursesInteractionRes = await fetch(`${API_BASE_URL}/instructor/${userId}/course-interaction`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const coursesInteraction = await handleResponse(coursesInteractionRes);
+        createMonthlyProgressChart(coursesInteraction.data, coursesInteraction.number_of_students);;
 
+        const coursesAverageGradesRes = await fetch(`${API_BASE_URL}/instructor/${userId}/courses-average-grades`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const coursesAverageGrades = await handleResponse(coursesAverageGradesRes);
         // create bar chart
         if (coursesAverageGrades && coursesAverageGrades.data) {
             const barData = [];
@@ -56,11 +115,22 @@ async function loadCourses() {
                 });
             });
             createAverageGradesChart(barData);
+            const studentsMissedAllExamsRes = await fetch(`${API_BASE_URL}/instructor/${userId}/students-missed-all-exams`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            const studentsMissedAllExams = await handleResponse(studentsMissedAllExamsRes);
+            fillMissedStudentsTable(studentsMissedAllExams);
         }
-        fillMissedStudentsTable(studentsMissedAllExams);
-    });
-
+    } catch (error) {
+        handleError(error);
+    }
 }
+
 
 async function handleResponse(response) {
     if (!response.ok) throw new Error('Network response error');
@@ -346,7 +416,10 @@ function createAverageGradesChart(data) {
     });
 }
 
+
+
 // ===================== Full Missed Exam Table =====================
+
 
 function fillMissedStudentsTable(response) {
     elements.missedExamsTable.innerHTML = ''; 
@@ -368,21 +441,27 @@ function fillMissedStudentsTable(response) {
     // Loop through each course
     for (const [courseName, exams] of Object.entries(response.data)) {
         exams.forEach(exam => {
-            exam.missed_students.forEach(student => {
-                hasData = true;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${student.id}</td>
-                    <td>${student.name}</td>
-                    <td>${courseName}</td>
-                    <td class="actions">
-                        <!-- actions here -->
-                    </td>
-                `;
-                elements.missedExamsTable.appendChild(row);
-            });
+            if (!exam || !Array.isArray(exam.missed_students)) {
+                console.warn('exam.missed_students is missing or invalid:', exam);
+                return;
+            }
+
+                    exam.missed_students.forEach(student => {
+                        hasData = true;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${student.id}</td>
+                            <td>${student.name}</td>
+                            <td>${courseName}</td>
+                            <td class="actions">
+                                ${actionIcons()}
+                            </td>
+                        `;
+                        elements.missedExamsTable.appendChild(row);
+                    });
+            
         });
-    }
+}
 
     // لو مفيش أي بيانات بعد اللف
     if (!hasData) {
@@ -395,6 +474,24 @@ function fillMissedStudentsTable(response) {
         elements.missedExamsTable.appendChild(row);
     }
 }
+
+function actionIcons() {
+    return `
+        <svg class="edit-action" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="1.1001" y="0.5" width="31" height="31" rx="3.5" stroke="#28A745" />
+                            <path
+                                d="M21.0868 8.86167L22.7743 7.17417C23.5065 6.44194 24.6937 6.44194 25.4259 7.17417C26.1582 7.90641 26.1582 9.09359 25.4259 9.82583L14.8073 20.4445C14.2786 20.9731 13.6265 21.3618 12.91 21.5752L10.2251 22.375L11.0249 19.6901C11.2383 18.9736 11.6269 18.3215 12.1556 17.7928L21.0868 8.86167ZM21.0868 8.86167L23.7251 11.5M22.2251 18.375V23.125C22.2251 24.3676 21.2177 25.375 19.9751 25.375H9.4751C8.23246 25.375 7.2251 24.3676 7.2251 23.125V12.625C7.2251 11.3824 8.23246 10.375 9.4751 10.375H14.2251"
+                                stroke="#28A745" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <svg class="delete-action" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="1.1001" y="0.5" width="31" height="31" rx="3.5" stroke="#D32F2F" />
+                                <path
+                                    d="M19.3405 13L18.9943 22M14.2059 22L13.8597 13M23.8277 9.79057C24.1697 9.84221 24.5105 9.89747 24.8501 9.95629M23.8277 9.79057L22.7599 23.6726C22.6697 24.8448 21.6922 25.75 20.5165 25.75H12.6837C11.508 25.75 10.5305 24.8448 10.4403 23.6726L9.37245 9.79057M23.8277 9.79057C22.6813 9.61744 21.5216 9.48485 20.3501 9.39432M8.3501 9.95629C8.68967 9.89747 9.03047 9.84221 9.37245 9.79057M9.37245 9.79057C10.5189 9.61744 11.6786 9.48485 12.8501 9.39432M20.3501 9.39432V8.47819C20.3501 7.29882 19.4394 6.31423 18.2607 6.27652C17.7093 6.25889 17.1557 6.25 16.6001 6.25C16.0444 6.25 15.4909 6.25889 14.9395 6.27652C13.7608 6.31423 12.8501 7.29882 12.8501 8.47819V9.39432M20.3501 9.39432C19.1127 9.2987 17.8621 9.25 16.6001 9.25C15.3381 9.25 14.0875 9.2987 12.8501 9.39432"
+                                    stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+    `;
+}
+
 
 
 // ===================== Event Listeners =====================

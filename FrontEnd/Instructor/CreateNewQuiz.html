@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Create New Quiz</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="../css/CreateQuiz.css">
@@ -176,8 +177,7 @@
                                             </select>
                                         </div>
                                         <div class="addAndDeleteBtn">
-                                            <button class="editBtn"><img src="../imgs/edit logo.svg" alt="">Edit</button>
-                                            <button class="deleteBtn manualDeleteBtn"><img src="../imgs/delete logo.svg" alt="">Delete</button>
+                                            <button class="deleteBtn delete-question-btn manualDeleteBtn "><img src="../imgs/delete logo.svg" alt="">Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -191,6 +191,7 @@
                                             <span class="custom-circle"></span>
                                         </label>
                                         <input type="text" placeholder="Add Option 1" style="flex: 1;">
+                                        <button class="deleteBtn delete-option-btn "><img src="../imgs/delete logo.svg" alt=""></button>
                                     </div>
                                     <div class="option-row" style="display: flex; align-items: center; gap: 8px;">
                                         <label class="circle-checkbox" style="margin-right: 6px;">
@@ -198,6 +199,7 @@
                                             <span class="custom-circle"></span>
                                         </label>
                                         <input type="text" placeholder="Add Option 2" style="flex: 1;">
+                                        <button class="deleteBtn delete-option-btn "><img src="../imgs/delete logo.svg" alt=""></button>
                                     </div>
                                 </div>
 
@@ -220,8 +222,7 @@
                                             </select>
                                         </div>
                                         <div class="addAndDeleteBtn">
-                                            <button class="editBtn"><img src="../imgs/edit logo.svg" alt="">Edit</button>
-                                            <button class="deleteBtn manualDeleteBtn"><img src="../imgs/delete logo.svg" alt="">Delete</button>
+                                        <button class="deleteBtn delete-question-btn manualDeleteBtn"><img src="../imgs/delete logo.svg" alt="">Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -235,6 +236,7 @@
                                             <span class="custom-circle"></span>
                                         </label>
                                         <input type="text" placeholder="Add Option 1" style="flex: 1;">
+                                        <button class="deleteBtn delete-option-btn "><img src="../imgs/delete logo.svg" alt=""></button>
                                     </div>
                                     <div class="option-row" style="display: flex; align-items: center; gap: 8px;">
                                         <label class="circle-checkbox" style="margin-right: 6px;">
@@ -242,6 +244,7 @@
                                             <span class="custom-circle"></span>
                                         </label>
                                         <input type="text" placeholder="Add Option 2" style="flex: 1;">
+                                        <button class="deleteBtn delete-option-btn "><img src="../imgs/delete logo.svg" alt=""></button>                                        
                                     </div>
                                 </div>
                                 <button class="addOption">Add Option</button>
@@ -258,6 +261,7 @@
         </div>
     </section>
 
+    <script src="../js/auth.js"></script>
     <script src="../js/CreateQuiz.js"></script>
 </body>
 </html>

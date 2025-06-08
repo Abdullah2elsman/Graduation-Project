@@ -76,8 +76,7 @@ class ExamController extends Controller
         ], 201);
     }
 
-    public function getExams($courseId): JsonResponse
-    {
+    public function getExams($courseId): JsonResponse{
         if (!Course::find($courseId)) {
             return response()->json(['error' => 'Course not found'], 404);
         }
@@ -116,8 +115,7 @@ class ExamController extends Controller
 
 
 
-    public function getFinishedExamsForInstructor($courseId)
-    {
+    public function getFinishedExamsForInstructor($courseId){
         $exams = Exam::where('course_id', $courseId)->get();
 
         if ($exams->isEmpty()) {
@@ -154,8 +152,7 @@ class ExamController extends Controller
         ]);
     }
 
-    public function getFinishedExamsForStudent($courseId, $studentId)
-    {
+    public function getFinishedExamsForStudent($courseId, $studentId){
         $exams = Exam::with(['questions', 'attempts' => function ($q) use ($studentId) {
             $q->where('student_id', $studentId);
         }])
@@ -192,8 +189,7 @@ class ExamController extends Controller
         ]);
     }
 
-    public function getExamQuestions(Request $request, $courseId, $includeCorrect = true)
-    {
+    public function getExamQuestions(Request $request, $courseId, $includeCorrect = true){
         
         $validator = Validator::make($request->all(), [
             'exam_id' => 'required|exists:exams,id'
@@ -230,51 +226,92 @@ class ExamController extends Controller
         ]);
     }
 
-    public function updateQuestions(Request $request)
-    {
+    public function updateQuestions(Request $request){
         // Validate the request
         $data = $request->validate([
-            'questions' => 'required|array',
-            'questions.*.id' => 'required|exists:questions,id',
-            'questions.*.question' => 'required|string',
-            'questions.*.score' => 'required|numeric',
-            'questions.*.options' => 'required|array',
-            'questions.*.options.*.option' => 'required|string',
-            'questions.*.options.*.is_correct' => 'required|boolean',
-            'deleted_ids' => 'nullable|array',
-            'deleted_ids.*' => 'integer|exists:questions,id',
+            'updated_questions' => 'nullable|array',
+            'updated_questions.*.id' => 'required|exists:questions,id',
+            'updated_questions.*.question' => 'required|string',
+            'updated_questions.*.score' => 'required|numeric',
+            'updated_questions.*.options' => 'nullable|array',
+            'updated_questions.*.options.*.id' => 'nullable|integer|exists:options,id',
+            'updated_questions.*.options.*.option' => 'required|string',
+            'updated_questions.*.options.*.is_correct' => 'required|boolean',
+
+            'new_questions' => 'nullable|array',
+            'new_questions.*.question' => 'required|string',
+            'new_questions.*.score' => 'required|numeric',
+            'new_questions.*.exam_id' => 'required|integer|exists:exams,id',
+            'new_questions.*.options' => 'nullable|array',
+            'new_questions.*.options.*.option' => 'required|string',
+            'new_questions.*.options.*.is_correct' => 'required|boolean',
+
+            'deleted_question_ids' => 'nullable|array',
+            'deleted_question_ids.*' => 'integer|exists:questions,id',
+            'deleted_option_ids' => 'nullable|array',
+            'deleted_option_ids.*' => 'integer|exists:options,id',
         ]);
 
-        // 1. Delete questions if any IDs are provided
-        if (!empty($data['deleted_ids'])) {
-            // This will also delete options if you set up cascading deletes in your database
-            Question::whereIn('id', $data['deleted_ids'])->delete();
+        // 1. Delete questions (and their options if cascade is enabled)
+        if (!empty($data['deleted_question_ids'])) {
+            Question::whereIn('id', $data['deleted_question_ids'])->delete();
         }
 
-        // 2. Update existing questions and their options
-        foreach ($data['questions'] as $q) {
-            $question = Question::find($q['id']);
-            $question->question = $q['question'];
-            $question->score = $q['score'];
-            $question->save();
+        // 2. Delete specific options
+        if (!empty($data['deleted_option_ids'])) {
+            Option::whereIn('id', $data['deleted_option_ids'])->delete();
+        }
 
-            // Update options (assuming options are in the same order)
-            foreach ($q['options'] as $index => $opt) {
-                // Find option by question_id and order
-                $option = $question->options()->skip($index)->first();
-                if ($option) {
-                    $option->option = $opt['option'];
-                    $option->is_correct = $opt['is_correct'];
-                    $option->save();
+        // 3. Update existing questions and their options
+        if (!empty($data['updated_questions'])) {
+            foreach ($data['updated_questions'] as $q) {
+                $question = Question::find($q['id']);
+                $question->question = $q['question'];
+                $question->score = $q['score'];
+                $question->save();
+
+                // Delete all old options and recreate them
+                $question->options()->delete();
+
+                if (!empty($q['options'])) {
+                    foreach ($q['options'] as $opt) {
+                        $question->options()->create([
+                            'option' => $opt['option'],
+                            'is_correct' => $opt['is_correct']
+                        ]);
+                    }
                 }
             }
         }
 
-        return response()->json(['success' => true, 'message' => 'Questions updated and deleted as needed!']);
+        // 4. Add new questions and their options
+        if (!empty($data['new_questions'])) {
+            foreach ($data['new_questions'] as $q) {
+                $question = Question::create([
+                    'question' => $q['question'],
+                    'score' => $q['score'],
+                    'exam_id' => $q['exam_id'],
+                ]);
+
+                if (!empty($q['options'])) {
+                    foreach ($q['options'] as $opt) {
+                        $question->options()->create([
+                            'option' => $opt['option'],
+                            'is_correct' => $opt['is_correct'],
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Questions and options updated/deleted/created successfully.'
+        ]);
     }
 
-    public function submitExam(Request $request)
-    {
+
+    public function submitExam(Request $request){
         $request->validate([
             'exam_id' => 'required|integer|exists:exams,id',
             'student_id' => 'required|integer|exists:students,id',
@@ -319,8 +356,7 @@ class ExamController extends Controller
         ]);
     }
 
-    public function regradeExam(Request $request)
-    {
+    public function regradeExam(Request $request){
         $request->validate([
             'exam_id' => 'required|integer|exists:exams,id'
         ]);

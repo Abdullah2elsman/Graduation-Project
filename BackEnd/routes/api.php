@@ -11,94 +11,106 @@ use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Http\Request;
 
-// Authentication And Authorization API
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/validateToken', [AuthController::class, 'validateToken']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+// ========== Auth Routes ==========
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    //Login
+    Route::post('login/admin', [AuthController::class, 'adminLogin']);
+    Route::post('login/student', [AuthController::class, 'studentLogin']);
+    Route::post('login/instructor', [AuthController::class, 'instructorLogin']);
+    
+    // Protected Auth APIs
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('validate-token', [AuthController::class, 'validateToken']);
+        Route::post('logout', [AuthController::class, 'logout']);
+    });
 });
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
 
 
 
-// Admin API
-// Route::middleware(['auth:sanctum'])->group(function () {
-    Route::put('admin/update/{id}', [AdminController::class, 'update']);
-    Route::delete('admin/delete/{id}', [AdminController::class, 'delete']);
-    Route::get('admin/getAdmin/{id}', [AdminController::class, 'getAdmin']);
-    Route::get('admin/getNumOfUsers', [AdminController::class, 'getNumOfUsers']);
-    Route::get('admin/getAllCourses', [AdminController::class, 'getAllCourses']);
-    Route::get('admin/getAllUsersData', [AdminController::class, 'getAllUsersData']);
-    Route::get('admin/getReports', [AdminController::class, 'getReports']);
-    // });
-
-// Instructor API
-Route::post('/readInstructor', [InstructorController::class, 'read'])->name('instructor.read');
-Route::put('/updateInstructor', [InstructorController::class, 'update'])->name('instructor.update');
-Route::delete('deleteInstructor/{id}', [InstructorController::class, 'delete'])->name('instructor.delete');
-Route::get('/getAllInstructors', [InstructorController::class, 'getAllInstructors']);
-Route::get('/getInstructor/{id}', [InstructorController::class, 'getInstructor']);
-Route::post('/uploadImage/{id}', [InstructorController::class, 'uploadImage'])->name('instructor.uploadImage');
-Route::get('instructor/{id}/courses', [InstructorController::class, 'getCourses']);
-Route::get('instructor/{instructorId}/getTodayExams', [InstructorController::class, 'getTodayExams']);
+// ========== Admin Routes ==========
+Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
+    Route::put('update/{id}', [AdminController::class, 'update']);
+    Route::delete('delete/{id}', [AdminController::class, 'delete']);
+    Route::get('get/{id}', [AdminController::class, 'getAdmin']);
+    Route::get('users/count', [AdminController::class, 'getNumOfUsers']);
+    Route::get('courses', [AdminController::class, 'getAllCourses']);
+    Route::get('users/data', [AdminController::class, 'getAllUsersData']);
+    Route::get('reports', [AdminController::class, 'getReports']);
+});
 
 
-// Student API
-Route::post('/readStudent', [StudentController::class, 'read'])->name('student.read');
-Route::put('/updateStudent', [StudentController::class, 'update'])->name('student.update');
-Route::delete('deleteStudent/{id}', [StudentController::class, 'delete'])->name('student.delete');
-Route::get('/getAllStudents', [StudentController::class, 'getAllStudents']);
-Route::get('/getStudent/{id}', [StudentController::class, 'getStudent']);
-Route::post('/uploadImage/{id}', [StudentController::class, 'uploadImage'])->name('student.uploadImage');
-Route::get('student/{id}/courses', [StudentController::class, 'getCourses']);
-Route::get('student/{studentId}/getTodayExams', [StudentController::class, 'getTodayExams']);
+// ========== Instructor Routes ==========
+Route::prefix('instructor')->middleware(['auth:instructor'])->group(function () {
+    Route::post('read', [InstructorController::class, 'read']);
+    Route::put('update', [InstructorController::class, 'update']);
+    Route::delete('delete/{id}', [InstructorController::class, 'delete']);
+    Route::get('all', [InstructorController::class, 'getAllInstructors']);
+    Route::get('get/{id}', [InstructorController::class, 'getInstructor']);
+    Route::post('upload-image/{id}', [InstructorController::class, 'uploadImage']);
+    Route::get('{id}/courses', [InstructorController::class, 'getCourses']);
+    Route::get('{id}/today-exams', [InstructorController::class, 'getTodayExams']);
+    Route::get('{id}/course-interaction', [CourseController::class, 'coursesInteraction']);
+    Route::get('{id}/courses-average-grades', [CourseController::class, 'coursesAverageGrades']);
+    Route::get('{id}/students-missed-all-exams', [CourseController::class, 'studentsMissedAllExams']);
+    Route::get('reports/students-exam-data', [ReportsController::class, 'studentsExamData']);
+    Route::get('course/{courseId}/get-exams', [ExamController::class, 'getExams']);
+    Route::get('course/{courseId}/get-finished-exams', [ExamController::class, 'getFinishedExamsForInstructor']);
+    Route::post('exam/store', [ExamController::class, 'store']);
+    Route::put('exam/update-questions', [ExamController::class, 'updateQuestions']);
+    Route::put('exam/regrade-exam', [ExamController::class, 'regradeExam']);
+    Route::post('exam/submit-exam', [ExamController::class, 'submitExam']);
+    Route::get('exam/exam-grades-distribution', [ExamController::class, 'examGradesDistribution']);
+    Route::get('course/{courseId}/exams/get-exam-questions', [ExamController::class, 'getExamQuestions']); // This to instructors
+});
+
+// ========== Student Routes ==========
+Route::prefix('student')->middleware(['auth:student'])->group(function () {
+    Route::post('read', [StudentController::class, 'read']);
+    Route::put('update', [StudentController::class, 'update']);
+    Route::delete('delete/{id}', [StudentController::class, 'delete']);
+    Route::get('all', [StudentController::class, 'getAllStudents']);
+    Route::get('get/{id}', [StudentController::class, 'getStudent']);
+    Route::post('upload-image/{id}', [StudentController::class, 'uploadImage']);
+    Route::get('{id}/courses', [StudentController::class, 'getCourses']);
+    Route::get('{id}/today-exams', [StudentController::class, 'getTodayExams']);
+});
 
 // Google Sheets API
-Route::get('/sheets/read', [GoogleSheetsController::class, 'readSheet']);
-Route::post('/sheets/write', [GoogleSheetsController::class, 'writeSheet']);
+Route::get('sheets/read', [GoogleSheetsController::class, 'readSheet']);
+Route::post('sheets/write', [GoogleSheetsController::class, 'writeSheet']);
 
 // Course API
-Route::post('/readCourse', [CourseController::class, 'readCourse']);
-Route::put('/updateCourse', [CourseController::class, 'updateCourse']);
+Route::post('readCourse', [CourseController::class, 'readCourse']);
+Route::put('updateCourse', [CourseController::class, 'updateCourse']);
 Route::delete('deleteCourse/{id}', [CourseController::class, 'deleteCourse']);
-Route::post('/course/store', [CourseController::class, 'storeBook']);
-Route::get('/books/pdf/{id}', [CourseController::class, 'getBook']);
-Route::get('/getAllCourses', [CourseController::class, 'getAllCourses']);
+Route::post('course/store', [CourseController::class, 'storeBook']);
+Route::get('books/pdf/{id}', [CourseController::class, 'getBook']);
+Route::get('getAllCourses', [CourseController::class, 'getAllCourses']);
 Route::get('instructor/{id}/getAllCoursesExamAttempts', [CourseController::class, 'getAllCoursesExamAttempts']);
-Route::get('/getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
-Route::post('/course/uploadImage', [CourseController::class, 'uploadImage']);
-Route::get('instructor/{id}/coursesInteraction', [CourseController::class, 'coursesInteraction']);
-Route::get('instructor/{id}/coursesAverageGrades', [CourseController::class, 'coursesAverageGrades']);
-Route::get('instructor/{id}/studentsMissedAllExams', [CourseController::class, 'studentsMissedAllExams']);
+Route::get('getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
+Route::post('course/uploadImage', [CourseController::class, 'uploadImage']);
 
 
 // Exam API
-Route::post('exam/store', [ExamController::class, 'store']);
-Route::get('course/{courseId}/getExams', [ExamController::class, 'getExams']);
-Route::get('course/{courseId}/getFinishedExams', [ExamController::class, 'getFinishedExamsForInstructor']);
 Route::get('course/{courseId}/student/{studentId}/getFinishedExams', [ExamController::class, 'getFinishedExamsForStudent']);
 
 // This to instructors
-Route::get('/instructor/course/{courseId}/exams/getExamQuestions', [ExamController::class, 'getExamQuestions']); // This to instructors
 // This to students
-Route::get('/student/course/{courseId}/exams/getExamQuestions', function (Request $request, $courseId) {
-    return (new ExamController)->getExamQuestions($request, $courseId, false);}); 
+Route::get('student/course/{courseId}/exams/getExamQuestions', function (Request $request, $courseId) {
+    return (new ExamController)->getExamQuestions($request, $courseId, false);
+});
 
-Route::put('exam/updateQuestions' , [ExamController::class, 'updateQuestions']);
-Route::post('exam/submitExam', [ExamController::class, 'submitExam']);
-Route::put('exam/regradeExam', [ExamController::class, 'regradeExam']);
-Route::get('exam/examGradesDistribution', [ExamController::class, 'examGradesDistribution']);
 
 // Reports API
-Route::get('/reports/course', [ReportsController::class, 'reportsOfCourse']);
-Route::get('/reports/topStudents', [ReportsController::class, 'topStudents']);
-Route::get('/reports/topStudentsMissedAllExams', [ReportsController::class, 'topStudentsMissedAllExams']);
-Route::get('/reports/averageGrades', [ReportsController::class, 'averageGrades']);
-Route::get('/reports/studentsInteraction', [ReportsController::class, 'studentsInteraction']);
-Route::get('/reports/studentsExamData', [ReportsController::class, 'studentsExamData']);
-Route::get('/reports/downloadStudentReport', [ReportsController::class, 'downloadStudentReport']);
+Route::get('reports/course', [ReportsController::class, 'reportsOfCourse']);
+Route::get('reports/topStudents', [ReportsController::class, 'topStudents']);
+Route::get('reports/topStudentsMissedAllExams', [ReportsController::class, 'topStudentsMissedAllExams']);
+Route::get('reports/averageGrades', [ReportsController::class, 'averageGrades']);
+Route::get('reports/studentsInteraction', [ReportsController::class, 'studentsInteraction']);
+Route::get('reports/downloadStudentReport', [ReportsController::class, 'downloadStudentReport']);
 
 // Test
-Route::get('/course/book/{id}', [CourseController::class,'show']);
-Route::get('/books/pdf/{id}/page', [CourseController::class, 'getBookPage']);
-Route::get('/books/pdf-content/{id}', [CourseController::class, 'getBookContent']);
+Route::get('course/book/{id}', [CourseController::class, 'show']);
+Route::get('books/pdf/{id}/page', [CourseController::class, 'getBookPage']);
+Route::get('books/pdf-content/{id}', [CourseController::class, 'getBookContent']);

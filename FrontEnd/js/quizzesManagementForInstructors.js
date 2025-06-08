@@ -1,5 +1,4 @@
 // ===================== URL Parameters =====================
-const API_BASE_URL = "http://localhost:8005/api";
 
 const urlParams = new URLSearchParams(window.location.search);
 const encodedCourseId  = urlParams.get('course_id');
@@ -16,10 +15,10 @@ const elements = {
     quizList: document.querySelector('.quiz-list'),
 };
 
-// ===================== Global State =====================
-const state = {
-    examsApiUrl: `${API_BASE_URL}/course/${courseId}/getExams`,
-    finishedExamsApiUrl: `${API_BASE_URL}/course/${courseId}/getFinishedExams`
+// ===================== Global EndPoints =====================
+const endpoints = {
+    examsApiUrl: `${API_BASE_URL}/instructor/course/${courseId}/get-exams`,
+    finishedExamsApiUrl: `${API_BASE_URL}/instructor/course/${courseId}/get-finished-exams`
 };
 
 // ===================== Initial Setup =====================
@@ -67,7 +66,14 @@ function renderCombinedQuizzes(active, finished) {
 // ===================== Core Functions =====================
 async function fetchQuizzes() {
     try {
-        const response = await fetch(state.examsApiUrl);
+        const response = await fetch(endpoints.examsApiUrl, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
         const data = await response.json();
         if (!data.success) throw new Error('Failed to fetch active quizzes');
         return data.data; // Return active quizzes data
@@ -79,7 +85,14 @@ async function fetchQuizzes() {
 
 async function fetchFinishedQuizzes() {
     try {
-        const response = await fetch(state.finishedExamsApiUrl);
+        const response = await fetch(endpoints.finishedExamsApiUrl, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
         const data = await response.json();
         if (!data.success) throw new Error('Failed to fetch finished quizzes');
         return data.data; // Return finished quizzes data
@@ -178,10 +191,12 @@ function handleRegradeQuiz(quizId) {
     if (!quizId) return;
     if (!confirm("Are you sure you want to regrade this exam for all students?")) return;
 
-    fetch(`${API_BASE_URL}/exam/regradeExam?exam_id=${quizId}`, {
+    fetch(`${API_BASE_URL}/instructor/exam/regrade-exam?exam_id=${quizId}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         }
     })
     .then(response => response.json())

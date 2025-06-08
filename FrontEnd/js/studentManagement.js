@@ -1,6 +1,6 @@
 // ===================== URL Parameters =====================
 const urlParams = new URLSearchParams(window.location.search);
-const instructorId = 202
+const userId = JSON.parse(localStorage.getItem('userData')).user.id;
 
 // ===================== DOM References =====================
 const elements = {
@@ -22,22 +22,24 @@ function initializeApp() {
 
 // ===================== Core Functions =====================
 async function fetchReports() {
-    const endpoints = [
-        `${API_BASE_URL}/reports/studentsExamData?instructor_id=${instructorId}`,
-    ];
-
+    const url = `${API_BASE_URL}/instructor/reports/students-exam-data?instructor_id=${userId}`;
     try {
-        const [studentsData] = await Promise.all(endpoints.map(url =>
-            fetch(url).then(handleResponse).catch(handleError)
-        ));
-
-        allStudents = studentsData;
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const data = await handleResponse(response);
+        allStudents = data || [];
         populateTable(allStudents);
-
     } catch (error) {
         handleError(error);
     }
 }
+
 
 // ===================== Filter Functionality =====================
 function filterStudents() {

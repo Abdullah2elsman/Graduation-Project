@@ -25,5 +25,8 @@ Route::get('/html', function () {
 
 Route::get('/test',[AuthController::class, 'test']);
 
+Route::get('/login', function () {
+    return response()->json(['message' => 'Unauthorized'], 200);
+});
 
 

@@ -14,18 +14,22 @@ use Smalot\PdfParser\Parser;
 
 class CourseController extends Controller
 {
-    
+
     public function storeBook(Request $request){
-        
         $request->validate([
             'title' => 'required|string',
-            'file' => 'required|file|mimes:pdf,epub,doc,docx,txt|max:102400',
+            'file' => 'required|file|mimetypes:application/pdf,application/octet-stream|max:102400',
+            'instructor_id' => 'required|exists:instructors,id',
+            'admin_id' => 'required|exists:admins,id',
+            'description' => 'nullable|string',
         ]);
+
         $file = $request->file('file');
-        $originalName = $file->getClientOriginalName();
+        $originalName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $extension = $file->getClientOriginalExtension();
         $timestamp = now()->format('Y_m_d_His');
-        $filename = $timestamp . '_' . $originalName;
-        
+        $filename = $timestamp . '_' . $originalName . '.' . $extension;
+
         $file->storeAs('books', $filename, 'public');
 
         $book = Course::create([
@@ -36,9 +40,58 @@ class CourseController extends Controller
             'file_path' => 'books/' . $filename,
             'file_type' => $file->getClientOriginalExtension(),
         ]);
-        
+
+        $popplerBin = base_path('poppler/library/bin/pdftoppm.exe');
+        $pdfPath = storage_path('app/public/books/' . $filename);
+        $outputBase = storage_path('app/public/course/images/' . pathinfo($filename, PATHINFO_FILENAME) . '_cover');
+
+        exec("\"$popplerBin\" -f 1 -l 1 -png -scale-to-x 275 -scale-to-y 375 \"$pdfPath\" \"$outputBase\"");
+
+        $generatedImage = $outputBase . '-1.png';
+        $finalImage = $outputBase . '.png';
+
+        if (file_exists($generatedImage)) {
+            rename($generatedImage, $finalImage);
+        }
+
+        $imageName = pathinfo($filename, PATHINFO_FILENAME) . '_cover.png';
+        $book->image_path = 'course/images/' . $imageName;
+        $book->save();
 
         return response()->json($book);
+    }
+
+
+    public function uploadImage(Request $request){
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $file = $request->file('image');
+
+        // Generate timestamp and sanitize original filename
+        $timestamp = now()->format('Y_m_d_His');
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $sanitizedOriginal = Str::slug($originalName); // replaces spaces & symbols with dashes
+        $extension = $file->getClientOriginalExtension();
+
+        // Final filename: 2025_05_11_143212_original-name.jpg
+        $filename = "{$timestamp}_{$sanitizedOriginal}.{$extension}";
+
+        // Store file
+        $path = $file->storeAs('course/images', $filename, 'public');
+
+        // Save to course
+        $course = Course::findOrFail($request->course_id);
+        $course->image_path = $path;
+        $course->save();
+
+        return response()->json([
+            'message' => 'Image uploaded and saved',
+            'course_id' => $course->id,
+            'image_url' => asset('storage/' . $path),
+        ]);
     }
 
     public function show($id){
@@ -269,39 +322,6 @@ class CourseController extends Controller
         });
 
         return response()->json($data);
-    }
-
-    public function uploadImage(Request $request)
-    {
-        $request->validate([
-            'course_id' => 'required|exists:courses,id',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        $file = $request->file('image');
-
-        // Generate timestamp and sanitize original filename
-        $timestamp = now()->format('Y_m_d_His');
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $sanitizedOriginal = Str::slug($originalName); // replaces spaces & symbols with dashes
-        $extension = $file->getClientOriginalExtension();
-
-        // Final filename: 2025_05_11_143212_original-name.jpg
-        $filename = "{$timestamp}_{$sanitizedOriginal}.{$extension}";
-
-        // Store file
-        $path = $file->storeAs('course/images', $filename, 'public');
-
-        // Save to course
-        $course = Course::findOrFail($request->course_id);
-        $course->image_path = $path;
-        $course->save();
-
-        return response()->json([
-            'message' => 'Image uploaded and saved',
-            'course_id' => $course->id,
-            'image_url' => asset('storage/' . $path),
-        ]);
     }
 
     public function coursesInteraction($instructorId)

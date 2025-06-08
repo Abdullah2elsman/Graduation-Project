@@ -140,6 +140,7 @@ function addQuestion(type) {
                             <span class="custom-circle"></span>
                         </label>
                         <input type="text" placeholder="Option ${i+1}" class="option-input" style="flex: 1;">
+                        <button class="deleteBtn delete-option-btn "><img src="../imgs/delete logo.svg" alt=""></button>
                     </div>
                 `).join('')}
             </div>
@@ -164,10 +165,8 @@ function createQuestionHeader(number) {
                     </select>
                 </div>
                 <div class="addAndDeleteBtn">
-                    <button class="editBtn">
-                        <img src="../imgs/edit logo.svg" alt="">Edit
-                    </button>
-                    <button class="deleteBtn">
+                    
+                    <button class="deleteBtn delete-question-btn">
                         <img src="../imgs/delete logo.svg" alt="">Delete
                     </button>
                 </div>
@@ -177,29 +176,32 @@ function createQuestionHeader(number) {
 }
 // ===================== Dynamic Element Handling =====================
 function handleDynamicActions(e) {
-    // Delete question
-    if(e.target.closest('.deleteBtn')) {
+    // Delete entire question
+    if (e.target.closest('.delete-question-btn')) {
         const question = e.target.closest('.questionWrapper');
-        question.remove();
-        renumberQuestions(); // This now properly renumbers remaining questions
+        if (question) {
+            question.remove();
+            renumberQuestions(); // If needed
+        }
+        return;
     }
-    
-    // Add option 
+
+    // Add new option
     if (e.target.closest('.addOption')) {
         const addButton = e.target.closest('.addOption');
-        const optionsWrapper = addButton.previousElementSibling;
-        
-        if (!optionsWrapper || !optionsWrapper.classList.contains('optionsWrapper')) {
-            console.error('Could not find options wrapper');
+        const questionWrapper = addButton.closest('.questionWrapper');
+        const optionsWrapper = questionWrapper.querySelector('.optionsWrapper');
+
+        if (!optionsWrapper) {
+            console.error('Options wrapper not found');
             return;
         }
-        
-        if (optionsWrapper.children.length >= 7) {
+
+        if (optionsWrapper.querySelectorAll('.option-row').length >= 7) {
             alert('Maximum 7 options allowed');
             return;
         }
-        
-        // Create option row with checkbox and input
+
         const optionRow = document.createElement('div');
         optionRow.className = 'option-row';
         optionRow.style = 'display: flex; align-items: center; gap: 8px;';
@@ -208,25 +210,61 @@ function handleDynamicActions(e) {
                 <input type="checkbox" class="correct-checkbox">
                 <span class="custom-circle"></span>
             </label>
-            <input type="text" placeholder="Option ${optionsWrapper.children.length + 1}" class="option-input" style="flex: 1;">
+            <input type="text" placeholder="Option ${optionsWrapper.querySelectorAll('.option-row').length + 1}" class="option-input" style="flex: 1;">
+            <button class="deleteBtn delete-option-btn"><img src="../imgs/delete logo.svg" alt=""></button>
         `;
         optionsWrapper.appendChild(optionRow);
-
+        renumberOptions(optionsWrapper);
+        return;
     }
 
-    // Select the correct option
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('correct-checkbox')) {
-            const checkbox = e.target;
-            const optionInput = checkbox.closest('.option-row').querySelector('input[type="text"]');
+    // Delete an option
+    if (e.target.closest('.delete-option-btn')) {
+        const optionRow = e.target.closest('.option-row');
+        const optionsWrapper = optionRow?.parentElement;
+
+        if (optionsWrapper?.querySelectorAll('.option-row').length <= 2) {
+            alert("At least two option is required!");
+            return;
+        }
+
+        optionRow.remove();
+        renumberOptions(optionsWrapper);
+        return;
+    }
+}
+
+// Update placeholder of options
+function renumberOptions(wrapper) {
+    wrapper.querySelectorAll('.option-input').forEach((input, index) => {
+        input.placeholder = `Option ${index + 1}`;
+    });
+}
+
+// Optional: update question number (if shown)
+function renumberQuestions() {
+    document.querySelectorAll('.questionWrapper').forEach((qWrapper, index) => {
+        const qInput = qWrapper.querySelector('.addQuestionWrapper input');
+        if (qInput) qInput.placeholder = `Question ${index + 1} .............................................................................?`;
+    });
+}
+
+// Checkbox toggle (mark correct answer visually)
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('correct-checkbox')) {
+        const checkbox = e.target;
+        const optionInput = checkbox.closest('.option-row')?.querySelector('.option-input');
+        if (optionInput) {
             if (checkbox.checked) {
                 optionInput.classList.add('correct-option');
             } else {
                 optionInput.classList.remove('correct-option');
             }
         }
-    });
-}
+    }
+});
+
+
 
 // ===================== Helper Functions =====================
 function toggleElement(element, hide) {
@@ -308,31 +346,65 @@ function handleFormSubmission(e) {
     
     // Final validation
     if (!validateFinalData(quizData)) return;
-
+    
     console.log('Final quiz data:', quizData);
-    // Send data to backend
-    fetch('http://localhost:8005/api/exam/store', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(quizData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to submit quiz');
+    fetchCode(`${API_BASE_URL}/instructor/exam/store`, quizData)
+}
+
+async function validateSession() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/validate-token`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) return false; // Not authenticated        
+        const data = await response.json();
+        if( data.user.role !== 'instructor') {
+            return false;
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Server response:', data);
+        return response.ok;    
+    } catch (error) {
+        
+        return false;
+    }
+}
+
+async function fetchCode(url, data) {
+    await getCsrfCookie();
+
+    const isAuthenticated = await validateSession();
+    if (!isAuthenticated) return redirectToLogin();
+
+    const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': xsrfToken
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit quiz' + response.status);
+        }
+
+        const result = await response.json();
+        console.log('Server response:', result);
         alert('Quiz submitted successfully!');
-        // Optionally clear the form or redirect
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Submission error:', error);
         alert('There was an error submitting the quiz.');
-    });
+    }
 }
 
 // =====================  collect And Validate Questions =====================
