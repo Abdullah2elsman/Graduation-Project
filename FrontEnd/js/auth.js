@@ -141,6 +141,7 @@ async function logout() {
         }
     } catch (error) {
         alert('Logout error. Please try again.');
+        redirectToLogin();
     }
 }
 

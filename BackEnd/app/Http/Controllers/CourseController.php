@@ -50,19 +50,16 @@ class CourseController extends Controller
 
         exec("\"$popplerBin\" -f 1 -l 1 -png -scale-to-x 275 -scale-to-y 375 \"$pdfPath\" \"$outputBase\"");
 
-        $generatedImage = $outputBase . '-01.png';
+        $imagesPath = storage_path('app/public/course/images/');
+        $filenameBase = pathinfo($filename, PATHINFO_FILENAME) . '_cover';
 
-        $finalImage = $outputBase . '.png';
+        $files = glob($imagesPath . $filenameBase . '*');
 
-        if (file_exists($generatedImage)) {
-            rename($generatedImage, $finalImage);
+        if (!empty($files)) {
+            $existingImageName = basename($files[0]);
+            $book->image_path = 'course/images/' . $existingImageName;
+            $book->save();
         }
-
-        $imageName = pathinfo($filename, PATHINFO_FILENAME) . '_cover.png';
-        $book->image_path = 'course/images/' . $imageName;
-        $book->save();
-
-        return response()->json($book);
     }
 
 

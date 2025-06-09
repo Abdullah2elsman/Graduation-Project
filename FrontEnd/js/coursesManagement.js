@@ -149,4 +149,5 @@ function handleError(error) {
             Error loading courses: ${error.message}
         </p>
     `;
+    redirectToLogin();
 }
