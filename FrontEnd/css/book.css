@@ -16,7 +16,8 @@ header {
 }
 
 header .back-btn,
-header .nav-btn,
+header .nav-btn-right,
+header .nav-btn-left,
 header .search-btn,
 header .right-menu-btn {
   border: none;
@@ -26,6 +27,9 @@ header .right-menu-btn {
 
 header .header-center {
   display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 20px;
 }
 
 header .back-btn,
@@ -40,10 +44,27 @@ header .right-menu-btn {
   padding-left: 20px;
 }
 
-.page-number {
+.page-number, .page-count {
   background-color: #e8eff5;
-  padding: 5px;
+  padding: 10px;
   border-radius: 8px;
+  width: 50px;
+  text-align: center;
+  border: none;
+  margin : 10px;
+  font-weight: 500;
+  font-size: 20px;
+}
+/* Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 main {
@@ -53,7 +74,7 @@ main {
   width: 100%;
 }
 
-main .menu-btn {
+main .left-menu-btn {
   background: none;
   border: 1px solid #194062;
   width: 38px;
@@ -62,7 +83,7 @@ main .menu-btn {
   cursor: pointer;
 }
 
-main .menu-btn:hover {
+main .left-menu-btn:hover {
   background-color: #bdbdbd;
   border-bottom: 3px solid #2c6da4;
   transition: all 0.3s ease;

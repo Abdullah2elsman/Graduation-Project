@@ -128,7 +128,7 @@ function handleCourseClick(courseId) {
 function handleOpenCourse(courseId) {
     console.log(`Opening course ${courseId}`);
     // Uncomment to navigate
-    // window.location.href = `course-content.html?id=${courseId}`;
+    window.location.href = `book.html?id=${courseId}`;
 }
 
 function handleQuizNavigation(courseId) {

@@ -207,13 +207,6 @@ function setupEventListeners() {
             editFlag = false;
         }
 
-        // const firstQuestion = document.querySelector('.question-edit .editBtn');
-        // if (firstQuestion) {
-        //     firstQuestion.click();
-        // } else {
-        //     deactivateEditMode(elements);
-        //     editFlag = false;
-        // }
     });
     elements.questionsSection.addEventListener('click', function(event) {
         const btn = event.target.closest('button');

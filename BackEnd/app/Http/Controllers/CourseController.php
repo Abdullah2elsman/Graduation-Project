@@ -15,8 +15,7 @@ use Smalot\PdfParser\Parser;
 class CourseController extends Controller
 {
 
-    public function storeBook(Request $request)
-    {
+    public function storeBook(Request $request){
         $request->validate([
             'title' => 'required|string',
             'file' => 'required|file|mimetypes:application/pdf,application/octet-stream|max:102400',
@@ -31,10 +30,10 @@ class CourseController extends Controller
         $timestamp = now()->format('Y_m_d_His');
         $filename = $timestamp . '_' . $originalName . '.' . $extension;
 
-        // تخزين ملف الكتاب PDF
+        // store the file in the public storage
         $file->storeAs('books', $filename, 'public');
 
-        // إنشاء الكورس في الداتا بيز
+        // create course
         $book = Course::create([
             'title' => $request->title,
             'instructor_id' => $request->instructor_id,
@@ -44,10 +43,14 @@ class CourseController extends Controller
             'file_type' => $file->getClientOriginalExtension(),
         ]);
 
+        // poppler binary paths
         $popplerBin = base_path('poppler/library/bin/pdftoppm.exe');
+        $pdfinfoBin = base_path('poppler/library/bin/pdfinfo.exe');
+
         $pdfPath = storage_path('app/public/books/' . $filename);
         $outputBase = storage_path('app/public/course/images/' . pathinfo($filename, PATHINFO_FILENAME) . '_cover');
 
+        // Generate the cover image using poppler
         exec("\"$popplerBin\" -f 1 -l 1 -png -scale-to-x 275 -scale-to-y 375 \"$pdfPath\" \"$outputBase\"");
 
         $imagesPath = storage_path('app/public/course/images/');
@@ -58,11 +61,28 @@ class CourseController extends Controller
         if (!empty($files)) {
             $existingImageName = basename($files[0]);
             $book->image_path = 'course/images/' . $existingImageName;
-            $book->save();
         }
+
+        // Count the number of pages in the PDF
+        exec("\"$pdfinfoBin\" \"$pdfPath\"", $output);
+
+        $pageCount = 0;
+        foreach ($output as $line) {
+            if (preg_match('/^Pages:\s+(\d+)/i', $line, $matches)) {
+                $pageCount = (int)$matches[1];
+                break;
+            }
+        }
+
+        
+        $book->pages_count = $pageCount;
+        $book->save();
+
+        return response()->json([
+            'book' => $book,
+            'page_count' => $pageCount,
+        ]);
     }
-
-
 
     public function uploadBackground(Request $request){
         $request->validate([
@@ -95,6 +115,92 @@ class CourseController extends Controller
             'image_url' => asset('storage/' . $path),
         ]);
     }
+
+    function getPdfPageText(Request $request){
+
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'page_number' => 'required|integer|min:1',
+        ]);
+        $courseId = $request->course_id;
+        $pageNumber = $request->page_number;
+        
+        $course = Course::find($courseId);
+        if (!$course) {
+            return 'Course not found';
+        }
+        $pdfPath = storage_path('app/public/' . $course->file_path);
+        
+        // Path to the pdftotext binary
+        $pdftotextBin = base_path('poppler/library/bin/pdftotext.exe');
+        
+        // To avoid conflicts, create a unique temporary file
+        $outputTxt = storage_path('app/public/temp/' . uniqid() . '.txt');
+        
+        // Execute the pdftotext command to extract text from the specified page
+        exec("\"$pdftotextBin\" -f $pageNumber -l $pageNumber \"$pdfPath\" \"$outputTxt\"");
+
+
+        // Read the output text file
+        $pageText = '';
+        if (file_exists($outputTxt)) {
+            $pageText = file_get_contents($outputTxt);
+            // Delete the temporary file after reading
+            unlink($outputTxt);
+        }
+
+        return $pageText;
+    }
+
+    public function getPdfSinglePage(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'page_number' => 'required|integer|min:1',
+        ]);
+
+        $course = Course::find($request->course_id);
+        if (!$course) {
+            return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        // مسار ملف الـ PDF الأصلي
+        $pdfPath = storage_path('app/public/' . $course->file_path);
+
+        // رقم الصفحة اللي عايزها
+        $pageNumber = $request->page_number;
+
+        //  Tool Path pdfseparate
+        $pdfseparateBin = base_path('poppler/library/bin/pdfseparate.exe');
+
+
+        // اسم ملف الـ PDF المؤقت اللي هيطلع فيه الصفحة
+        $outputDir = storage_path('app/public/temp/');
+        if (!file_exists($outputDir)) {
+            mkdir($outputDir, 0777, true);
+        }
+        $outputPdf = $outputDir . 'page_' . uniqid() . '.pdf';
+        
+        // Excute the command to extract the specific page
+        exec("\"$pdfseparateBin\" -f $pageNumber -l $pageNumber \"$pdfPath\" \"$outputPdf\" 2>&1", $output, $return_var);
+
+        // ensure the file exists
+        if (!file_exists($outputPdf)) {
+            return response()->json([
+                'error' => 'Failed to extract page',
+                'cmd_output' => $output,
+                'cmd_status' => $return_var,
+            ], 500);
+        }
+
+        // رجع الملف للفرونت كـ download أو stream
+        return response()->file($outputPdf, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="page_' . $pageNumber . '.pdf"',
+        ]);
+    }
+
+
 
     public function show($id){
         $book = Course::findOrFail($id);

@@ -89,7 +89,8 @@ Route::get('getAllCourses', [CourseController::class, 'getAllCourses']);
 Route::get('instructor/{id}/getAllCoursesExamAttempts', [CourseController::class, 'getAllCoursesExamAttempts']);
 Route::get('getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
 Route::post('course/uploadImage', [CourseController::class, 'uploadImage']);
-
+Route::get('get-pdf-page-text', [CourseController::class, 'getPdfPageText']);
+Route::get('get-single-page', [CourseController::class, 'getPdfSinglePage']);
 
 // Exam API
 Route::get('course/{courseId}/student/{studentId}/getFinishedExams', [ExamController::class, 'getFinishedExamsForStudent']);
