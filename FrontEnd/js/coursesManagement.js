@@ -120,15 +120,13 @@ function addCourseEventListeners(bookDiv, courseId) {
 }
 
 function handleCourseClick(courseId) {
-    console.log(`Course ${courseId} clicked`);
-    // Uncomment to navigate
-    // window.location.href = `/course.html?id=${courseId}`;
+    const encodedCourseId = btoa(courseId);
+    window.location.href = `book.html?course_id=${encodedCourseId}`;
 }
 
 function handleOpenCourse(courseId) {
-    console.log(`Opening course ${courseId}`);
-    // Uncomment to navigate
-    window.location.href = `book.html?id=${courseId}`;
+    const encodedCourseId = btoa(courseId);
+    window.location.href = `book.html?course_id=${encodedCourseId}`;
 }
 
 function handleQuizNavigation(courseId) {

@@ -61,7 +61,15 @@ Route::prefix('instructor')->middleware(['auth:instructor'])->group(function () 
     Route::post('exam/submit-exam', [ExamController::class, 'submitExam']);
     Route::get('exam/exam-grades-distribution', [ExamController::class, 'examGradesDistribution']);
     Route::get('course/{courseId}/exams/get-exam-questions', [ExamController::class, 'getExamQuestions']); // This to instructors
+    Route::get('course/book', [CourseController::class, 'getBook']);
+    Route::get('course/book/get-single-page', [CourseController::class, 'getPdfSinglePage']);
+    Route::delete('exam/delete', [ExamController::class, 'deleteExam']);
+    Route::put('exam/update-available', [ExamController::class, 'UpdateAvailable']);
+    Route::put('exam/update-available', [ExamController::class, 'UpdateAvailable']);
 });
+Route::get('course/book', [CourseController::class, 'getBook']);
+Route::get('course/book/get-single-page', [CourseController::class, 'getPdfSinglePage']);
+Route::get('course/book/get-pdf-page-text', [CourseController::class, 'getPdfPageText']);
 
 // ========== Student Routes ==========
 Route::prefix('student')->middleware(['auth:student'])->group(function () {
@@ -71,9 +79,12 @@ Route::prefix('student')->middleware(['auth:student'])->group(function () {
     Route::get('all', [StudentController::class, 'getAllStudents']);
     Route::get('get/{id}', [StudentController::class, 'getStudent']);
     Route::post('upload-image/{id}', [StudentController::class, 'uploadImage']);
-    Route::get('{id}/courses', [StudentController::class, 'getCourses']);
     Route::get('{id}/today-exams', [StudentController::class, 'getTodayExams']);
+    Route::get('course/{courseId}/get-exams', [ExamController::class, 'getExams']);
+    Route::get('course/{courseId}/student/{studentId}/get-finished-exams', [ExamController::class, 'getFinishedExamsForStudent']);
 });
+Route::get('course/{courseId}/student/{studentId}/get-finished-exams', [ExamController::class, 'getFinishedExamsForStudent']);
+Route::get('student/{id}/courses', [StudentController::class, 'getCourses']);
 
 // Google Sheets API
 Route::get('sheets/read', [GoogleSheetsController::class, 'readSheet']);
@@ -84,17 +95,15 @@ Route::post('readCourse', [CourseController::class, 'readCourse']);
 Route::put('updateCourse', [CourseController::class, 'updateCourse']);
 Route::delete('deleteCourse/{id}', [CourseController::class, 'deleteCourse']);
 Route::post('course/store', [CourseController::class, 'storeBook']);
-Route::get('books/pdf/{id}', [CourseController::class, 'getBook']);
 Route::get('getAllCourses', [CourseController::class, 'getAllCourses']);
 Route::get('instructor/{id}/getAllCoursesExamAttempts', [CourseController::class, 'getAllCoursesExamAttempts']);
 Route::get('getCourseEnrollments', [CourseController::class, 'getCourseEnrollments']);
 Route::post('course/uploadImage', [CourseController::class, 'uploadImage']);
-Route::get('get-pdf-page-text', [CourseController::class, 'getPdfPageText']);
-Route::get('get-single-page', [CourseController::class, 'getPdfSinglePage']);
+// Route::get('course/book/get-single-page', function () {
+//     return "test";
+// });
 
 // Exam API
-Route::get('course/{courseId}/student/{studentId}/getFinishedExams', [ExamController::class, 'getFinishedExamsForStudent']);
-
 // This to instructors
 // This to students
 Route::get('student/course/{courseId}/exams/getExamQuestions', function (Request $request, $courseId) {

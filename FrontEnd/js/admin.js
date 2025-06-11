@@ -259,3 +259,119 @@ function setupEventListeners() {
 
 // Start the app on page load
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const addUserButton = document.querySelector('.upload-button');
+    const tableBody = document.querySelector('.table-container.user-management tbody');
+    let isInputRowActive = false;
+
+    // إضافة صف إدخال جديد
+    addUserButton.addEventListener('click', () => {
+        if (isInputRowActive) {
+            alert('Please submit or cancel the current input row.');
+            return;
+        }
+
+        isInputRowActive = true;
+
+        const inputRow = document.createElement('tr');
+        inputRow.classList.add('input-row');
+        inputRow.innerHTML = `
+            <td><input type="text" class="table-input" id="user-id" placeholder="Enter ID"></td>
+            <td><input type="text" class="table-input" id="user-name" placeholder="Enter Name"></td>
+            <td><input type="email" class="table-input" id="user-email" placeholder="Enter Email"></td>
+            <td>
+                <select class="table-select" id="user-role">
+                    <option value="admin">Admin</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="student">Student</option>
+                </select>
+            </td>
+            <td class="actions">
+                <i class="fas fa-check submit-action" style="color: #28a745;"></i>
+                <i class="fas fa-times cancel-action" style="color: #d32f2f;"></i>
+            </td>
+        `;
+        tableBody.appendChild(inputRow);
+    });
+
+    // إرسال البيانات
+    tableBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('submit-action')) {
+            const row = e.target.closest('tr');
+            const id = row.querySelector('#user-id').value;
+            const name = row.querySelector('#user-name').value;
+            const email = row.querySelector('#user-email').value;
+            const role = row.querySelector('#user-role').value;
+
+            // التحقق من إدخال جميع الحقول
+            if (!id || !name || !email || !role) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // طباعة البيانات في Console
+            console.log('New User Added:', { id, name, email, role });
+
+            // استبدال صف الإدخال بصف بيانات
+            row.innerHTML = `
+                <td>${id}</td>
+                <td>${name}</td>
+                <td>${email}</td>
+                <td><span class="role-user ${role}">${role.charAt(0).toUpperCase() + role.slice(1)}</span></td>
+                <td class="actions">
+                    <i class="fas fa-edit edit-action" style="color: #2C6DA4;"></i>
+                    <i class="fas fa-trash delete-action" style="color: #d32f2f;"></i>
+                </td>
+            `;
+            isInputRowActive = false;
+        }
+
+        // إلغاء صف الإدخال
+        if (e.target.classList.contains('cancel-action')) {
+            e.target.closest('tr').remove();
+            isInputRowActive = false;
+        }
+
+        // حذف صف
+        if (e.target.classList.contains('delete-action')) {
+            e.target.closest('tr').remove();
+        }
+
+        // تحرير صف
+        if (e.target.classList.contains('edit-action')) {
+            if (isInputRowActive) {
+                alert('Please submit or cancel the current input row.');
+                return;
+            }
+
+            isInputRowActive = true;
+
+            const row = e.target.closest('tr');
+            const id = row.cells[0].textContent;
+            const name = row.cells[1].textContent;
+            const email = row.cells[2].textContent;
+            const role = row.cells[3].querySelector('span').textContent.toLowerCase();
+
+            // طباعة البيانات المحررة في Console
+            console.log('Editing User:', { id, name, email, role });
+
+            row.innerHTML = `
+                <td><input type="text" class="table-input" id="user-id" value="${id}" placeholder="Enter ID"></td>
+                <td><input type="text" class="table-input" id="user-name" value="${name}" placeholder="Enter Name"></td>
+                <td><input type="email" class="table-input" id="user-email" value="${email}" placeholder="Enter Email"></td>
+                <td>
+                    <select class="table-select" id="user-role">
+                        <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
+                        <option value="instructor" ${role === 'instructor' ? 'selected' : ''}>Instructor</option>
+                        <option value="student" ${role === 'student' ? 'selected' : ''}>Student</option>
+                    </select>
+                </td>
+                <td class="actions">
+                    <i class="fas fa-check submit-action" style="color: #28a745;";></i>
+                    <i class="fas fa-times cancel-action" style="color: #d32f2f;"></i>
+                </td>
+            `;
+        }
+    });
+});

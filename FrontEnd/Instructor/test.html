@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار API عرض صفحة PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            margin-left: 10px;
+        }
+
+        .input-group input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        .input-group button {
+            padding: 10px 20px;
+            background-color: #1f507a;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .input-group button:hover {
+            background-color: #163d5f;
+        }
+
+        #viewerContainer {
+            width: 80%;
+            max-width: 800px;
+            border: 1px solid #ccc;
+        }
+
+        #viewer {
+            width: 100%;
+            height: 600px;
+        }
+
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>اختبار API عرض صفحة PDF</h1>
+    <div class="input-group">
+        <label for="courseId">معرف الكورس:</label>
+        <input type="number" id="courseId" value="43" min="1">
+        <label for="pageNumber">رقم الصفحة:</label>
+        <input type="number" id="pageNumber" value="11" min="1">
+        <button onclick="fetchPdfPage()">عرض الصفحة</button>
+    </div>
+    <div id="viewerContainer">
+        <div id="viewer" class="pdfViewer"></div>
+    </div>
+    <div id="error"></div>
+
+    <!-- PDF.js Scripts -->
+    <script src="https://unpkg.com/pdfjs-dist@4.7.432/build/pdf.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist@4.7.432/web/pdf_viewer.js"></script>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8005/api';
+
+        // دالة لجلب CSRF token
+        async function getCsrfCookie() {
+            try {
+                const response = await fetch(`http://127.0.0.1:8005/sanctum/csrf-cookie`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('فشل في جلب CSRF token');
+            } catch (error) {
+                document.getElementById('error').textContent = 'خطأ في جلب CSRF token: ' + error.message;
+            }
+        }
+
+        // دالة لاستخراج cookie معين
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        // دالة لعرض الـ PDF
+        async function displayPdfPage(pdfUrl) {
+            try {
+                const pdfjsLib = window['pdfjsLib'];
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.7.432/build/pdf.worker.js';
+
+                const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+                const page = await pdf.getPage(1); // الصفحة الأولى من الملف المستخرج
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale });
+
+                const viewer = document.getElementById('viewer');
+                viewer.innerHTML = ''; // امسح المحتوى القديم
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+
+                viewer.appendChild(canvas);
+            } catch (error) {
+                document.getElementById('error').textContent = 'خطأ في عرض الـ PDF: ' + error.message;
+            }
+        }
+
+        // دالة لجلب صفحة الـ PDF
+        async function fetchPdfPage() {
+            const courseId = document.getElementById('courseId').value;
+            const pageNumber = document.getElementById('pageNumber').value;
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = ''; // امسح أي أخطاء سابقة
+
+            if (!courseId || !pageNumber) {
+                errorDiv.textContent = 'يرجى إدخال معرف الكورس ورقم الصفحة';
+                return;
+            }
+
+            await getCsrfCookie();
+            const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/instructor/course/book/get-single-page?course_id=${courseId}&page_number=${pageNumber}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/pdf',
+                        'X-XSRF-TOKEN': xsrfToken
+                    }
+                });
+
+                if (!response.ok) {
+                    errorDiv.textContent = `فشل في جلب الصفحة: ${response.status} ${response.statusText}`;
+                    return;
+                }
+
+                const blob = await response.blob();
+                const pdfUrl = URL.createObjectURL(blob);
+                await displayPdfPage(pdfUrl);
+                URL.revokeObjectURL(pdfUrl); // تنظيف الـ URL
+                alert('تم عرض الصفحة بنجاح!');
+            } catch (error) {
+                errorDiv.textContent = 'خطأ في جلب الصفحة: ' + error.message;
+            }
+        }
+    </script>
+</body>
+
+</html>

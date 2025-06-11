@@ -10,7 +10,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use setasign\Fpdi\Fpdi;
 use Smalot\PdfParser\Parser;
+use Illuminate\Support\Facades\Log;
 
+use function Pest\Laravel\json;
 
 class CourseController extends Controller
 {
@@ -42,6 +44,13 @@ class CourseController extends Controller
             'file_path' => 'books/' . $filename,
             'file_type' => $file->getClientOriginalExtension(),
         ]);
+
+        // Ensure the directory exists before saving the image
+        $imagesRelativePath = 'course/images';
+        $imagesStoragePath = storage_path('app/public/' . $imagesRelativePath);
+        if (!file_exists($imagesStoragePath)) {
+            mkdir($imagesStoragePath, 0775, true);
+        }
 
         // poppler binary paths
         $popplerBin = base_path('poppler/library/bin/pdftoppm.exe');
@@ -152,8 +161,8 @@ class CourseController extends Controller
         return $pageText;
     }
 
-    public function getPdfSinglePage(Request $request)
-    {
+    public function getPdfSinglePage(Request $request){
+
         $request->validate([
             'course_id' => 'required|exists:courses,id',
             'page_number' => 'required|integer|min:1',
@@ -164,42 +173,95 @@ class CourseController extends Controller
             return response()->json(['error' => 'Course not found'], 404);
         }
 
-        // مسار ملف الـ PDF الأصلي
         $pdfPath = storage_path('app/public/' . $course->file_path);
+        if (!file_exists($pdfPath)) {
+            return response()->json(['error' => 'PDF file not found'], 404);
+        }
 
-        // رقم الصفحة اللي عايزها
         $pageNumber = $request->page_number;
-
-        //  Tool Path pdfseparate
         $pdfseparateBin = base_path('poppler/library/bin/pdfseparate.exe');
-
-
-        // اسم ملف الـ PDF المؤقت اللي هيطلع فيه الصفحة
         $outputDir = storage_path('app/public/temp/');
         if (!file_exists($outputDir)) {
             mkdir($outputDir, 0777, true);
         }
-        $outputPdf = $outputDir . 'page_' . uniqid() . '.pdf';
-        
-        // Excute the command to extract the specific page
-        exec("\"$pdfseparateBin\" -f $pageNumber -l $pageNumber \"$pdfPath\" \"$outputPdf\" 2>&1", $output, $return_var);
 
-        // ensure the file exists
+        $originalFileName = pathinfo($course->file_path, PATHINFO_FILENAME);
+        $filename = $originalFileName . '_page_' . $pageNumber . '.pdf';
+        $outputPdf = $outputDir . $filename;
+
+        // لو الملف موجود بالفعل، رجعه مباشرة
         if (!file_exists($outputPdf)) {
+            if (!is_executable($pdfseparateBin)) {
+                return response()->json(['error' => 'pdfseparate not executable'], 500);
+            }
+            if (!is_readable($pdfPath)) {
+                return response()->json(['error' => 'PDF file not readable'], 500);
+            }
+            if (!is_writable($outputDir)) {
+                return response()->json(['error' => 'Output dir not writable'], 500);
+            }
+
+            $command = "\"$pdfseparateBin\" -f $pageNumber -l $pageNumber \"$pdfPath\" \"$outputPdf\" 2>&1";
+            exec($command, $output, $return_var);
+
+            if (!file_exists($outputPdf)) {
+                return response()->json([
+                    'error' => 'Failed to extract page',
+                    'cmd_output' => $output,
+                    'cmd_status' => $return_var,
+                ], 500);
+            }
+        }
+
+        // رجع الملف نفسه كـ PDF
+        return response()->file($outputPdf, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    }
+
+
+
+    public function getBook(Request $request){
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+        ]);
+
+        $course = Course::find($request->course_id);
+        if (!$course) {
+            return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        //  File path PDF
+        $pdfPath = storage_path('app/public/' . $course->file_path);
+        //  Tool path pdfinfo
+        $pdfinfoBin = base_path('poppler/library/bin/pdfinfo.exe');
+
+        // Execute the command to get PDF info
+        exec("\"$pdfinfoBin\" \"$pdfPath\" 2>&1", $output, $return_var);
+
+        //  Search for the number of pages in the output
+        $pageCount = null;
+        foreach ($output as $line) {
+            if (preg_match('/Pages:\s+(\d+)/i', $line, $matches)) {
+                $pageCount = (int)$matches[1];
+                break;
+            }
+        }
+        
+        if ($pageCount === null) {
             return response()->json([
-                'error' => 'Failed to extract page',
+                'error' => 'Failed to get page count',
                 'cmd_output' => $output,
                 'cmd_status' => $return_var,
             ], 500);
         }
 
-        // رجع الملف للفرونت كـ download أو stream
-        return response()->file($outputPdf, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="page_' . $pageNumber . '.pdf"',
+        return response()->json([
+            'file_path' => $course->file_path,
+            'page_count' => $pageCount,
         ]);
     }
-
 
 
     public function show($id){
@@ -229,22 +291,6 @@ class CourseController extends Controller
         return response()->json($course);
     }
 
-    public function getBook($id) {
-    
-        $book = Course::find($id);
-        
-        if (!$book) {
-            return response()->json(['error' => 'Book not found'], 404);
-        }
-
-        $path = storage_path('app/public/' . $book->file_path);
-
-        if (!file_exists($path)) {
-            return response()->json(['error' => 'PDF file not found'], 404);
-        }
-
-        return response()->file($path);
-    }
     
     public function getBookPage(Request $request, $id)
     {

@@ -84,26 +84,12 @@ class ExamController extends Controller
         $now = Carbon::now();
 
         $exams = Exam::where('course_id', $courseId)
-            ->select('id', 'name', 'date', 'time', 'total_score', 'duration', 'instructions', 'number_of_attempts')
+            ->select('id', 'name', 'date', 'time', 'total_score', 'duration', 'instructions', 'number_of_attempts', 'available_review')
             ->get()
-            ->map(function ($exam) use ($now) {
+            ->filter(function ($exam) use ($now) {
                 $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
-                $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
-
-                // available if the current time is between start and end time
-                $available = $now->greaterThanOrEqualTo($startDateTime) && $now->lessThan($endDateTime);
-
-                return [
-                    'id' => $exam->id,
-                    'name' => $exam->name,
-                    'date' => $exam->date,
-                    'time' => $exam->time,
-                    'total_score' => $exam->total_score,
-                    'duration' => $exam->duration,
-                    'instructions' => $exam->instructions,
-                    'number_of_attempts' => $exam->number_of_attempts,
-                    'available' => $available,
-                ];
+                // رجع الامتحانات اللي معادها لسه مجاش
+                return $startDateTime->greaterThan($now);
             })
             ->values();
 
@@ -111,12 +97,12 @@ class ExamController extends Controller
             'success' => true,
             'data' => $exams
         ]);
+    
     }
-
-
 
     public function getFinishedExamsForInstructor($courseId){
         $exams = Exam::where('course_id', $courseId)->get();
+        // return $exams;
 
         if ($exams->isEmpty()) {
             return response()->json(['message' => 'No exams found'], 404);
@@ -138,11 +124,12 @@ class ExamController extends Controller
                 : 'N/A';
 
             return [
-                'exam_id' => $exam->id,
+                'id' => $exam->id,
                 'name' => $exam->name,
                 'number_of_questions' => $questionCount,
                 'number_of_attempts' => $numberOfAttempts,
                 'average_grade_percentage' => $percentage,
+                'available_review' => $exam->available_review,
             ];
         })->values();
 
@@ -452,4 +439,47 @@ class ExamController extends Controller
             'distribution' => $distributionArray
         ]);
     }
+
+    public function deleteExam(Request $request){
+
+        $request->validate([
+            'exam_id' => 'required|integer|exists:exams,id'
+        ]);
+
+        $examId = $request->exam_id;
+
+        $exam = Exam::find($examId);
+        if (!$exam) {
+            return response()->json(['message' => 'Exam not found'], 404);
+        }
+
+        // Delete all questions and their options
+        foreach ($exam->questions as $question) {
+            $question->options()->delete();
+            $question->delete();
+        }
+
+        // Delete the exam itself
+        $exam->delete();
+
+        return response()->json(['message' => 'Exam deleted successfully']);
+    }
+
+    public function UpdateAvailable(Request $request){
+        $request->validate([
+            'exam_id' => 'required|integer|exists:exams,id',
+            'available_review' => 'required|boolean'
+        ]);
+        
+        $exam = Exam::find($request->exam_id);
+        if (!$exam) {
+            return response()->json(['message' => 'Exam not found'], 404);
+        }
+        
+        $exam->available_review = $request->available_review; 
+        $exam->save();
+        
+        return response()->json(['message' => 'Exam availability updated successfully']);
+    }
 }
+

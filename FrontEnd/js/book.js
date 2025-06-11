@@ -1,5 +1,9 @@
 // Book Page => This script to control the actions in book page
+let FILE_PATH;
+const urlParams = new URLSearchParams(window.location.search);
+const encodedCourseId  = urlParams.get('course_id');
 
+const courseId = atob(encodedCourseId); // decode courseId
 // ===================== DOM References =====================
 const elements = {
     // Containers
@@ -15,7 +19,7 @@ const elements = {
 
     // Other elements
     pageNumber: document.querySelector('.page-number'),
-    countNumber: document.querySelector('.count-number'),
+    pageCount: document.querySelector('.page-count'),
     searchInput: document.querySelector('.search-input'),
 
     // Right sidebar
@@ -37,39 +41,156 @@ const elements = {
     sliderValues: document.getElementsByClassName('thicknessValue'),
 };
 
-console.log(elements.pageNumber.textContent);
+
 // ===================== Global Variables =====================
 let leftSidebarOpen = false;
 let rightSidebarOpen = false;
-let maxPageNumber; // This should be set based on the book data
+let bookDataCache = null;
+elements.pageNumber.value = localStorage.getItem('savedPageNumber') || 1; // Load saved page or default to 1
 
 
 // ===================== Initialize Application =====================
 function initializeBookPage() {
     fetchBookPageData();
+    getPdfPage(localStorage.getItem('savedPageNumber') || 1); // Load saved page or default to 1
     setupEventListeners();
 }
 
 // ===================== Fetch Book Page Data =====================
-async function fetchBookPageData() {
-    // Example: fetch book data, chapters, or anything needed for the page
-    fetch('/api/book/data')
-        .then(res => res.json())
-        .then(data => {
-            // Handle and render data here
-            // Example: renderChapters(data.chapters);
-        })
-        .catch(err => {
-            console.error('Error fetching book data:', err);
+
+async function validateSession() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/validate-token`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
         });
+        
+        if (!response.ok) return false; // Not authenticated        
+        const data = await response.json();
+        if( data.user.role !== 'instructor') {
+            return false;
+        }
+        return response.ok;    
+    } catch (error) {
+        
+        return false;
+    }
 }
 
-async function fetchSinglePage(pageNumber) {
+async function fetchBookPageData() {
+    const cacheKey = `bookData_${courseId}`; // مفتاح التخزين المخصص للدورة
+    const cached = localStorage.getItem(cacheKey);
 
+    if (cached) {
+        console.log('Using cached book data from localStorage.');
+        bookDataCache = JSON.parse(cached);
+
+        // تحديث العناصر مباشرة من البيانات المحفوظة
+        FILE_PATH = bookDataCache.file_path;
+        elements.pageCount.innerHTML = bookDataCache.page_count;
+        return bookDataCache;
+    }
+
+    await getCsrfCookie();
+
+    const isValidSession = await validateSession();
+    if (!isValidSession) return redirectToLogin();
+    const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
+
+    
+    const response = await fetch(`${API_BASE_URL}/instructor/course/book?course_id=${courseId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-xsrf-token': xsrfToken
+        }
+    });
+    const data = await response.json();
+
+    // تحديث المتغير العام والتخزين في localStorage
+    bookDataCache = data;
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+
+    FILE_PATH = data.file_path;
+    elements.pageCount.innerHTML = data.page_count;
+
+    console.log('Fetched and cached book data:', data);
+    return data;
+}
+
+async function getPdfPage(pageNumber) {
+    await getCsrfCookie();
+
+    const isValidSession = await validateSession();
+    if (!isValidSession) return redirectToLogin();
+
+    const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
+    fetch(`${API_BASE_URL}/course/book/get-single-page?course_id=${courseId}&page_number=${pageNumber}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'X-xsrf-token': xsrfToken
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch PDF');
+        return response.blob();
+    })
+    .then(blob => {
+        const pdfUrl = URL.createObjectURL(blob);
+        displayPdfPage(pdfUrl); // هتعرض الصفحة هنا
+    })
+    .catch(error => {
+        console.error('Error fetching PDF page:', error);
+        alert('Error fetching PDF page: ' + error.message);
+    });
+}
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js';
+
+function displayPdfPage(pdfUrl) {
+    const container = document.getElementById('viewerContainer');
+    const viewer = document.getElementById('viewer');
+
+    // تنظيف المحتوى السابق
+    viewer.innerHTML = '';
+
+    const eventBus = new pdfjsViewer.EventBus();
+    const pdfLinkService = new pdfjsViewer.PDFLinkService({ eventBus });
+    const pdfViewer = new pdfjsViewer.PDFViewer({
+        container: container,
+        viewer: viewer,
+        eventBus: eventBus,
+        linkService: pdfLinkService,
+    });
+
+    fetch(pdfUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const loadingTask = pdfjsLib.getDocument({ data });
+            return loadingTask.promise;
+        })
+        .then(pdfDocument => {
+            pdfViewer.setDocument(pdfDocument);
+            pdfLinkService.setDocument(pdfDocument);
+
+            pdfViewer.currentPageNumber = 1;
+        })
+        .catch(error => {
+            // console.error('Error loading PDF:', error);
+        });
 }
 
 // ===================== Event Listeners Setup =====================
 function setupEventListeners() {
+    elements.backBtn.addEventListener('click', () => {
+        window.location.href = `../instructor/coursesManagement.html?course_id=${btoa(courseId)}`;
+    });
     // Sidebar events
     if (elements.menuBtn) {
         elements.menuBtn.addEventListener('click', toggleLeftSidebar);
@@ -117,24 +238,38 @@ function setupEventListeners() {
     elements.navBtnLeft.addEventListener('click', () => {
         let current = parseInt(elements.pageNumber.value, 10);
         if (current > 1) {
-            elements.pageNumber.value = current - 1;
+            let newPage = current - 1;
+            elements.pageNumber.value = newPage;
+            localStorage.setItem('savedPageNumber', newPage); // حفظ الصفحة
+            getPdfPage(newPage); // Fetch the previous page
         }
     });
 
     // Right navigation button
     elements.navBtnRight.addEventListener('click', () => {
         let current = parseInt(elements.pageNumber.value, 10);
+        let maxPage = parseInt(elements.pageCount.innerHTML, 10);
         if (current < maxPage) {
-            elements.pageNumber.value = current + 1;
+            let newPage = current + 1;
+            elements.pageNumber.value = newPage;
+            localStorage.setItem('savedPageNumber', newPage); // حفظ الصفحة
+            getPdfPage(newPage); // Fetch the next page
         }
     });
 
-    // Page number input
-    elements.pageNumber.addEventListener('input', () => {
+    // Page number input (on blur or change)
+    elements.pageNumber.addEventListener('change', () => {
         let val = parseInt(elements.pageNumber.value, 10);
-        if (val > maxPage) elements.pageNumber.value = maxPage;
-        if (val < 1 || isNaN(val)) elements.pageNumber.value = 1;
+        let max = parseInt(elements.pageCount.innerHTML, 10);
+
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > max) val = max;
+
+        elements.pageNumber.value = val;
+        localStorage.setItem('savedPageNumber', val); // حفظ الصفحة
+        getPdfPage(val); // عرض الصفحة
     });
+
 }
 
 // ===================== Core Functions =====================

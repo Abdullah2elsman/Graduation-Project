@@ -50,51 +50,134 @@ body {
 
 .quiz-card {
   background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  position: relative;
+  box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #BDBDBD;
+}
+
+.quiz-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
 }
 
-.quiz-info {
-  flex: 1;
+.quiz-header h3 {
+  margin: 0;
+  color: #202224;
 }
 
-.quiz-card h3 {
-  margin-top: 0;
-  color: #333;
-}
-
-.quiz-card p {
-  margin: 8px 0;
-  color: #555;
-}
-
-.quiz-card .desc {
+.status {
   font-size: 14px;
-  color: #777;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.regrade-quiz-btn {
-  background-color: #ffffff;
-  color: #B71C1C;
-  border: 1px #B71C1C solid;
-  padding: 6px 12px;
-  border-radius: 8px;
+  margin-left: 16px;
+  padding: 2px 8px;
+  border-radius: 12px;
   cursor: pointer;
 }
 
-.view-quiz-btn, .join-quiz-btn ,.review-quiz-btn {
+.status.upcoming {
+  color: #ffb300;
+  border: 1px #ffb300;
+}
+
+.status.completed {
+  color: #28a745;
+  border: 1px #28a745;
+}
+
+.quiz-info {
+  font-size: 14px;
+  margin: 10px 0;
+  color: #585A66;
+}
+
+.quiz-desc {
+  font-size: 14px;
+  color: #585A66;
+  margin-bottom: 16px;
+}
+
+.p1 {
+  color: #585A66;
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+  margin-right: 16px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  transition: .4s;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 100px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 27px;
+  width: 27px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: #28a745;
+}
+
+input:checked+.slider:before {
+  transform: translateX(18px);
+}
+
+.delete-btn,
+.delete-btn img {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  border-radius: 8px;
+  padding: 8px;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #D32F2F;
+}
+
+.actions {
+  right: 24px;
+  position: absolute;
+  justify-content: space-between;
+}
+
+.view-quiz-btn,
+.join-quiz-btn,
+.review-quiz-btn {
   background-color: #ffffff;
   color: #2C6DA4;
   border: 1px #2C6DA4 solid;
@@ -103,6 +186,7 @@ body {
   cursor: pointer;
 }
 
+
 .quiz-card .not-available {
   background-color: #FCFCFC;
   color: #757575;
@@ -110,23 +194,66 @@ body {
   cursor: not-allowed;
 }
 
+.regrade-quiz-btn {
+  background-color: #fcefdc;
+  color: #A06403;
+  border: 1px #A06403 solid;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-.no-quizzes {
-  text-align: center;
+
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
   padding: 20px;
-  color: #666;
-}
-
-.error-message {
-  color: #dc3545;
-  padding: 20px;
+  width: 380px;
+  border-radius: 15px;
   text-align: center;
 }
 
-.quiz-card[data-quiz-id] {
-  transition: transform 0.2s;
+.modal-buttons {
+  display: flex;
+  justify-content: end;
+  margin-top: 20px;
 }
 
-.quiz-card[data-quiz-id]:hover {
-  transform: translateY(-3px);
+.cancel-btn {
+  background-color: #2C6DA4;
+  border: 1px;
+  color: white;
+  padding: 8px 16px 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 9px;
+}
+
+.delete-btn-modal {
+  background-color: white;
+  color: #D32F2F;
+  padding: 8px 16px 8px 16px;
+  border: 1px solid #D32F2F;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.delete-btn-modal img {
+  width: 18px;
+  height: 18px;
 }

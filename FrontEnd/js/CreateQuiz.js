@@ -401,6 +401,7 @@ async function fetchCode(url, data) {
         const result = await response.json();
         console.log('Server response:', result);
         alert('Quiz submitted successfully!');
+        window.location.reload();
     } catch (error) {
         console.error('Submission error:', error);
         alert('There was an error submitting the quiz.');

@@ -447,3 +447,106 @@ td .progress-text {
   color: green;
   margin-left: 10px;
 }
+
+.book {
+  width: 275px;
+  height: 350px;
+  border: 3px solid var(--main-blue);
+  border-radius: 16px;
+  float: right;
+  margin: 15px;
+  position: relative;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.books-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 70px;
+}
+
+
+.up-frame,
+.down-frame {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.up-frame {
+  width: 271px;
+  height: 77px;
+  border-radius: 14px;
+  background: linear-gradient(var(--main-gradient-light), var(--main-gradient-dark));
+  padding: 16px 8px;
+  overflow: auto;
+  transform: translateY(-20px);
+}
+
+.down-frame {
+  width: 271px;
+  height: 100px;
+  border-radius: 14px;
+  background: linear-gradient(var(--main-gradient-light), var(--main-gradient-dark));
+  padding: 10px;
+  overflow: auto;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  transform: translateY(20px);
+}
+
+
+.book:hover .up-frame,
+.book:hover .down-frame {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.open {
+  width: 82px;
+  height: 40px;
+  padding: 8px;
+  font-size: 18px;
+  color: var(--main-white);
+  background-color: var(--main-blue);
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
+
+.open i {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.down-frame p {
+  margin-bottom: 8px;
+}
+
+.report-student {
+  background-color: var(--main-bg);
+  color: var(--main-blue);
+  padding: 8px;
+  border: 1px solid var(--main-blue);
+  border-radius: 8px;
+  width: 142px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.quiz {
+  background-color: var(--main-bg);
+  color: var(--main-blue);
+  padding: 8px;
+  border: 1px solid var(--main-blue);
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+  text-decoration: none;
+}

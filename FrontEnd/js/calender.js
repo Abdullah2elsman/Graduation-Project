@@ -181,12 +181,11 @@ async function todaySchedule() {
     return;
     }
 
-  // إذا كنا في لوحة الطالب
-  if (page === 'student-dashboard') {
-    const studentId = 301; // مثال؛ احصل عليه من الجلسة أو متغير عام
-
+    // إذا كنا في لوحة الطالب
+    if (page === 'student-dashboard') {
+    const studentId = JSON.parse(localStorage.getItem('userData')).user.id;
     try {
-      const endpoint = `${API_BASE_URL}/student/${studentId}/getTodayExams`;
+      const endpoint = `${API_BASE_URL}/student/${studentId}/today-exams`;
       const response = await fetch(endpoint, {
         method: 'GET',
         credentials: 'include',
@@ -306,6 +305,16 @@ function setupEventListeners() {
         calendarElements.closeCalendarButton.addEventListener("click", toggleCalendarSidebar);
         calendarElements.openCalendarButton.addEventListener("click", toggleCalendarSidebar);
 }
+
+// ===================== Handle Response =====================
+async function handleResponse(response) {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Something went wrong while fetching data.');
+  }
+  return response.json();
+}
+
 
 // ===================== Initialize =====================
 document.addEventListener("DOMContentLoaded", () => {

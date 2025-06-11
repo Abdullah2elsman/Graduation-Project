@@ -1,7 +1,5 @@
 // ===================== URL Parameters =====================
-const API_BASE_URL = "http://localhost:8005/api";
-const userId = 301; // Assuming userId is stored in localStorage
-
+const userId = JSON.parse(localStorage.getItem('userData')).user.id; // Assuming userId is stored in localStorage
 const urlParams = new URLSearchParams(window.location.search);
 const encodedCourseId  = urlParams.get('course_id');
 
@@ -17,8 +15,8 @@ const elements = {
 
 // ===================== Global endpoints =====================
 const endpoints = {
-    examsApiUrl: `${API_BASE_URL}/course/${courseId}/getExams`,
-    finishedExamsApiUrl: `${API_BASE_URL}/course/${courseId}/student/${userId}/getFinishedExams`
+    examsApiUrl: `${API_BASE_URL}/student/course/${courseId}/get-exams`,
+    finishedExamsApiUrl: `${API_BASE_URL}/student/course/${courseId}/student/${userId}/get-finished-exams`
 };
 
 // ===================== Initial Setup =====================
@@ -66,7 +64,14 @@ function renderCombinedQuizzes(active, finished) {
 // ===================== Core Functions =====================
 async function fetchQuizzes() {
     try {
-        const response = await fetch(endpoints.examsApiUrl);
+        const response = await fetch(endpoints.examsApiUrl, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
         const data = await response.json();
         if (!data.success) throw new Error('Failed to fetch active quizzes');
         return data.data; // Return active quizzes data
@@ -78,7 +83,14 @@ async function fetchQuizzes() {
 
 async function fetchFinishedQuizzes() {
     try {
-        const response = await fetch(endpoints.finishedExamsApiUrl);
+        const response = await fetch(endpoints.finishedExamsApiUrl, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
         const data = await response.json();
         if (!data.success) throw new Error('Failed to fetch finished quizzes');
         return data.data; // Return finished quizzes data
@@ -103,8 +115,8 @@ function renderFinishedQuizzes(quizzes) {
 
 function createQuizCard(quiz) {
     return `
-        <div class="quiz-card">
-            <div class="quiz-info">
+        <div class="quiz-card" style="display: flex; align-items:center">
+            <div class="quiz-info" >
                 <h3>${quiz.name}</h3>
                 <p>
                 ${quiz.date ? `Date: ${formatDate(quiz.date)}` : ''}
@@ -125,7 +137,7 @@ function createQuizCard(quiz) {
 }
 function createFinishedQuizCard(quiz) {
     return `
-        <div class="quiz-card">
+        <div class="quiz-card" style="display: flex; align-items:center">
             <div class="quiz-info">
                 <h3>${quiz.name}</h3>
                 <p>

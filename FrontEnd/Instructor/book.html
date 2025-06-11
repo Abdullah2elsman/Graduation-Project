@@ -20,13 +20,40 @@
         }
 
         #viewerContainer {
+            height: 90%;
+            overflow: auto;
+            position: absolute;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            width: 97%;
+        }
+
+        .pdfViewer {
+            position: relative;
+        }
+        #viewer {
+            position: relative;
+            width: fit-content;
+            height: fit-content;
+        }
+        .textLayer {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: auto;
+            height: 100%;
+            width: 100%;
+            pointer-events: none;
+            z-index: 2;
         }
+        .textLayer span {
+            color: black !important;
+            background: none !important;
+            pointer-events: auto;
+            user-select: text;
+        }
+
+
     </style>
 </head>
 
@@ -366,7 +393,7 @@
             </div>
         </div>
     </main>
-
+    <script src="../js/auth.js"></script>
     <script src="../js/book.js"></script>
 </body>
 

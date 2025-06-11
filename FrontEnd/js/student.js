@@ -5,7 +5,6 @@ const elements = {
     booksParent: document.querySelector('.books-parent'),
 }
 
-const API_BASE_URL = 'http://localhost:8005/api';
 // ===================== Initial Setup =====================
 function initializeApp() {
     setupEventListeners();

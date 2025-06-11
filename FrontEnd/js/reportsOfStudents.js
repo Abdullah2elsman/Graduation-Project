@@ -23,7 +23,7 @@ const elements = {
     // Chart Diagram
     studentExamAttend: document.querySelector('.progress-container .progress-text'),
     studentExamAttend2: document.querySelectorAll('span .bold-text')[0],
-    studentMissedExam: document.querySelectorAll('span .bold-text')[1],
+    studentMissezzdExam: document.querySelectorAll('span .bold-text')[1],
 
     // Tables Row
     topStudentRow: document.querySelector('#top-students-body'),
