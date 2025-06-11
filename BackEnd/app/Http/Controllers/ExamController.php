@@ -76,29 +76,50 @@ class ExamController extends Controller
         ], 201);
     }
 
-    public function getExams($courseId): JsonResponse{
+    public function getExams($courseId): JsonResponse
+    {
         if (!Course::find($courseId)) {
             return response()->json(['error' => 'Course not found'], 404);
         }
 
-        $now = Carbon::now();
+        $now = Carbon::now('Africa/Cairo');
 
         $exams = Exam::where('course_id', $courseId)
             ->select('id', 'name', 'date', 'time', 'total_score', 'duration', 'instructions', 'number_of_attempts', 'available_review')
             ->get()
+            ->map(function ($exam) use ($now) {
+                $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time, 'Africa/Cairo');
+                $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
+
+                // available: true
+                $available = $now->greaterThanOrEqualTo($startDateTime) && $now->lessThan($endDateTime);
+                return [
+                    'id' => $exam->id,
+                    'name' => $exam->name,
+                    'date' => $exam->date,
+                    'time' => $exam->time,
+                    'total_score' => $exam->total_score,
+                    'duration' => $exam->duration,
+                    'instructions' => $exam->instructions,
+                    'number_of_attempts' => $exam->number_of_attempts,
+                    'available_review' => $exam->available_review,
+                    'available' => $available, 
+                ];
+            })
+            // لو لسه عايز ترجع بس الامتحانات اللي معاد نهايتها مجاش
             ->filter(function ($exam) use ($now) {
-                $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
-                // رجع الامتحانات اللي معادها لسه مجاش
-                return $startDateTime->greaterThan($now);
+                $startDateTime = Carbon::parse($exam['date'] . ' ' . $exam['time'], 'Africa/Cairo');
+                $endDateTime = $startDateTime->copy()->addMinutes($exam['duration']);
+                return $endDateTime->greaterThan($now);
             })
             ->values();
-
+            
         return response()->json([
             'success' => true,
             'data' => $exams
         ]);
-    
     }
+
 
     public function getFinishedExamsForInstructor($courseId){
         $exams = Exam::where('course_id', $courseId)->get();
@@ -111,7 +132,7 @@ class ExamController extends Controller
         $now = Carbon::now();
 
         $finishedExams = $exams->filter(function ($exam) use ($now) {
-            $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+            $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time, 'Africa/Cairo');
             $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
             return $now->greaterThan($endDateTime);
         })->map(function ($exam) {
@@ -150,10 +171,10 @@ class ExamController extends Controller
             return response()->json(['message' => 'No exams found'], 404);
         }
 
-        $now = \Carbon\Carbon::now();
+        $now = Carbon::now();
 
         $finishedExams = $exams->filter(function ($exam) use ($now) {
-            $startDateTime = \Carbon\Carbon::parse($exam->date . ' ' . $exam->time);
+            $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time, 'Africa/Cairo');
             $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
             return $now->greaterThan($endDateTime);
         })->map(function ($exam) use ($studentId) {
@@ -207,9 +228,13 @@ class ExamController extends Controller
             return response()->json(['message' => 'Exam not found'], 404);
         }
 
+        $numberOfQuestions = $exam->questions ? $exam->questions->count() : 0;
+
+
         return response()->json([
             'success' => true,
-            'data'=> $exam
+            'data'=> $exam,
+            'number_of_questions' => $numberOfQuestions
         ]);
     }
 
@@ -395,7 +420,7 @@ class ExamController extends Controller
 
         $attempts = ExamAttempt::where('exam_id', $examId)->pluck('grade');
         $now = Carbon::now();
-        $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+        $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time, 'Africa/Cairo');
         $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
 
 
@@ -481,5 +506,37 @@ class ExamController extends Controller
         
         return response()->json(['message' => 'Exam availability updated successfully']);
     }
+
+    public function finishExam(Request $request){
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'exam_id' => 'required|exists:exams,id',
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|exists:questions,id',
+            'answers.*.option_id' => 'required|exists:options,id',
+        ]);
+
+
+        $examAttempt = ExamAttempt::create([
+            'student_id' => $request->student_id,
+            'exam_id' => $request->exam_id,
+            'grade' => 0, // This will be calculated later
+        ]);
+
+        foreach ($request->answers as $answer) {
+            StudentAnswer::create([
+                'exam_attempt_id' => $examAttempt->id,
+                'question_id' => $answer['question_id'],
+                'option_id' => $answer['option_id'], // Assuming the answer is an option ID
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'exam_attempt_id' => $examAttempt->id,
+            'message' => 'Exam attempt and answers saved successfully'
+        ]);
+    }
+
 }
 

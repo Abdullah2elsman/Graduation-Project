@@ -62,12 +62,13 @@ Route::prefix('instructor')->middleware(['auth:instructor'])->group(function () 
     Route::get('exam/exam-grades-distribution', [ExamController::class, 'examGradesDistribution']);
     Route::get('course/{courseId}/exams/get-exam-questions', [ExamController::class, 'getExamQuestions']); // This to instructors
     Route::get('course/book', [CourseController::class, 'getBook']);
-    Route::get('course/book/get-single-page', [CourseController::class, 'getPdfSinglePage']);
     Route::delete('exam/delete', [ExamController::class, 'deleteExam']);
+    Route::get('course/book/get-single-page', [CourseController::class, 'getPdfSinglePage']);
     Route::put('exam/update-available', [ExamController::class, 'UpdateAvailable']);
     Route::put('exam/update-available', [ExamController::class, 'UpdateAvailable']);
 });
 Route::get('course/book', [CourseController::class, 'getBook']);
+Route::get('course/{courseId}/get-exams', [ExamController::class, 'getExams']);
 Route::get('course/book/get-single-page', [CourseController::class, 'getPdfSinglePage']);
 Route::get('course/book/get-pdf-page-text', [CourseController::class, 'getPdfPageText']);
 
@@ -82,7 +83,18 @@ Route::prefix('student')->middleware(['auth:student'])->group(function () {
     Route::get('{id}/today-exams', [StudentController::class, 'getTodayExams']);
     Route::get('course/{courseId}/get-exams', [ExamController::class, 'getExams']);
     Route::get('course/{courseId}/student/{studentId}/get-finished-exams', [ExamController::class, 'getFinishedExamsForStudent']);
+    Route::get('course/{courseId}/exams/get-exam-questions', function (Request $request, $courseId) {
+        return (new ExamController)->getExamQuestions($request, $courseId, false);
+    });
+    Route::post('course/exams/finish-exam', [ExamController::class, 'finishExam']);
+    Route::get('course/book', [CourseController::class, 'getBook']);
+    Route::get('course/book/get-single-page', [CourseController::class, 'getPdfSinglePage']);
 });
+Route::get('course/{courseId}/exams/get-exam-questions', function (Request $request, $courseId) {
+    return (new ExamController)->getExamQuestions($request, $courseId, false);
+});
+
+Route::post('course/finish-exam', [ExamController::class, 'finishExam']);
 Route::get('course/{courseId}/student/{studentId}/get-finished-exams', [ExamController::class, 'getFinishedExamsForStudent']);
 Route::get('student/{id}/courses', [StudentController::class, 'getCourses']);
 
@@ -106,9 +118,6 @@ Route::post('course/uploadImage', [CourseController::class, 'uploadImage']);
 // Exam API
 // This to instructors
 // This to students
-Route::get('student/course/{courseId}/exams/getExamQuestions', function (Request $request, $courseId) {
-    return (new ExamController)->getExamQuestions($request, $courseId, false);
-});
 
 
 // Reports API

@@ -95,20 +95,13 @@ async function fetchBookPageData() {
         return bookDataCache;
     }
 
-    await getCsrfCookie();
-
-    const isValidSession = await validateSession();
-    if (!isValidSession) return redirectToLogin();
-    const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
-
     
-    const response = await fetch(`${API_BASE_URL}/instructor/course/book?course_id=${courseId}`, {
+    const response = await fetch(`${API_BASE_URL}/student/course/book?course_id=${courseId}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'X-xsrf-token': xsrfToken
         }
     });
     const data = await response.json();
@@ -125,18 +118,11 @@ async function fetchBookPageData() {
 }
 
 async function getPdfPage(pageNumber) {
-    await getCsrfCookie();
 
-    const isValidSession = await validateSession();
-    if (!isValidSession) return redirectToLogin();
-
-    const xsrfToken = decodeURIComponent(getCookie('XSRF-TOKEN'));
-    fetch(`${API_BASE_URL}/instructor/course/book/get-single-page?course_id=${courseId}&page_number=${pageNumber}`, {
+    fetch(`${API_BASE_URL}/student/course/book/get-single-page?course_id=${courseId}&page_number=${pageNumber}`, {
         method: 'GET',
         credentials: 'include',
-        headers: {
-            'X-xsrf-token': xsrfToken
-        }
+
     })
     .then(response => {
         if (!response.ok) throw new Error('Failed to fetch PDF');
@@ -189,7 +175,7 @@ function displayPdfPage(pdfUrl) {
 // ===================== Event Listeners Setup =====================
 function setupEventListeners() {
     elements.backBtn.addEventListener('click', () => {
-        window.location.href = `../instructor/coursesManagement.html?course_id=${btoa(courseId)}`;
+        window.location.href = `../student/dashboard.html?course_id=${btoa(courseId)}`;
     });
     // Sidebar events
     if (elements.menuBtn) {

@@ -5,6 +5,7 @@ const elements = {
     booksParent: document.querySelector('.books-parent'),
 }
 
+elements.userName.textContent = JSON.parse(localStorage.getItem('userData')).user.name;
 // ===================== Initial Setup =====================
 function initializeApp() {
     setupEventListeners();
@@ -90,16 +91,16 @@ function addCourseEventListeners(bookDiv, courseId) {
 
 function handleCourseClick(courseId) {
     console.log(`Course ${courseId} clicked`);
-    // window.location.href = `/course.html?id=${courseId}`;
+    window.location.href = `/book.html?course_id=${courseId}`;
 }
 
 function handleOpenCourse(courseId) {
     console.log(`Opening course ${courseId}`);
-    // window.location.href = `course-content.html?id=${courseId}`;
+    window.location.href = `book.html?course_id=${courseId}`;
 }
 
 function handleQuizNavigation(courseId) {
-    const encodedCourseId = btoa(courseId); // encode courseId
+    const encodedCourseId = btoa(courseId);
     window.location.href = `QuizzesManagement.html?course_id=${encodedCourseId}`;
 }
 

@@ -26,6 +26,8 @@ let currentYear = date.getFullYear();
 let selectedDay = null;
 let today = date.getDate();
 let calendarSidebarFlag = true;
+const userId = JSON.parse(localStorage.getItem('userData')).user.id;
+
 
 // ===================== Core Functions =====================
 function renderCalendar(month, year) {
@@ -96,10 +98,9 @@ async function todaySchedule() {
 
   // إذا كنا في لوحة المدرّس
     if (page === 'instructor-dashboard') {
-        const instructorId = 201; // هنا يجب أن تحصل على المعرف الحقيقي من الجلسة أو متغير عام
 
         try {
-            const endpoint = `${API_BASE_URL}/instructor/${instructorId}/today-exams`;
+            const endpoint = `${API_BASE_URL}/instructor/${userId}/today-exams`;
             const response = await fetch(endpoint, {
                 method: 'GET',
                 credentials: 'include',
@@ -168,8 +169,8 @@ async function todaySchedule() {
             `;
         })
         .join('');
-
-        } catch (err) {
+        
+      } catch (err) {
             scheduleContainer.innerHTML = `
                 <div class="schedule-item" style="text-align:center; color:#D32F2F; font-size:1.2rem;">
                     Error loading today's schedule.
@@ -180,12 +181,11 @@ async function todaySchedule() {
 
     return;
     }
-
+    
     // إذا كنا في لوحة الطالب
     if (page === 'student-dashboard') {
-    const studentId = JSON.parse(localStorage.getItem('userData')).user.id;
     try {
-      const endpoint = `${API_BASE_URL}/student/${studentId}/today-exams`;
+      const endpoint = `${API_BASE_URL}/student/${userId}/today-exams`;
       const response = await fetch(endpoint, {
         method: 'GET',
         credentials: 'include',

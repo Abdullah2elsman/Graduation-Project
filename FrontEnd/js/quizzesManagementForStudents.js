@@ -114,8 +114,9 @@ function renderFinishedQuizzes(quizzes) {
 }
 
 function createQuizCard(quiz) {
+    console.log("Quiz data:", quiz);
     return `
-        <div class="quiz-card" style="display: flex; align-items:center">
+        <div class="quiz-card" id="${quiz.id}" style="display: flex; align-items:center">
             <div class="quiz-info" >
                 <h3>${quiz.name}</h3>
                 <p>
@@ -137,7 +138,7 @@ function createQuizCard(quiz) {
 }
 function createFinishedQuizCard(quiz) {
     return `
-        <div class="quiz-card" style="display: flex; align-items:center">
+        <div class="quiz-card" id="${quiz.exam_id}" style="display: flex; align-items:center">
             <div class="quiz-info">
                 <h3>${quiz.name}</h3>
                 <p>
