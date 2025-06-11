@@ -12,3 +12,4 @@ double click on path
 click on New and add php path folder 
 and test in cmd by write this command "php -v"
 
+there is the front end application in foler FrontEnd and There is Back end application folder in BackEnd and i Used Framework Laravel
