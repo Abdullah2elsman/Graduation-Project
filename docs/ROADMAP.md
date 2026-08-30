@@ -1,57 +1,138 @@
 # Smart Book V2 Roadmap
 
-## Phase 0 — Safety & Continuity
-- [x] Preserve legacy branch and immutable tag.
-- [x] Create `rebuild/v2`.
-- [x] Establish rebuild documentation pack.
-- [ ] Commit documentation pack to `rebuild/v2`.
-- [ ] Finalize high-impact domain decisions.
+The roadmap is dependency-ordered and delivered as vertical slices. Checkbox completion requires working backend/frontend integration and tests, not only rendered UI.
 
-## Phase 1 — Foundation
-- [ ] Docker Compose skeleton: backend, frontend, mysql, ai.
-- [ ] Clean Laravel application foundation.
-- [ ] Clean Angular application foundation.
-- [ ] Canonical MySQL schema and migrations.
-- [ ] Deterministic seed data.
-- [ ] Unified users/roles.
-- [ ] Sanctum SPA authentication.
-- [ ] `/api/auth/me`.
-- [ ] Foundation auth/authorization tests.
-- [ ] Fresh clone can start through Docker.
+## Phase 0 — Safety and Architecture
 
-## Phase 2 — Admin
-- [ ] Authenticated shell / Dashboard.
-- [ ] Instructors CRUD.
-- [ ] Students CRUD.
-- [ ] Courses CRUD.
-- [ ] Instructor assignment.
-- [ ] Enrollment management.
-- [ ] Course details.
+- [x] Preserve `legacy/original` as historical read-only reference.
+- [x] Create immutable tag `legacy-original-2026-08-31`.
+- [x] Create and push active branch `rebuild/v2`.
+- [x] Separate V2 and Legacy into `~/Projects/Smart-Book` and `~/Projects/Smart-Book-Legacy` worktrees.
+- [x] Lock side-by-side runtime comparison, runtime independence, port separation, and database isolation.
+- [x] Audit the legacy repository and document the implementation reality.
+- [x] Lock the V2 product, architecture, authentication, role, lifecycle, grading, AI, and Docker decisions.
+- [x] Re-evaluate and document the canonical V2 ERD.
+- [ ] User review of this documentation/ERD checkpoint.
+- [ ] Commit the reviewed documentation checkpoint when explicitly requested.
 
-## Phase 3 — Instructor
-- [ ] Assigned courses.
-- [ ] PDF upload/replacement/deletion.
-- [ ] PDF reader.
-- [ ] Manual quiz lifecycle.
-- [ ] Attempts/grades.
-- [ ] Analytics.
+## Phase 1 — Docker and Foundation (NEXT)
 
-## Phase 4 — Student
-- [ ] Enrolled courses.
-- [ ] PDF reader.
-- [ ] Quiz availability/start/take/submit.
-- [ ] Server-side grading.
-- [ ] Results/history.
+### Reproducible runtime
 
-## Phase 5 — AI
-- [ ] Flask service + health endpoint.
-- [ ] Provider adapter + fake provider.
-- [ ] Selected PDF pages → text → AI draft.
-- [ ] Laravel AI client and schema validation.
-- [ ] Instructor review/edit before persistence.
+- [ ] Add Docker Compose with `backend`, `frontend`, `db`, `ai`, and `mailpit` services.
+- [ ] Pin suitable PHP/Composer, Node, Python, and MySQL 8 image versions.
+- [ ] Apply the locked V2 host ports: Angular `4200`, Laravel `8080`, Flask `5001`, MySQL `3307 -> 3306`, and Mailpit UI `8025`.
+- [ ] Preserve the Legacy host ports `5501` and `8005` so both systems can run concurrently.
+- [ ] Define internal service URLs, named volumes, and health checks; containers use Compose DNS rather than host `localhost` for inter-service calls.
+- [ ] Create a V2-only MySQL database and named volume that are never shared with Legacy.
+- [ ] Provide root and service `.env.example` files without secrets.
+- [ ] Route Laravel development mail through Mailpit.
+- [ ] Make fresh-clone onboarding approach `cp .env.example .env && docker compose up --build`.
 
-## Phase 6 — Analytics & Hardening
-- [ ] Trustworthy reports.
-- [ ] E2E tests.
-- [ ] Security/upload limits/rate limits.
-- [ ] Reproducible release documentation.
+### Application foundations
+
+- [ ] Scaffold a clean Laravel backend.
+- [ ] Scaffold a clean Angular frontend with routing, accessible layout primitives, and environment configuration.
+- [ ] Scaffold a minimal Flask service with `/health` and a fake AI provider adapter.
+- [ ] Add baseline lint/test commands for all three applications.
+
+### Canonical persistence
+
+- [ ] Implement the reviewed MySQL 8 schema from `docs/database/Smart_Book_V2_ERD.drawio`.
+- [ ] Add foreign keys, unique constraints, lifecycle fields, and indexes explicitly.
+- [ ] Configure Laravel database sessions for Sanctum SPA authentication.
+- [ ] Add deterministic seed data: one admin, one instructor, representative pending students, one course, one active enrollment, and a minimal quiz fixture.
+- [ ] Prove migrations and seeders work from an empty database.
+
+### Authentication and lifecycle vertical slice
+
+- [ ] Email-only login with consistent lowercase normalization.
+- [ ] Public student-only signup as `STUDENT/PENDING`.
+- [ ] Signed email verification delivered to Mailpit.
+- [ ] Sanctum cookie/session login and logout.
+- [ ] Canonical `GET /api/auth/me`.
+- [ ] Server middleware/policies for verification and account status.
+- [ ] Restricted pending-user session behavior.
+- [ ] Foundation tests for signup, verification, pending access, activation, suspension, rejection, login, logout, and cross-role authorization.
+- [ ] Minimal Angular auth states for verify-email, waiting-for-approval, rejected/suspended, and active-role routing.
+
+### Phase 1 exit criteria
+
+- [ ] A fresh clone starts through Docker without host language/database dependencies.
+- [ ] MySQL, Laravel, Angular, Flask health endpoint, and Mailpit are reachable through documented ports.
+- [ ] Legacy and V2 can run concurrently without port, database, volume, or runtime dependency conflicts.
+- [ ] A student can sign up, receive a Mailpit verification email, verify, authenticate, and remain restricted while pending.
+- [ ] A seeded active admin can authenticate and reach an authorized Angular shell.
+- [ ] Automated tests prove pending users cannot access normal application APIs.
+
+## Phase 2 — Admin Vertical Slices
+
+Implement in this exact order:
+
+1. [ ] Admin authentication and app shell
+2. [ ] Admin Dashboard
+3. [ ] Pending Student Approval
+4. [ ] Instructor Management
+5. [ ] Student Management
+6. [ ] Course Management
+7. [ ] Instructor Assignment and reassignment
+8. [ ] Enrollment Management
+9. [ ] Course Details
+10. [ ] Reports after attempts/grading data are trustworthy
+
+Every item includes schema/model changes if needed, business logic, API, validation, authorization, tests, Angular service/state/page, all UI states, a smoke test, and side-by-side comparison with the equivalent Legacy page when one exists. Comparison informs V2 behavior but creates no runtime dependency on Legacy.
+
+## Phase 3 — Course Books and Reading
+
+- [ ] Instructor assigned-course list with ownership enforcement.
+- [ ] Multiple PDF books per course.
+- [ ] Upload, archive, and replacement lifecycle using Laravel-managed storage.
+- [ ] PDF metadata, page count, and safe text extraction through configurable Linux tooling.
+- [ ] Authorized Angular PDF reader referencing a specific `course_book`.
+- [ ] Student access limited to active account plus active enrollment.
+- [ ] Basic book interaction capture.
+
+## Phase 4 — Manual Quiz and Attempt Lifecycle
+
+- [ ] Quiz draft/edit/publish lifecycle.
+- [ ] Manual MCQ questions and options.
+- [ ] Scheduling with `starts_at` and `ends_at`.
+- [ ] Instructor-configurable `max_attempts`.
+- [ ] Student start/take/submit flow with transactional server-side grading.
+- [ ] Independent attempt history and answer snapshots.
+- [ ] Best-grade calculation as highest valid submitted attempt.
+- [ ] Server-enforced result hiding before `ends_at`.
+- [ ] Results and authorized review at/after release.
+
+## Phase 5 — AI Quiz Draft Vertical Slice
+
+- [ ] Instructor selects a specific book, page range, difficulty, and question count.
+- [ ] Laravel authorizes and extracts selected text.
+- [ ] Laravel calls Flask internally through the provider-independent contract.
+- [ ] Flask provider adapter supports fake tests and one selected real provider.
+- [ ] Laravel validates and records AI request/draft/error state.
+- [ ] Angular displays an editable generated draft.
+- [ ] Instructor review is required before publishing.
+- [ ] Integration tests cover success, malformed response, timeout, and provider failure.
+
+## Phase 6 — Analytics, Reports, and Hardening
+
+- [ ] Trustworthy course enrollment and attempt metrics.
+- [ ] Average/best-grade and grade-distribution reports.
+- [ ] Missing-attempt reports.
+- [ ] Book interaction summaries.
+- [ ] Authorized report export.
+- [ ] Accessibility and responsive-design review.
+- [ ] Upload security, AI/login rate limits, safe error responses, and audit review.
+- [ ] End-to-end tests for Admin, Instructor, and Student journeys.
+- [ ] Reproducible release and operations documentation.
+
+## Deferred Until Justified
+
+- Production email provider.
+- Instructor-managed enrollment.
+- Google Sheets synchronization.
+- OCR for scanned PDFs.
+- Personalized recommendations and adaptive difficulty.
+- Annotations/highlighting.
+- Redis, background workers, object storage, and other extra infrastructure.
