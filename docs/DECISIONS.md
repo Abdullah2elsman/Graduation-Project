@@ -126,7 +126,7 @@ All decisions below are accepted and are the implementation source of truth. Sup
 
 ### D-020 — Results released after quiz end
 
-**Decision:** Before `ends_at`, students receive submission confirmation only; scores, prior-attempt scores, correct answers, and detailed review are server-hidden. At/after `ends_at`, authorized results are available. Keep a configurable release-policy field for later extension.
+**Decision:** Before `ends_at`, students receive submission confirmation only; scores, prior-attempt scores, correct answers, and detailed review are server-hidden. At/after `ends_at`, authorized results are available. The MVP persists **no release-policy column**: release behavior is fixed to `AFTER_END`. A `MANUAL`/custom release is a future extension that adds `result_release_policy` + `results_released_at` by migration only when a concrete flow requires it.
 
 **Rationale:** Server enforcement prevents early answer disclosure and supports fair multiple attempts.
 
@@ -169,6 +169,30 @@ All decisions below are accepted and are the implementation source of truth. Sup
 **Decision:** Preserve Legacy host ports `5501` (static frontend) and `8005` (Laravel). Use V2 host ports `4200` (Angular), `8080` (Laravel API), `5001` (Flask AI), `3307 -> 3306` (MySQL), and `8025` (Mailpit UI). Compose services communicate through service names and container ports.
 
 **Rationale:** A stable, explicit allocation lets both applications run simultaneously and avoids confusing host/container addressing.
+
+### D-027 — Defer book interactions to Phase 3
+
+**Decision:** Do not create a `book_interactions` table in Phase 1B. The documented Legacy semantics are a coarse per-student, per-course, per-day engagement bucket (`type` in view/click/download, unique per student/course/date) consumed only by report aggregations. The draft ERD's event-log shape (per book/page) would invent semantics no locked MVP requirement consumes. Redesign when the Phase 3 Angular reader defines actual interaction events used by a product or analytics feature.
+
+**Rationale:** Avoids speculative persistence and keeps the Phase 1B contract limited to behavior actually documented or required.
+
+### D-028 — Type-driven questions and normalized selections
+
+**Decision:** `questions.type` supports `SINGLE_CHOICE` and `MULTI_SELECT`. TRUE/FALSE is authored as `SINGLE_CHOICE` with True/False options. No free-text/essay type until a requirement justifies it. Student selections are stored as a normalized set in `student_answer_options` (composite PK `student_answer_id` + `option_id`); `student_answers` keeps one row per question per attempt plus snapshots (`question_text_snapshot`, `question_type_snapshot`, `max_points_snapshot`, `points_awarded`, `is_correct`, `answered_at`). Grading is exact-set match only (no partial credit); correct-option cardinality (exactly one for SINGLE_CHOICE, at least one for MULTI_SELECT) is enforced transactionally at the application layer.
+
+**Rationale:** Multi-select cannot be represented by a single `selected_option_id`; type-driven design avoids a later restructuring and keeps existing/question grading deterministic and auditable.
+
+### D-029 — Attempt lifecycle separated from submission provenance
+
+**Decision:** `quiz_attempts.status` is `IN_PROGRESS` or `SUBMITTED`. `submission_reason` is `MANUAL` or `TIME_EXPIRED` and is set only when an attempt becomes `SUBMITTED`. A `TIME_EXPIRED` attempt is system-submitted at the deadline, scored normally, consumes an attempt, is immutable, and is valid for highest-score calculation. EXPIRED/ABANDONED/INVALIDATED terminal statuses are not introduced in the MVP (no admin-invalidation requirement). Best grade is `MAX(score)` over `SUBMITTED` attempts and is never stored.
+
+**Rationale:** Lifecycle and provenance are distinct concerns; reducing statuses to two states with a provenance field keeps the grading rule simple while preserving how each submission ended.
+
+### D-030 — Submitted-attempt completeness and immutability
+
+**Decision:** A database CHECK enforces the symmetric lifecycle invariant: an `IN_PROGRESS` attempt has `submitted_at`, `graded_at`, `score`, and `submission_reason` all NULL; a `SUBMITTED` attempt has all four NOT NULL (with `score` within `0..max_score_snapshot`). Changing an attempt after submission (immutability) is an application-level invariant enforced by the attempt service and covered by tests; the database does not use triggers to write-protect rows.
+
+**Rationale:** CHECK constraints guarantee integrity at rest; immutability is a behavioral rule best owned and tested by the application layer.
 
 ## Open architectural decisions
 

@@ -20,7 +20,7 @@ The roadmap is dependency-ordered and delivered as vertical slices. Checkbox com
 Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
-- **Phase 1B (NEXT)** — canonical persistence and seeders.
+- **Phase 1B (NEXT)** — canonical persistence: 1B.1 contract/ERD (complete 2026-08-31), 1B.2 migrations/sessions/seeders.
 
 ### Phase 1A — Reproducible runtime
 
@@ -43,11 +43,26 @@ Phase 1 is split into:
 
 ### Phase 1B — Canonical persistence (NEXT)
 
-- [ ] Implement the reviewed MySQL 8 schema from `docs/database/Smart_Book_V2_ERD.drawio`.
-- [ ] Add foreign keys, unique constraints, lifecycle fields, and indexes explicitly.
+#### Phase 1B.1 — Canonical database contract (complete 2026-08-31)
+
+- [x] Re-evaluate the ERD against all locked business decisions and Legacy evidence.
+- [x] Create `docs/database/SCHEMA_CONTRACT.md` (per-table spec, constraints/indexes, DB-vs-app invariant matrix).
+- [x] Finalize type-driven questions (`SINGLE_CHOICE` / `MULTI_SELECT`) with normalized `student_answer_options` (D-028).
+- [x] Finalize attempt lifecycle `IN_PROGRESS`/`SUBMITTED` + `submission_reason {MANUAL, TIME_EXPIRED}` (D-029, D-030).
+- [x] Defer `book_interactions` to Phase 3 (D-027); drop speculative users profile columns (D-023).
+- [x] Decide stock-migration disposition: rewrite `users`, retain framework tables stock, `sessions` remains the session table.
+- [x] Update the canonical ERD (validated draw.io XML) and DECISIONS/ROADMAP/state/log docs.
+- [x] Apply review corrections: symmetric `quiz_attempts` lifecycle CHECK, AFTER_END-only result release, `constrained()`/referential-action wording, and aligned decision IDs.
+- [ ] User review of this contract checkpoint.
+
+#### Phase 1B.2 — Canonical migrations, sessions, seeders (NEXT)
+
+- [ ] Re-evaluated column set finalized: rewrite the stock `users` migration; retain `password_reset_tokens` and `sessions` stock.
+- [ ] Add domain migrations in dependency order per `SCHEMA_CONTRACT.md`: courses, course_books, enrollments, quizzes, questions, options, quiz_attempts, student_answers, student_answer_options, ai_generation_requests.
+- [ ] Add foreign keys (ON DELETE RESTRICT / ON UPDATE CASCADE), unique constraints, CHECK constraints, lifecycle fields, and indexes explicitly.
 - [ ] Configure Laravel database sessions for Sanctum SPA authentication.
-- [ ] Add deterministic seed data: one admin, one instructor, representative pending students, one course, one active enrollment, and a minimal quiz fixture.
-- [ ] Prove migrations and seeders work from an empty database.
+- [ ] Add deterministic seed data: one admin, one instructor, representative pending students, one course, one active enrollment, and a minimal quiz fixture (one SINGLE_CHOICE and one MULTI_SELECT question).
+- [ ] Prove migrations and seeders work from an empty database (`php artisan migrate:fresh --seed`).
 
 ### Authentication and lifecycle vertical slice
 

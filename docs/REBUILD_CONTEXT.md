@@ -157,7 +157,7 @@ The locked initial policy is release after `quizzes.ends_at`.
 
 Before `ends_at`, a submitted student sees only submission confirmation. The server must not return score, correct answers, previous-attempt scores, or detailed review—even if the student can start another attempt.
 
-At or after `ends_at`, authorized students may see results and attempt details. The quiz schema includes a result-release policy and optional release timestamp so later policies can be added without redesigning attempts.
+At or after `ends_at`, authorized students may see results and attempt details. The MVP persists no release-policy column: release is fixed to `AFTER_END` (D-020). A `MANUAL`/custom release is a documented future extension that would add a policy column by migration when a concrete flow exists.
 
 ### Academic history
 

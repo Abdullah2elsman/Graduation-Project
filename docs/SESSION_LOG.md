@@ -206,3 +206,50 @@ After user review of this checkpoint: Phase 1B canonical persistence from `docs/
   `DOCKER_DNS` in `.env.example`), not Smart Book architectural requirements.
 - `frontend/package-lock.json` (untracked, root-owned) confirmed present, valid, and
   NOT git-ignored — intended to be committed with the checkpoint.
+
+## 2026-08-31 — Phase 1B.1 canonical database contract complete
+
+### Goal
+
+Review the draft ERD and stock Laravel scaffold against all locked business rules and Legacy schema evidence, then produce the implementation-ready database contract and updated ERD. Documentation only; no migrations, models, seeders, or product code.
+
+### Review inputs
+
+- Canonical docs (`REBUILD_CONTEXT.md`, `DECISIONS.md`, `PROJECT_STATE.md`, `ROADMAP.md`, prior log entries, draft `Smart_Book_V2_ERD.drawio`).
+- Stock Laravel 13 migrations (users/password_reset_tokens/sessions, cache/cache_locks, jobs/job_batches/failed_jobs) and live `smart_book_v2` tables (verified via `smart-book-v2-db`).
+- Legacy read-only evidence: enrollments (single active row via generated-column partial unique), students (profile fields), exam attempts (destructive cascade — the anti-pattern V2 forbids), book_interactions (daily per-student/course engagement bucket consumed only by report counts), exam submit API (`answers.*.option_id` → single-choice legacy).
+
+### Decisions finalized (approved by user)
+
+- **D-028 — Type-driven questions and normalized selections:** `questions.type` = SINGLE_CHOICE / MULTI_SELECT; TRUE_FALSE authored as SINGLE_CHOICE; no essay type; normalized selected-option set in new `student_answer_options` (composite PK, no timestamps); exact-set-match grading, no partial credit; a published quiz's content is immutable once the first attempt starts.
+- **D-029 — Attempt lifecycle separated from submission provenance:** `status {IN_PROGRESS, SUBMITTED}` + `submission_reason {MANUAL, TIME_EXPIRED}`; TIME_EXPIRED scored normally, consumes an attempt, valid for best grade; no EXPIRED/ABANDONED/INVALIDATED statuses; best grade = MAX(score) over SUBMITTED, never stored.
+- **D-030 — Submitted-attempt completeness and immutability:** symmetric DB CHECK — IN_PROGRESS rows carry no submission data (submitted_at/graded_at/score/submission_reason all NULL); SUBMITTED rows are complete (all four NOT NULL); write-immutability of SUBMITTED rows is an application-level invariant.
+- **D-027 — Defer book interactions to Phase 3:** legacy semantics documented (daily per student/course engagement bucket consumed only by report counts); redesign when Phase 3 defines real interaction events.
+- Earlier decisions applied to the contract: dropped `users.phone`/`birth_date`/`avatar_path` (D-023); `courses.instructor_id` nullable while DRAFT with DB CHECKs binding ACTIVE to exactly one assigned instructor (D-016); `ai_generation_requests.question_type` removed (part of D-028).
+
+### Contract deliverable
+
+- `docs/database/SCHEMA_CONTRACT.md` — per-table columns/types/nullability/defaults, FKs (ON DELETE RESTRICT / ON UPDATE CASCADE; `constrained()` creates the conventional FK while referential actions are declared explicitly via `restrictOnDelete()`/`cascadeOnUpdate()`), unique constraints, indexes, CHECK constraints, status sets, archive rules, timestamps/timezone (UTC), full DB-vs-app invariant matrix, grading model reference, and stock-migration disposition (rewrite `users`; retain all framework tables; `sessions` stays the canonical database-session table).
+- `docs/database/Smart_Book_V2_ERD.drawio` — rewritten to match; validated as well-formed XML.
+
+### Files changed
+
+- `docs/database/SCHEMA_CONTRACT.md` (new)
+- `docs/database/Smart_Book_V2_ERD.drawio` (rewritten)
+- `docs/DECISIONS.md` (D-027…D-030)
+- `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`, `docs/SESSION_LOG.md` (status/log updates)
+
+### Exact next step
+
+After user review of this checkpoint: Phase 1B.2 — migrations implementing `SCHEMA_CONTRACT.md` (rewrite stock `users`; add domain migrations in dependency order), deterministic seeders, Laravel database sessions, and a `php artisan migrate:fresh --seed` empty-database proof. Do not start Admin feature pages before the Phase 1 exit criteria pass. No commit authorized yet.
+
+## 2026-08-31 — Phase 1B.1 review corrections applied
+
+Phase 1B.1 approved with four documentation corrections, applied here (no migrations, no Phase 1B.2, no commit):
+
+1. **Alignment.** Standardized the D-027…D-030 IDs/meanings across `DECISIONS.md`, `SCHEMA_CONTRACT.md`, `PROJECT_STATE.md`, `ROADMAP.md`, `SESSION_LOG.md`, and the report: **D-027** = defer book interactions to Phase 3; **D-028** = type-driven questions and normalized selections (incl. exact-set grading, no partial credit); **D-029** = attempt lifecycle separated from submission provenance; **D-030** = submitted-attempt completeness and immutability.
+2. **Laravel FK wording.** `->constrained()` creates the conventional FK (column type/name/table inference); referential actions are declared explicitly and deliberately (`restrictOnDelete()` / `cascadeOnUpdate()` where the contract intends RESTRICT/CASCADE). Removed the "defaults to CASCADE" claim from the contract and this log.
+3. **Symmetric attempt CHECK.** `quiz_attempts` now documents a symmetric lifecycle invariant: IN_PROGRESS ⇒ `submitted_at`/`graded_at`/`score`/`submission_reason` all NULL; SUBMITTED ⇒ all four NOT NULL. Submitted-attempt immutability remains application-level.
+4. **Result release.** Removed the persisted `result_release_policy`/`results_released_at` columns from the `quizzes` contract; MVP release is fixed to `AFTER_END` (D-020). MANUAL/custom release is documented as a future extension added by migration when a concrete flow exists.
+
+Files changed: `docs/DECISIONS.md`, `docs/database/SCHEMA_CONTRACT.md`, `docs/database/Smart_Book_V2_ERD.drawio`, `docs/REBUILD_CONTEXT.md`, `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`, `docs/SESSION_LOG.md`. Wait for review before Phase 1B.2.
