@@ -298,3 +298,41 @@ Implement the Phase 1B.1 contract as real Laravel migrations and deterministic s
 ### Exact next step
 
 Phase 1B exit review: verify the implementation against `SCHEMA_CONTRACT.md` (incl. D-031), then commit/push the Phase 1B.2 checkpoint when the user authorizes. Do not start admin/auth feature work before Phase 1 exit criteria pass.
+
+## 2026-08-31 — Phase 1C.1 authentication contract frozen
+
+### Goal
+
+Complete the read-only authentication contract review, resolve its remaining product questions, and freeze the result in canonical documentation before any Sanctum or authentication implementation.
+
+### Verified repository baseline
+
+- Reconfirmed Laravel Framework `13.29.0` / PHP `^8.3`, no installed Sanctum, no `config/sanctum.php`, no API route file/wiring, no published CORS config, and the default session guard.
+- Reconfirmed database-backed sessions and the stock sessions/password-reset-token infrastructure.
+- Reconfirmed Mailpit SMTP development routing and the canonical users lifecycle/provenance schema.
+- Reconfirmed the stock-like `User` model has not enabled `MustVerifyEmail` and Angular 22 has no auth client/state/guards yet.
+- Reconfirmed Legacy used separate guards/models and mixed bearer-token behavior; it remains read-only historical evidence and is not the V2 contract.
+- Corrected stale Phase 1B status: the database implementation was reviewed and committed at `d474d70`.
+
+### Contract frozen
+
+- Created `docs/auth/AUTH_CONTRACT.md` as the single detailed source for identity, password, Sanctum SPA/session, account states, allowed transitions, Student registration/approval, authenticated signed verification, Instructor invitations, password recovery, first production Admin bootstrap, MVP endpoints, authorization layering, security, implementation slices, and deferrals.
+- Locked restricted authenticated sessions for PENDING/SUSPENDED/REJECTED accounts and verified+ACTIVE as the normal application-access gate.
+- Locked the eight-character/letter/number password rule.
+- Locked seven-day Instructor invitations: acceptance sets password + verifies + activates; atomic reissue revokes unused invitations; expiry leaves PENDING; reissue is the only pre-acceptance Admin recovery.
+- Locked Admin-only session-revoking suspension reactivation and Admin-only `REJECTED -> PENDING` reversal through the normal verification/approval lifecycle.
+- Locked lifecycle-neutral email-link password recovery for accounts with established passwords.
+- Locked immediate restricted session creation after Student registration and authenticated-session + signed-link email verification.
+- Locked `php artisan app:create-admin` as the production first-Admin path and internal-only Student rejection reasons.
+- Recorded these product decisions as D-032 through D-039.
+
+### Scope and consistency
+
+- Documentation only. No package installation, migrations, routes, controllers, middleware, Angular code, tests, or other application implementation.
+- No Legacy worktree modifications.
+- No remaining UNKNOWN authentication business decisions block Phase 1C.2.
+- Deferred features remain explicit in `AUTH_CONTRACT.md`; they are not silently promoted into the MVP.
+
+### Exact next step
+
+Phase 1C.2 only: install/configure Sanctum, wire stateful API routing/middleware, establish CSRF/CORS/session and Angular development-proxy contracts, and add focused foundation tests. Do not implement login or later authentication slices in Phase 1C.2.

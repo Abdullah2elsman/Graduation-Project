@@ -200,6 +200,54 @@ All decisions below are accepted and are the implementation source of truth. Sup
 
 **Rationale:** Keeping the two contract-mandated courses constraints is more valuable than a uniform referential-action rule that can never fire; the deviation is localized and documented rather than silently dropping constraints.
 
+### D-032 — MVP password policy
+
+**Decision:** Every newly established or reset password must contain at least eight characters, at least one letter, and at least one number. Uppercase, lowercase, and symbol requirements are not imposed.
+
+**Rationale:** This is the approved minimum product rule and must be enforced consistently across registration, invitation acceptance, reset, and Admin bootstrap without silently adding stricter requirements.
+
+### D-033 — Non-active accounts use restricted authenticated sessions
+
+**Decision:** A user with correct credentials may establish a session while `PENDING`, `SUSPENDED`, or `REJECTED`. These users may access only the state-appropriate authentication/session endpoints defined in `docs/auth/AUTH_CONTRACT.md`; they may not access normal application APIs. Normal application access requires authenticated + verified + `ACTIVE`, followed by role/resource authorization.
+
+**Rationale:** Angular needs an authenticated canonical user state to present verification, approval-waiting, suspended, or rejected experiences, while Laravel remains the server-side security boundary.
+
+### D-034 — Instructor onboarding is a seven-day invitation lifecycle
+
+**Decision:** Admin creates an Instructor as unverified `PENDING` without an established password. Invitation acceptance sets the password, verifies the email, and activates the Instructor immediately without second approval. Invitations expire after seven days. Reissue atomically revokes all previous unused invitations. Expired/unused invitations leave the account `PENDING`; Admin may reissue, but may not assign a temporary password. An unaccepted Instructor cannot use password recovery to bypass invitation onboarding.
+
+**Rationale:** The flow keeps Instructor creation Admin-controlled while allowing the Instructor to establish their own credential and proving email possession in one auditable, single-use operation.
+
+### D-035 — Suspension reactivation is Admin-only and session-revoking
+
+**Decision:** Only an Admin may transition `SUSPENDED -> ACTIVE`. Reactivation preserves `email_verified_at`, records transition metadata, invalidates all existing sessions, and requires a fresh login.
+
+**Rationale:** Suspension is an administrative control, not a verification reset. Forced reauthentication prevents a pre-suspension session from silently regaining access.
+
+### D-036 — Rejection reversal and reason visibility
+
+**Decision:** Student rejection requires a non-empty internal Admin reason; the Student sees only the generic `REJECTED` state. `REJECTED` may be reversed only by an Admin to unverified `PENDING`, never directly to `ACTIVE`; verification/approval metadata is cleared and the normal verification then approval lifecycle applies again. The email remains reserved throughout.
+
+**Rationale:** This preserves a reviewable administrative record and prevents self-registration or a direct state shortcut from bypassing the approved lifecycle, without exposing internal moderation notes.
+
+### D-037 — Email-link password recovery is required and lifecycle-neutral
+
+**Decision:** Forgot/reset password is required for the MVP and uses an email link, not OTP. It is available in any account status only after a password has previously been established. Resetting a password changes no role, status, verification, approval, suspension, or rejection state; it invalidates existing sessions and does not automatically authenticate. Public responses are enumeration-safe.
+
+**Rationale:** Credential recovery and account authorization are independent concerns. The established-password condition prevents an unaccepted Instructor from bypassing invitation onboarding.
+
+### D-038 — Registration session and authenticated signed verification
+
+**Decision:** Successful public Student registration immediately creates a restricted authenticated session. Email verification requires both that authenticated session and a valid Laravel signed verification link. If the session is missing, the user must authenticate and resume verification. Verification uses no OTP and leaves the Student `PENDING` for Admin approval.
+
+**Rationale:** The restricted session supports a coherent Angular verification journey while the signed URL and matching authenticated identity jointly protect the state change.
+
+### D-039 — Production first-Admin bootstrap
+
+**Decision:** The first real production Admin is provisioned only through `php artisan app:create-admin`, which creates an `ACTIVE`, email-verified Admin. Production credentials are not hardcoded in seeders or environment variables.
+
+**Rationale:** An explicit interactive bootstrap path separates production privileged-account creation from deterministic development fixtures and avoids secrets in source/configuration history.
+
 ## Open architectural decisions
 
-None currently block Phase 1 coding. Deferred product choices must remain deferred until a concrete requirement justifies them.
+None block Phase 1C authentication implementation. The complete frozen authentication contract, endpoint semantics, state machine, technical recommendations, and explicit deferrals are in `docs/auth/AUTH_CONTRACT.md`.

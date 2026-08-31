@@ -6,9 +6,9 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1B.2 canonical database implemented and verified (migrations, seeders, empty-database proof, constraint tests). Phase 1B exit review is next.
+**Current phase:** Phase 1C.1 Authentication Contract Review complete. The contract is frozen in `docs/auth/AUTH_CONTRACT.md`; Phase 1C.2 is the next implementation step.
 
-**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are all running as a Docker Compose stack with the locked ports and an isolated V2-only MySQL database. The Phase 1B database contract is fully implemented: canonical `users` + 10 domain migrations seeded with deterministic fixtures and validated via `migrate:fresh --seed` plus 11 focused negative SQL tests and a positive attempt-lifecycle/multi-select proof. No authentication or product features exist yet.
+**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are all running as a Docker Compose stack with the locked ports and an isolated V2-only MySQL database. Phase 1B is implemented and committed at `d474d70`: canonical `users` + 10 domain migrations, deterministic fixtures, an empty-database proof, 11 focused negative SQL tests, and a positive attempt-lifecycle/multi-select proof. The complete authentication product/technical contract is now frozen, but Sanctum, API auth routes, backend auth behavior, and Angular auth integration have not started.
 
 ## Completed
 
@@ -22,7 +22,7 @@
 - Locked the V2 product, architecture, authentication, role, lifecycle, grading, AI, and Docker decisions.
 - Verified separate worktrees for `rebuild/v2` and read-only `legacy/original`.
 
-### Phase 1A (Docker/Foundation — current)
+### Phase 1A (Docker/Foundation — complete)
 
 - Scaffolded a clean Laravel 13 backend (`backend/`) — Framework 13.29.0.
 - Scaffolded a clean Angular 22 frontend (`frontend/`, routing + SCSS, SSR disabled).
@@ -71,7 +71,7 @@ docker compose down          # leaves named volumes; use -v to wipe data
 
 ## Locked
 
-Unchanged from Phase 0 (see `DECISIONS.md` for D-001 through D-026).
+See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for the complete frozen Phase 1C authentication behavior.
 
 ## Completed
 
@@ -103,12 +103,20 @@ Unchanged from Phase 0 (see `DECISIONS.md` for D-001 through D-026).
 - Ran 11 focused negative SQL tests — each failed with exactly the expected CHECK/UNIQUE constraint — plus a positive proof: valid IN_PROGRESS→SUBMITTED lifecycle, a 3-option MULTI_SELECT answer, and composite-PK duplicate-selection rejection.
 - Skipped `laravel/boost` (backend/AGENTS.md suggestion) — it would modify `composer.json` and is outside approved phase scope.
 - Updated `DECISIONS.md` (D-031), `SCHEMA_CONTRACT.md`, `SESSION_LOG.md`, `PROJECT_STATE.md`.
-- Uncommitted per phase instructions; awaiting user review before the Phase 1B exit check and commit.
+- Reviewed and committed as `d474d70 feat: implement Smart Book v2 canonical database schema`.
+
+### Phase 1C.1 (authentication contract review — complete)
+
+- Reverified the Laravel, Angular, session, password-broker, Mailpit, API-routing, Sanctum, `User` model, schema, and test baseline from the repository.
+- Froze the complete identity, password, account-state, student-registration/approval, signed-verification, Instructor-invitation, password-recovery, first-Admin, endpoint, SPA, authorization, and security contracts in `docs/auth/AUTH_CONTRACT.md`.
+- Confirmed that non-active accounts may authenticate only into restricted sessions and that normal APIs require authenticated + verified + `ACTIVE`, followed by role/resource authorization.
+- Resolved all remaining authentication business decisions; there are no UNKNOWN blockers before Phase 1C.2.
+- No Sanctum installation, routes, controllers, middleware, Angular changes, migrations, or other application implementation was performed in Phase 1C.1.
 
 ## Not started (later phases)
 
-- Phase 1B exit review and commit of the Phase 1B.2 implementation.
-- Authentication endpoints, signup, email verification, account approval/status enforcement.
+- Sanctum/API/CSRF/CORS foundation (Phase 1C.2).
+- Authentication endpoints, signup, email verification, account approval/status enforcement, invitations, recovery, and Angular integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -124,8 +132,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1B.2 implementation and documentation updates are intentionally uncommitted pending user review.
+Phase 1C.1 documentation updates are intentionally uncommitted pending user review. Application source code is unchanged by this review.
 
 ## Exact next step
 
-Phase 1B exit review: confirm the database implementation against `docs/database/SCHEMA_CONTRACT.md` (including the D-031 `courses.instructor_id` FK exception), then commit and push the Phase 1B.2 checkpoint. Do not start Admin feature pages before the Phase 1B exit criteria pass.
+Phase 1C.2 — implement only the Sanctum/API/CSRF/CORS foundation described in `docs/auth/AUTH_CONTRACT.md`: install/configure Sanctum, wire API routing and stateful middleware, establish the Angular development proxy/credential contract, and add focused foundation tests. Do not implement login or later auth slices in Phase 1C.2.

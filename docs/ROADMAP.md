@@ -20,7 +20,8 @@ The roadmap is dependency-ordered and delivered as vertical slices. Checkbox com
 Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
-- **Phase 1B (NEXT)** — canonical persistence: 1B.1 contract/ERD (complete 2026-08-31, committed `2babd1a`), 1B.2 migrations/sessions/seeders (complete 2026-08-31, awaiting review/commit).
+- **Phase 1B (complete 2026-08-31)** — canonical persistence: 1B.1 contract/ERD committed at `2babd1a`; 1B.2 migrations/sessions/seeders committed at `d474d70`.
+- **Phase 1C (current)** — authentication: 1C.1 contract review complete; 1C.2 Sanctum/API/CSRF/CORS foundation is next.
 
 ### Phase 1A — Reproducible runtime
 
@@ -39,9 +40,9 @@ Phase 1 is split into:
 - [x] Scaffold a clean Laravel backend (Framework 13.29.0, runs in Docker on `8080`).
 - [x] Scaffold a clean Angular frontend with routing and SCSS (dev server runs in Docker on `4200`); accessible layout primitives and environment configuration land with the first auth shell slice.
 - [x] Scaffold a minimal Flask service with `GET /health` on `5001`; the fake AI provider adapter is deferred to Phase 5 with the real AI request contract (D-021).
-- [ ] Add baseline lint/test commands for all three applications. (Laravel ships `composer test`, Angular ships `ng test` and Vitest config; a Flask pytest baseline for the AI service is deferred to Phase 1B.)
+- [ ] Add baseline lint/test commands for all three applications. (Laravel ships `composer test`; Angular ships `ng test` and Vitest config. A Flask pytest baseline remains outstanding and must land before AI feature implementation.)
 
-### Phase 1B — Canonical persistence (NEXT)
+### Phase 1B — Canonical persistence (complete 2026-08-31)
 
 #### Phase 1B.1 — Canonical database contract (complete 2026-08-31)
 
@@ -56,7 +57,7 @@ Phase 1 is split into:
 - [x] User review of this contract checkpoint (4 corrections applied 2026-08-31).
 - [x] Commit the reviewed contract checkpoint (commit `2babd1a`, pushed to `origin/rebuild/v2`).
 
-#### Phase 1B.2 — Canonical migrations, sessions, seeders (complete 2026-08-31, uncommitted)
+#### Phase 1B.2 — Canonical migrations, sessions, seeders (complete 2026-08-31, committed `d474d70`)
 
 - [x] Rewrite the stock `users` migration; retain `password_reset_tokens` and `sessions` byte-for-byte stock.
 - [x] Add domain migrations in dependency order per `SCHEMA_CONTRACT.md` (`2026_08_31_000001`…`000010`): courses, course_books, enrollments, quizzes, questions, options, quiz_attempts, student_answers, student_answer_options, ai_generation_requests.
@@ -65,17 +66,21 @@ Phase 1 is split into:
 - [x] Add deterministic seed data: one admin, one instructor, an ACTIVE and a PENDING student, one course, one active enrollment, and a minimal quiz fixture (one SINGLE_CHOICE and one MULTI_SELECT question).
 - [x] Prove migrations and seeders work from an empty database (`php artisan migrate:fresh --seed`, 19 tables) and verify constraints with negative SQL tests.
 
-### Authentication and lifecycle vertical slice
+### Phase 1C — Authentication and account lifecycle
 
-- [ ] Email-only login with consistent lowercase normalization.
-- [ ] Public student-only signup as `STUDENT/PENDING`.
-- [ ] Signed email verification delivered to Mailpit.
-- [ ] Sanctum cookie/session login and logout.
-- [ ] Canonical `GET /api/auth/me`.
-- [ ] Server middleware/policies for verification and account status.
-- [ ] Restricted pending-user session behavior.
-- [ ] Foundation tests for signup, verification, pending access, activation, suspension, rejection, login, logout, and cross-role authorization.
-- [ ] Minimal Angular auth states for verify-email, waiting-for-approval, rejected/suspended, and active-role routing.
+The frozen contract is `docs/auth/AUTH_CONTRACT.md`. Complete these small reviewable slices in order:
+
+- [x] **1C.1 — Authentication Contract Review:** reverify the implementation baseline and freeze identity, password, state machine, student approval, Instructor invitation, signed verification, recovery, Admin bootstrap, endpoints, SPA, authorization, and security behavior.
+- [ ] **1C.2 — Sanctum/API/CSRF/CORS foundation (NEXT):** install/configure Sanctum, wire stateful API routes/middleware, configure CORS/session/Angular proxy contracts, and add focused foundation tests. Do not implement login yet.
+- [ ] **1C.3 — Login, logout, `/api/auth/me`:** email normalization, restricted-session state payload, throttling, and session security.
+- [ ] **1C.4 — Student registration:** public Student-only creation as `PENDING` plus immediate restricted session.
+- [ ] **1C.5 — Email verification/resend:** authenticated signed verification, login/resume behavior, Mailpit delivery, and throttling.
+- [ ] **1C.6 — Account-state authorization:** centralized verified/`ACTIVE` gate and restricted PENDING/SUSPENDED/REJECTED behavior.
+- [ ] **1C.7 — Admin Student lifecycle:** approval, rejection with internal reason, and Admin-only rejected-to-pending restoration.
+- [ ] **1C.8 — Instructor invitation/password setup:** seven-day single-use invitations, atomic reissue/revocation, activation on acceptance.
+- [ ] **1C.9 — Forgot/reset password:** established-password eligibility, lifecycle preservation, enumeration safety, and session invalidation.
+- [ ] **1C.10 — First production Admin command:** `php artisan app:create-admin` creates an ACTIVE, verified Admin without hardcoded production credentials.
+- [ ] **1C.11 — Angular auth integration:** API client/state, CSRF, guards, auth/recovery screens, all restricted states, and browser smoke proof.
 
 ### Phase 1 exit criteria
 

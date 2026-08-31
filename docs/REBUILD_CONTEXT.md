@@ -53,13 +53,7 @@ Development email: Laravel SMTP -> Mailpit
 
 ## Authentication contract
 
-- Email is the only login identifier. Do not introduce username login.
-- Normalize email consistently, preferably by trimming and lowercasing before validation/persistence/login lookup.
-- `users.email` is unique.
-- Use one `users` table with roles `ADMIN`, `INSTRUCTOR`, and `STUDENT`.
-- Do not create separate admin, instructor, or student authentication tables.
-- The canonical current-user endpoint is `/api/auth/me`.
-- Use Laravel's signed email-verification flow. Do not invent an OTP flow unless a later accepted requirement requires one.
+The complete frozen contract is `docs/auth/AUTH_CONTRACT.md`. It is canonical for Phase 1C implementation. In summary: V2 uses one `users` table, email-only identity, Sanctum cookie/session authentication for the Angular SPA, signed email verification, restricted sessions for non-active accounts, Admin-managed lifecycle transitions, invitation-based Instructor onboarding, email-link password recovery, and a production first-Admin Artisan command. Legacy guards/tokens are historical evidence only and must not be treated as V2 behavior.
 
 ## Student signup and account lifecycle
 
@@ -94,10 +88,11 @@ Email verification is not an account status. Course enrollment is also separate 
 
 Access rules:
 
-- Pending and unverified users may authenticate only to restricted authentication/session endpoints. Angular must ask them to verify their email.
+- Pending, suspended, and rejected users may authenticate into restricted sessions as defined by `AUTH_CONTRACT.md`.
+- Pending and unverified users may access `auth/me`, logout, and verification resend. Angular must ask them to verify their email.
 - Pending and verified users may access `auth/me` and logout. Angular must show “Waiting for administrator approval.”
-- Pending users must not access normal course or application APIs.
-- Suspended and rejected users must not access normal application APIs.
+- Suspended and rejected users may access `auth/me` and logout so Angular can show the appropriate restricted state.
+- Only authenticated, verified, `ACTIVE` accounts may proceed to normal application APIs, subject to role and resource authorization.
 - A rejected email remains reserved; deleting and registering again must not bypass rejection.
 - Do not destructively delete accounts that may own academic history. Suspension/rejection must preserve enrollments, attempts, grades, reports, and audit context.
 - Store explicit approval metadata and sufficient status-change metadata.
@@ -267,4 +262,4 @@ Document internal URLs, environment variables, persistent volumes, startup depen
 
 ## Current boundary
 
-Architecture decisions and the V2 ERD are locked. No Laravel, Angular, Flask, or Docker scaffolding has started. The next implementation phase is Docker/Foundation as defined in `ROADMAP.md`.
+Architecture, product decisions, the canonical database schema, and the complete Phase 1C.1 authentication contract are locked. Laravel, Angular, Flask, Docker, MySQL, and Mailpit foundations exist; Phase 1B is implemented and committed at `d474d70`. Authentication implementation has not started. The exact next step is Phase 1C.2, the Sanctum/API/CSRF/CORS foundation defined in `docs/auth/AUTH_CONTRACT.md` and `ROADMAP.md`.

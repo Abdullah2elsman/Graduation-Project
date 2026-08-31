@@ -1,11 +1,11 @@
 # Smart Book V2 — Canonical Database Schema Contract
 
-**Date:** 2026-08-31 (Phase 1B.1)
+**Date:** 2026-08-31 (Phase 1B implemented; auth cross-reference updated in Phase 1C.1)
 **Canonical ERD:** `docs/database/Smart_Book_V2_ERD.drawio`
 **Target:** MySQL 8.x, Laravel 13 migrations.
-**Read together with:** `docs/DECISIONS.md` (D-001…D-030), `docs/REBUILD_CONTEXT.md`, and the latest `docs/SESSION_LOG.md`.
+**Read together with:** `docs/DECISIONS.md`, `docs/REBUILD_CONTEXT.md`, `docs/auth/AUTH_CONTRACT.md`, and the latest `docs/SESSION_LOG.md`.
 
-This document is the precise, implementation-ready database contract. A Phase 1B.2 agent must implement the migrations exactly here without inferring business rules. Deliberations and rationale live in `DECISIONS.md`/`SESSION_LOG.md`; this document states the final contract.
+This document is the implemented canonical database contract at checkpoint `d474d70`. Deliberations and rationale live in `DECISIONS.md`/`SESSION_LOG.md`; this document states the Phase 1B schema. Authentication-specific persistence added in Phase 1C—such as Instructor invitation records and internal rejection reasons—must follow `docs/auth/AUTH_CONTRACT.md` and update this contract/ERD alongside the implementation rather than being inferred from the existing Phase 1B tables.
 
 ---
 
