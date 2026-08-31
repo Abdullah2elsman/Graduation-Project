@@ -15,28 +15,33 @@ The roadmap is dependency-ordered and delivered as vertical slices. Checkbox com
 - [ ] User review of this documentation/ERD checkpoint.
 - [ ] Commit the reviewed documentation checkpoint when explicitly requested.
 
-## Phase 1 — Docker and Foundation (NEXT)
+## Phase 1 — Docker and Foundation
 
-### Reproducible runtime
+Phase 1 is split into:
 
-- [ ] Add Docker Compose with `backend`, `frontend`, `db`, `ai`, and `mailpit` services.
-- [ ] Pin suitable PHP/Composer, Node, Python, and MySQL 8 image versions.
-- [ ] Apply the locked V2 host ports: Angular `4200`, Laravel `8080`, Flask `5001`, MySQL `3307 -> 3306`, and Mailpit UI `8025`.
-- [ ] Preserve the Legacy host ports `5501` and `8005` so both systems can run concurrently.
-- [ ] Define internal service URLs, named volumes, and health checks; containers use Compose DNS rather than host `localhost` for inter-service calls.
-- [ ] Create a V2-only MySQL database and named volume that are never shared with Legacy.
-- [ ] Provide root and service `.env.example` files without secrets.
-- [ ] Route Laravel development mail through Mailpit.
-- [ ] Make fresh-clone onboarding approach `cp .env.example .env && docker compose up --build`.
+- **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
+- **Phase 1B (NEXT)** — canonical persistence and seeders.
 
-### Application foundations
+### Phase 1A — Reproducible runtime
 
-- [ ] Scaffold a clean Laravel backend.
-- [ ] Scaffold a clean Angular frontend with routing, accessible layout primitives, and environment configuration.
-- [ ] Scaffold a minimal Flask service with `/health` and a fake AI provider adapter.
-- [ ] Add baseline lint/test commands for all three applications.
+- [x] Add Docker Compose with `backend`, `frontend`, `db`, `ai`, and `mailpit` services.
+- [x] Pin suitable PHP/Composer, Node, Python, and MySQL 8 image versions (`php:8.4-cli`, `composer:2.10.2`, `node:22.22.3-bookworm-slim`, `python:3.12-slim`, `mysql:8.0`, `axllent/mailpit:v1.21`).
+- [x] Apply the locked V2 host ports: Angular `4200`, Laravel `8080`, Flask `5001`, MySQL `3307 -> 3306`, and Mailpit UI `8025`.
+- [x] Preserve the Legacy host ports `5501` and `8005` so both systems can run concurrently (verified free).
+- [x] Define internal service URLs, named volumes, and health checks; containers use Compose DNS rather than host `localhost` for inter-service calls.
+- [x] Create a V2-only MySQL database (`smart_book_v2`) and named volume (`smart_book_v2_db_data`) that are never shared with Legacy.
+- [x] Provide root and service `.env.example` files without secrets.
+- [x] Route Laravel development mail through Mailpit (`smtp -> mailpit:1025`).
+- [x] Make fresh-clone onboarding approach `cp .env.example .env && docker compose up --build`.
 
-### Canonical persistence
+### Phase 1A — Application foundations
+
+- [x] Scaffold a clean Laravel backend (Framework 13.29.0, runs in Docker on `8080`).
+- [x] Scaffold a clean Angular frontend with routing and SCSS (dev server runs in Docker on `4200`); accessible layout primitives and environment configuration land with the first auth shell slice.
+- [x] Scaffold a minimal Flask service with `GET /health` on `5001`; the fake AI provider adapter is deferred to Phase 5 with the real AI request contract (D-021).
+- [ ] Add baseline lint/test commands for all three applications. (Laravel ships `composer test`, Angular ships `ng test` and Vitest config; a Flask pytest baseline for the AI service is deferred to Phase 1B.)
+
+### Phase 1B — Canonical persistence (NEXT)
 
 - [ ] Implement the reviewed MySQL 8 schema from `docs/database/Smart_Book_V2_ERD.drawio`.
 - [ ] Add foreign keys, unique constraints, lifecycle fields, and indexes explicitly.
@@ -58,9 +63,9 @@ The roadmap is dependency-ordered and delivered as vertical slices. Checkbox com
 
 ### Phase 1 exit criteria
 
-- [ ] A fresh clone starts through Docker without host language/database dependencies.
-- [ ] MySQL, Laravel, Angular, Flask health endpoint, and Mailpit are reachable through documented ports.
-- [ ] Legacy and V2 can run concurrently without port, database, volume, or runtime dependency conflicts.
+- [ ] A fresh clone starts through Docker without host language/database dependencies. (Phase 1A validated the flow and documented a Docker-DNS caveat on this machine.)
+- [x] MySQL, Laravel, Angular, Flask health endpoint, and Mailpit are reachable through documented ports (Phase 1A verification, 2026-08-31).
+- [ ] Legacy and V2 can run concurrently without port, database, volume, or runtime dependency conflicts. (V2 ports/db/volume isolation verified; a live concurrent Legacy boot is still outstanding.)
 - [ ] A student can sign up, receive a Mailpit verification email, verify, authenticate, and remain restricted while pending.
 - [ ] A seeded active admin can authenticate and reach an authorized Angular shell.
 - [ ] Automated tests prove pending users cannot access normal application APIs.

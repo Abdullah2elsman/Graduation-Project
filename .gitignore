@@ -1,0 +1,10 @@
+# Smart Book V2 — repository root ignores.
+# Sub-project ignores live in backend/.gitignore, frontend/.gitignore, ai/.gitignore.
+
+# Docker Compose environment (contains development credentials).
+.env
+!.env.example
+
+# OS/editor noise.
+.DS_Store
+*.swp

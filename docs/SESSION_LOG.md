@@ -114,3 +114,95 @@ No application source code, package installation, scaffolding, Docker configurat
 ### Exact next step
 
 Wait for user review. After approval, implement Phase 1 Docker/Foundation with the locked ports and a V2-only MySQL database/volume, then prove concurrent Legacy/V2 startup before product-page work.
+
+## 2026-08-31 — Phase 1A Docker/Foundation complete
+
+### Goal
+
+Resume an interrupted Phase 1A task: recover the partial Laravel/Angular scaffold, then build and verify the Docker development foundation (backend, frontend, db, ai, mailpit) with the locked V2 ports and an isolated V2-only MySQL database. No Phase 1B (domain migrations/seeders) and no product features.
+
+### Recovery assessment
+
+- Complete: Laravel 13.29.0 scaffold with vendor and `.env`; Angular 22.1.6 scaffold (routing + SCSS, SSR off); docs pack; read-only Legacy worktree.
+- Partial/cleanup: `backend/.env` and `.env.example` still targeted SQLite; disposable `backend/database/database.sqlite` present; no Compose/Docker.
+- Not started: Docker foundation, `ai/`, Mailpit, docs updates.
+
+### Implementation
+
+- Repointed `backend/.env` and `.env.example` to MySQL + Mailpit (V2-only database `smart_book_v2`, user `smartbook`).
+- Removed the disposable `backend/database/database.sqlite`; MySQL is canonical.
+- Added root `compose.yaml`, `.env.example`, `.gitignore`.
+- Added `backend/Dockerfile` (php:8.4-cli + composer:2.10.2), `backend/docker/entrypoint.sh` (creates `.env`, generates APP_KEY if empty, `composer install`, `php artisan migrate --force`, then `php artisan serve --host=0.0.0.0 --port=8080`), `backend/.dockerignore`.
+- Added `frontend/Dockerfile` (node:22.22.3-bookworm-slim), `frontend/docker/entrypoint.sh` (`npm install` then `npm start -- --host 0.0.0.0 --port 4200`), `frontend/.dockerignore`.
+- Added `ai/` minimal Flask service with `GET /health`, `requirements.txt` (Flask==3.1.1), Dockerfile (python:3.12-slim), ignores.
+- Compose wiring: locked ports, per-service health checks, `db` gates `backend` via `depends_on: service_healthy`, named volumes for db/vendor/node_modules, Laravel mail via `smtp -> mailpit:1025`.
+
+### Environment workaround (this machine)
+
+Docker's embedded DNS cannot resolve external names on the default bridge network here (upstream WARP/systemd-resolved DNS on `127.x`). Confirmed: host-network containers resolve; default-network containers fail; `--dns 1.1.1.1` resolves external names while preserving Docker service-name DNS. Applied scoped workarounds in `compose.yaml`:
+
+- `build.network: host` for the `backend` apt step and the `ai` pip step (build-time only).
+- `dns: [${DOCKER_DNS:-1.1.1.1}]` on `backend` and `frontend` (runtime `composer install` / `npm install`; internal service-name DNS unaffected).
+
+A Docker daemon `"dns": ["1.1.1.1"]` config would remove the need for these. This is an environment accommodation, not an architecture decision (DECISIONS unchanged).
+
+### Exact commands used
+
+```bash
+cd ~/Projects/Smart-Book
+docker compose build            # backend/ai needed build.network host; images written:
+                                #   smart-book-v2-backend, -frontend, -ai
+docker compose up -d
+docker compose ps
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/      # 200 (Laravel)
+curl -s http://localhost:5001/health                                 # {"service":"smart-book-ai","status":"ok"}
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8025/      # 200 (Mailpit UI)
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:4200/      # 200 (Angular)
+mysql -h 127.0.0.1 -P 3307 -u smartbook -p... -e "SHOW DATABASES; USE smart_book_v2; SHOW TABLES;"
+docker volume ls | grep smart_book_v2
+git -C ~/Projects/Smart-Book-Legacy status --short                    # clean
+git status                                                            # only intended V2 files untracked
+```
+
+### Verification results (all observed)
+
+- `docker compose config` OK.
+- Containers: `db` healthy (3307 -> 3306), `backend` healthy (8080, welcome page title "Smart Book V2"), `frontend` healthy (4200, Angular app served), `ai` healthy (5001 `/health` 200), `mailpit` healthy (8025 UI).
+- MySQL `smart_book_v2` contains only stock Laravel framework tables (users, password_reset_tokens, sessions, cache, cache_locks, jobs, job_batches, failed_jobs, migrations). No domain migrations.
+- `smart_book_v2_db_data`, `smart_book_v2_backend_vendor`, `smart_book_v2_frontend_node_modules` named volumes exist.
+- Backend vendor and frontend node_modules installed into their named volumes (host checkout stays free of them).
+- Legacy worktree clean on `legacy/original`; Legacy ports 5501/8005 free; Legacy DB name `project` absent from the V2 MySQL.
+- Root `.env` and `backend/.env` are git-ignored.
+
+### Notes for the next agent
+
+- Containers run as root; they may leave root-owned Laravel cache files in the bind-mounted `backend/bootstrap/cache` and `backend/storage/framework/views`. They are git-ignored; `sudo chown` if they bother the host user.
+- `frontend/package-lock.json` was generated by the container's `npm install` (untracked). It should be committed for reproducibility once a commit is authorized.
+- Stock Laravel migrations were run only to bootstrap the framework runtime (sessions/cache/jobs); Phase 1B supersedes them with the canonical ERD schema.
+- Rebuild backend/ai if their build steps are ever changed; `build.network: host` is required on machines with the Docker-DNS caveat.
+
+### Exact next step
+
+After user review of this checkpoint: Phase 1B canonical persistence from `docs/database/Smart_Book_V2_ERD.drawio`, database sessions, deterministic seeders, and an empty-database migration proof. Do not start Admin pages before the Phase 1 exit criteria pass.
+
+### Hardening pass (idempotent dependency init) — same session
+
+- `backend/docker/entrypoint.sh`: `composer install` now runs only when the vendor
+  volume is missing/out of date. A stamp (`vendor/.sb-deps.sha256`) inside the
+  vendor volume records the `composer.lock` sha256 from the last completed install;
+  a changed lock file triggers a reinstall on the next start.
+- `frontend/docker/entrypoint.sh`: `npm install` now runs only when node_modules is
+  missing/out of date, using the same stamp pattern (`node_modules/.sb-deps.sha256`
+  vs `package-lock.json` sha256).
+- Purpose: ordinary container restarts do not reinstall dependencies.
+- Caveat in this repo: entrypoint scripts are baked into the images (not
+  bind-mounted), so entrypoint edits require `docker compose build backend frontend`
+  then `up -d --force-recreate` (a plain `restart` runs the previous image's code).
+- Verified: after rebuild + recreate, the first boot installs once and writes
+  stamps; a subsequent plain `docker compose restart backend frontend` skipped both
+  installs. All endpoints still 200; all 5 containers healthy; Legacy clean.
+- DNS workaround comments in `compose.yaml` made explicit that `build.network: host`
+  and the `dns:` override are environment accommodations (configurable via
+  `DOCKER_DNS` in `.env.example`), not Smart Book architectural requirements.
+- `frontend/package-lock.json` (untracked, root-owned) confirmed present, valid, and
+  NOT git-ignored — intended to be committed with the checkpoint.
