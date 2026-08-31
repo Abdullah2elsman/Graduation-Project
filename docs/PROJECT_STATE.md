@@ -6,9 +6,9 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.1 Authentication Contract Review complete. The contract is frozen in `docs/auth/AUTH_CONTRACT.md`; Phase 1C.2 is the next implementation step.
+**Current phase:** Phase 1C.2 Sanctum/API/CSRF Foundation implemented and verified. Phase 1C.3 is the next implementation step.
 
-**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are all running as a Docker Compose stack with the locked ports and an isolated V2-only MySQL database. Phase 1B is implemented and committed at `d474d70`: canonical `users` + 10 domain migrations, deterministic fixtures, an empty-database proof, 11 focused negative SQL tests, and a positive attempt-lifecycle/multi-select proof. The complete authentication product/technical contract is now frozen, but Sanctum, API auth routes, backend auth behavior, and Angular auth integration have not started.
+**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`. Sanctum `v4.3.3`, `/api` routing, stateful middleware, database-session/cookie settings, exact credentialed CORS, the Angular same-origin dev proxy, centralized HttpClient/XSRF infrastructure, and focused foundation tests are now implemented. Login, logout, `/api/auth/me`, and all later authentication behavior remain unimplemented.
 
 ## Completed
 
@@ -113,10 +113,21 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Resolved all remaining authentication business decisions; there are no UNKNOWN blockers before Phase 1C.2.
 - No Sanctum installation, routes, controllers, middleware, Angular changes, migrations, or other application implementation was performed in Phase 1C.1.
 
+### Phase 1C.2 (Sanctum/API/CSRF foundation — implemented and verified)
+
+- Installed Laravel Sanctum `v4.3.3`, compatible with Laravel 13; no unrelated authentication package was added.
+- Added `/api` route wiring and permanent infrastructure-only `GET /api/health`; retained web/console routes and `/up`.
+- Enabled Laravel's `statefulApi()` middleware and configured stateful hosts `localhost:4200,localhost:8080` with the `web` guard.
+- Preserved database sessions and set an isolated `smart_book_v2_session` host-only, HttpOnly, SameSite=Lax, non-Secure cookie for local HTTP development.
+- Added explicit credentialed CORS for `http://localhost:4200` only; no wildcard origins.
+- Added the Angular dev proxy (`/api`, `/sanctum` → `http://backend:8080`) and centralized relative API/credentials/XSRF HttpClient providers.
+- Added focused Laravel and Angular tests. No personal-access-token migration, `HasApiTokens`, token endpoint, or auth business endpoint was added.
+- Verified proxy CSRF bootstrap (`204`, `XSRF-TOKEN` + V2 session cookie), proxy API health JSON, all five Docker services, Composer validity, backend tests, Angular tests, and production build.
+
 ## Not started (later phases)
 
-- Sanctum/API/CSRF/CORS foundation (Phase 1C.2).
-- Authentication endpoints, signup, email verification, account approval/status enforcement, invitations, recovery, and Angular integration.
+- Login, logout, and `/api/auth/me` (Phase 1C.3).
+- Signup, email verification, account approval/status enforcement, invitations, recovery, and Angular auth integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -132,8 +143,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1C.1 documentation updates are intentionally uncommitted pending user review. Application source code is unchanged by this review.
+Phase 1C.2 application and documentation changes are intentionally uncommitted pending user review.
 
 ## Exact next step
 
-Phase 1C.2 — implement only the Sanctum/API/CSRF/CORS foundation described in `docs/auth/AUTH_CONTRACT.md`: install/configure Sanctum, wire API routing and stateful middleware, establish the Angular development proxy/credential contract, and add focused foundation tests. Do not implement login or later auth slices in Phase 1C.2.
+Phase 1C.3 — implement email-only login, logout, and `GET /api/auth/me` on the proven Sanctum session foundation, including normalization, session regeneration/invalidation, safe auth-state serialization, throttling, and focused Laravel tests. Do not implement registration, verification, account-state application middleware, invitations, recovery, Admin lifecycle actions, or Angular auth screens/store/guards yet.

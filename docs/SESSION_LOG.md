@@ -336,3 +336,47 @@ Complete the read-only authentication contract review, resolve its remaining pro
 ### Exact next step
 
 Phase 1C.2 only: install/configure Sanctum, wire stateful API routing/middleware, establish CSRF/CORS/session and Angular development-proxy contracts, and add focused foundation tests. Do not implement login or later authentication slices in Phase 1C.2.
+
+## 2026-08-31 — Phase 1C.2 Sanctum/API/CSRF foundation implemented
+
+### Goal
+
+Establish the minimum reliable first-party Angular → Laravel Sanctum cookie/session foundation without implementing login, registration, verification, lifecycle behavior, or auth UI.
+
+### Implementation
+
+- Installed `laravel/sanctum` `v4.3.3` (`^4.3`), whose official package constraints support Illuminate/Laravel 13.
+- Deliberately did not run `php artisan install:api`: it would publish the optional `personal_access_tokens` migration, which first-party session authentication does not require.
+- Added only the application Sanctum settings needed here: stateful hosts `localhost:4200,localhost:8080` and guard `web`. No `HasApiTokens`, PAT migration, or token endpoint.
+- Registered `backend/routes/api.php` through Laravel 13 bootstrap routing. Added only permanent infrastructure `GET /api/health`; preserved web, console, and `/up` routes.
+- Enabled `$middleware->statefulApi()` and retained JSON rendering for `api/*`.
+- Preserved `SESSION_DRIVER=database`. Local browser cookies use unique name `smart_book_v2_session`, host-only domain, HttpOnly, SameSite=Lax, and Secure=false for HTTP development; settings remain environment-driven.
+- Added exact credentialed CORS for `http://localhost:4200`; no wildcard origin. The single-origin CORS library may emit that configured value for an untrusted preflight, but it never reflects the untrusted origin, so the browser rejects the mismatch; this is covered by a test.
+- Added Angular proxy rules for relative `/api` and `/sanctum` requests to `http://backend:8080`. `backend` is the correct target because Angular runs inside the frontend container.
+- Added centralized Angular HttpClient configuration: relative API base, credentials interceptor, and standard `XSRF-TOKEN` → `X-XSRF-TOKEN` handling. No AuthService, store, guard, method, or page was created.
+- Added `SpaFoundationTest` and Angular provider tests. The protected backend proof route is registered only inside the test process; no fake protected runtime endpoint remains.
+
+### Verification
+
+- `composer validate --strict --no-check-publish`: passed.
+- Sanctum package resolution: `v4.3.3`; no security advisory reported during install.
+- Targeted Pint for all Phase 1C.2 PHP files: passed. Repository-wide Pint also identified 12 pre-existing style issues in Phase 1B migrations/seeder; those unrelated canonical files were not reformatted.
+- `php artisan test`: 10 passed, 30 assertions.
+- Prettier check for all changed Angular files: passed.
+- `npm test -- --watch=false`: 2 files, 5 tests passed.
+- `npm run build`: passed; production bundle generated.
+- Route/config inspection: `/api/health` uses the `api` group; `/sanctum/csrf-cookie` uses `web`; runtime session driver is database; Sanctum stateful hosts and exact CORS origin match this contract.
+- Docker browser-equivalent proof through `http://localhost:4200`: `/sanctum/csrf-cookie` returned `204` with `XSRF-TOKEN` and `smart_book_v2_session`; `/api/health` returned the expected JSON through the proxy.
+- All five services healthy; frontend, backend `/up`, Flask health, and Mailpit returned HTTP 200.
+- Legacy worktree remained clean and untouched.
+
+### Scope notes
+
+- No database schema change. Sanctum's optional PAT migration was not published.
+- No business-rule change and no new decision ID.
+- No login, logout, `/api/auth/me`, registration, verification, account-state middleware, Admin lifecycle, invitation, password recovery, first-Admin command, auth UI/store/guard, or domain API.
+- No commit.
+
+### Exact next step
+
+Phase 1C.3 only: implement email-only login, logout, and `GET /api/auth/me` with canonical lowercase normalization, session regeneration/invalidation, safe lifecycle state output, throttling, and focused backend tests. Do not implement later Phase 1C slices yet.

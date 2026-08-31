@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "http://backend:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/sanctum": {
+    "target": "http://backend:8080",
+    "secure": false,
+    "changeOrigin": false
+  }
+}

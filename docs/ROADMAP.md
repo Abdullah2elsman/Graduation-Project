@@ -21,7 +21,7 @@ Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
 - **Phase 1B (complete 2026-08-31)** — canonical persistence: 1B.1 contract/ERD committed at `2babd1a`; 1B.2 migrations/sessions/seeders committed at `d474d70`.
-- **Phase 1C (current)** — authentication: 1C.1 contract review complete; 1C.2 Sanctum/API/CSRF/CORS foundation is next.
+- **Phase 1C (current)** — authentication: 1C.1 contract review complete; 1C.2 Sanctum/API/CSRF/CORS foundation implemented and verified; 1C.3 login/logout/me is next.
 
 ### Phase 1A — Reproducible runtime
 
@@ -71,8 +71,8 @@ Phase 1 is split into:
 The frozen contract is `docs/auth/AUTH_CONTRACT.md`. Complete these small reviewable slices in order:
 
 - [x] **1C.1 — Authentication Contract Review:** reverify the implementation baseline and freeze identity, password, state machine, student approval, Instructor invitation, signed verification, recovery, Admin bootstrap, endpoints, SPA, authorization, and security behavior.
-- [ ] **1C.2 — Sanctum/API/CSRF/CORS foundation (NEXT):** install/configure Sanctum, wire stateful API routes/middleware, configure CORS/session/Angular proxy contracts, and add focused foundation tests. Do not implement login yet.
-- [ ] **1C.3 — Login, logout, `/api/auth/me`:** email normalization, restricted-session state payload, throttling, and session security.
+- [x] **1C.2 — Sanctum/API/CSRF/CORS foundation:** installed Sanctum 4.3.3, wired stateful API routing, configured database sessions/cookies/exact credentialed CORS, added the Angular proxy and central HttpClient/XSRF providers, and verified the foundation with automated and Docker HTTP tests. No token or auth business endpoints were added.
+- [ ] **1C.3 — Login, logout, `/api/auth/me` (NEXT):** email normalization, restricted-session state payload, throttling, and session security.
 - [ ] **1C.4 — Student registration:** public Student-only creation as `PENDING` plus immediate restricted session.
 - [ ] **1C.5 — Email verification/resend:** authenticated signed verification, login/resume behavior, Mailpit delivery, and throttling.
 - [ ] **1C.6 — Account-state authorization:** centralized verified/`ACTIVE` gate and restricted PENDING/SUSPENDED/REJECTED behavior.

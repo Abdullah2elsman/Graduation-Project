@@ -22,17 +22,18 @@ The labels used below are deliberate:
 These facts describe the repository at the end of Phase 1C.1; they are not claims that authentication is already implemented.
 
 - **VERIFIED:** Laravel Framework `13.29.0`; `backend/composer.json` requires PHP `^8.3`.
-- **VERIFIED:** Laravel Sanctum is not installed; there is no `config/sanctum.php`.
-- **VERIFIED:** there is no V2 `routes/api.php` or API route registration yet.
-- **VERIFIED:** there is no published `config/cors.php` yet.
+- **VERIFIED:** Laravel Sanctum `v4.3.3` is installed; the application-owned `config/sanctum.php` defines only the stateful-domain and `web`-guard settings needed by this SPA.
+- **VERIFIED:** `routes/api.php` is registered under `/api`; it currently exposes only `GET /api/health`. No authentication business endpoint exists yet.
+- **VERIFIED:** `config/cors.php` allows credentialed requests only for explicitly configured origins and never uses a wildcard origin.
 - **VERIFIED:** the scaffold currently uses Laravel's `web` session guard and one `users` provider.
 - **VERIFIED:** `SESSION_DRIVER=database`; the stock `sessions` table exists.
 - **VERIFIED:** the stock `password_reset_tokens` table and password broker configuration exist. The current broker defaults are a 60-minute token expiry and 60-second reissue throttle.
 - **VERIFIED:** development mail is SMTP to Mailpit at `mailpit:1025`; its host UI is `http://localhost:8025`.
 - **VERIFIED:** `App\Models\User` is still close to the Laravel scaffold and does not yet implement `MustVerifyEmail`.
 - **VERIFIED:** the canonical `users` migration contains role, account status, `email_verified_at`, approval/status-transition provenance, creator provenance, and `last_login_at` fields.
-- **VERIFIED:** Angular 22 is a bare scaffold. It has no configured `HttpClient`, auth client/state, route guards, or API proxy.
-- **VERIFIED:** no V2 authentication feature tests exist yet.
+- **VERIFIED:** Angular 22 centrally provides `HttpClient`, credentials, and its standard `XSRF-TOKEN` → `X-XSRF-TOKEN` behavior. The dev proxy forwards relative `/api` and `/sanctum` requests to the Docker `backend:8080` service.
+- **VERIFIED:** Phase 1C.2 foundation tests cover API/JSON routing, CSRF cookies, stateful middleware, session/CORS configuration, an unauthenticated Sanctum boundary, absence of a token endpoint, and Angular credential/XSRF behavior. Login and other auth-feature tests have not started.
+- **VERIFIED:** no `personal_access_tokens` migration, `HasApiTokens` trait, or token-issuing endpoint was added; these are unnecessary for the locked first-party session flow.
 - **VERIFIED:** Legacy used separate role models/guards and mixed session/bearer-token behavior. V2 must not copy or depend on that architecture.
 
 ---
@@ -69,9 +70,9 @@ These facts describe the repository at the end of Phase 1C.1; they are not claim
 
 The browser opens Angular at `http://localhost:4200`; Laravel is exposed at `http://localhost:8080`.
 
-- **TECHNICAL RECOMMENDATION:** use an Angular development proxy so browser requests to relative `/api` and `/sanctum` paths are proxied from the frontend container to `backend:8080`. This gives the browser a same-origin development surface and simplifies XSRF handling.
-- **TECHNICAL RECOMMENDATION:** configure Angular `HttpClient` once and send credentials centrally rather than setting options independently in each feature service.
-- **TECHNICAL RECOMMENDATION:** still configure Sanctum/CORS explicitly. If the SPA calls Laravel directly across origins, `localhost:4200` must be a stateful domain and an exact credentialed CORS origin; wildcard credentialed CORS is forbidden.
+- **VERIFIED:** the Angular development proxy sends relative browser requests under `/api` and `/sanctum` from `localhost:4200` to `backend:8080` over Compose DNS. This gives the browser a same-origin development surface and keeps the backend target internal.
+- **VERIFIED:** Angular `HttpClient`, credentials, API base URL, and XSRF names are configured centrally; feature components do not configure them independently.
+- **VERIFIED:** Sanctum stateful domains and credentialed CORS are also explicit. `localhost:4200` is the only default allowed CORS origin; wildcard credentialed origins are forbidden. Direct-backend diagnostics remain possible from that configured origin.
 - **TECHNICAL RECOMMENDATION:** keep development cookies HttpOnly and SameSite=Lax. Production must use HTTPS/secure-cookie settings appropriate to its eventual deployment domains.
 
 ---
