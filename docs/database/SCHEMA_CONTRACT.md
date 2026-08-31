@@ -15,6 +15,7 @@ This document is the precise, implementation-ready database contract. A Phase 1B
 - **Charset/collation:** `utf8mb4` / `utf8mb4_unicode_ci` (case-insensitive). This makes `users.email` case-insensitively unique at the database level.
 - **Primary keys:** `BIGINT UNSIGNED AUTO_INCREMENT` (`$table->id()`), except where a natural PK is stated.
 - **Foreign keys:** columns are `BIGINT UNSIGNED`. Unless stated otherwise: **ON DELETE RESTRICT, ON UPDATE CASCADE**. In Laravel, `->constrained()` creates the conventional FK (column type/name/table inference); referential actions are declared explicitly and deliberately. For Smart Book domain FKs, declare `->restrictOnDelete()` and `->cascadeOnUpdate()` where this contract intends RESTRICT/CASCADE. Framework tables keep their stock definitions.
+  - **DBMS exception (D-031, confirmed Phase 1B.2):** MySQL 8.0 rejects a CHECK that references a column whose FK declares a referential action other than RESTRICT/NO ACTION (error 3823). The two courses CHECKs reference `courses.instructor_id`; that single FK is therefore `restrictOnDelete()->restrictOnUpdate()` (ON DELETE RESTRICT / ON UPDATE RESTRICT). Semantically inert — surrogate PKs are never updated.
 - **Timestamps:** `created_at`/`updated_at` (`TIMESTAMP`, nullable, Eloquent-managed) on every domain table. Business timestamps (e.g. `starts_at`) are also `TIMESTAMP`.
 - **Timezones:** all datetimes are stored in UTC. The MySQL container session timezone is UTC. `TIMESTAMP` columns convert between the session timezone and UTC; the contract assumes the connection timezone remains UTC. Display-timezone conversion is application-level.
 - **Enums:** every role/status/type field is a `VARCHAR` with a database **CHECK constraint** (not MySQL `ENUM`), so legal values are DB-enforced but still extendable by constraint replacement.
@@ -25,25 +26,25 @@ This document is the precise, implementation-ready database contract. A Phase 1B
 
 ## 2. Migration strategy and framework tables
 
-### 2.1 Migration file plan (Phase 1B.2 — not created yet)
+### 2.1 Migration file plan (created and verified in Phase 1B.2)
 
 | File | Content | Status |
 |---|---|---|
-| `0001_01_01_000000_create_users_table.php` | canonical `users` + stock `password_reset_tokens` + stock `sessions` | **Rewrite** the `users` table definition; keep the other two blocks byte-for-byte stock |
-| `0001_01_01_000001_create_cache_table.php` | `cache`, `cache_locks` | **Retain unchanged** |
-| `0001_01_01_000002_create_jobs_table.php` | `jobs`, `job_batches`, `failed_jobs` | **Retain unchanged** |
-| `2026_xx_xx_000001_create_courses_table.php` | `courses` | new |
-| `2026_xx_xx_000002_create_course_books_table.php` | `course_books` | new |
-| `2026_xx_xx_000003_create_enrollments_table.php` | `enrollments` | new |
-| `2026_xx_xx_000004_create_quizzes_table.php` | `quizzes` | new |
-| `2026_xx_xx_000005_create_questions_table.php` | `questions` | new |
-| `2026_xx_xx_000006_create_options_table.php` | `options` | new |
-| `2026_xx_xx_000007_create_quiz_attempts_table.php` | `quiz_attempts` | new |
-| `2026_xx_xx_000008_create_student_answers_table.php` | `student_answers` | new |
-| `2026_xx_xx_000009_create_student_answer_options_table.php` | `student_answer_options` | new |
-| `2026_xx_xx_000010_create_ai_generation_requests_table.php` | `ai_generation_requests` | new |
+| `0001_01_01_000000_create_users_table.php` | canonical `users` + stock `password_reset_tokens` + stock `sessions` | **Rewritten** (`users` canonical; other two blocks byte-for-byte stock) |
+| `0001_01_01_000001_create_cache_table.php` | `cache`, `cache_locks` | **Retained unchanged** |
+| `0001_01_01_000002_create_jobs_table.php` | `jobs`, `job_batches`, `failed_jobs` | **Retained unchanged** |
+| `2026_08_31_000001_create_courses_table.php` | `courses` | created |
+| `2026_08_31_000002_create_course_books_table.php` | `course_books` | created |
+| `2026_08_31_000003_create_enrollments_table.php` | `enrollments` | created |
+| `2026_08_31_000004_create_quizzes_table.php` | `quizzes` | created |
+| `2026_08_31_000005_create_questions_table.php` | `questions` | created |
+| `2026_08_31_000006_create_options_table.php` | `options` | created |
+| `2026_08_31_000007_create_quiz_attempts_table.php` | `quiz_attempts` | created |
+| `2026_08_31_000008_create_student_answers_table.php` | `student_answers` | created |
+| `2026_08_31_000009_create_student_answer_options_table.php` | `student_answer_options` | created |
+| `2026_08_31_000010_create_ai_generation_requests_table.php` | `ai_generation_requests` | created |
 
-Domain migrations appear after the framework migrations in dependency order. The local dev database already ran the stock `users` schema; the empty-database proof for Phase 1B.2 uses `php artisan migrate:fresh` (wipes only the dev database, which holds no data).
+Domain migrations appear after the framework migrations in dependency order. The empty-database proof passed with `php artisan migrate:fresh --seed` inside the dev container (13 migrations, 19 tables — 9 framework incl. `users`, 10 domain — and 25 CHECKs).
 
 ### 2.2 Framework tables (retained stock, not part of the domain model)
 
@@ -121,8 +122,8 @@ Purpose: course catalogue; exactly one direct instructor (D-016) enforced struct
 | created_at / updated_at | TIMESTAMP | yes | NULL | |
 
 Keys / constraints:
-- `INDEX (course_id …)`: `(instructor_id, status)`, `(status)`
-- FK `instructor_id` → `users.id`: RESTRICT; FKs `created_by_admin_id`, `instructor_assigned_by_id` → `users.id`: RESTRICT
+- `INDEX (instructor_id, status)`, `INDEX (status)`
+- FK `instructor_id` → `users.id`: RESTRICT/RESTRICT (D-031 — CHECK references this column); FKs `created_by_admin_id`, `instructor_assigned_by_id` → `users.id`: RESTRICT/CASCADE
 - CHECK `(instructor_id IS NULL OR instructor_assigned_at IS NOT NULL)`
 - CHECK `(status <> 'ACTIVE' OR instructor_id IS NOT NULL)`
 

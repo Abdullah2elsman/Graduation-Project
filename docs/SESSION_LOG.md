@@ -253,3 +253,48 @@ Phase 1B.1 approved with four documentation corrections, applied here (no migrat
 4. **Result release.** Removed the persisted `result_release_policy`/`results_released_at` columns from the `quizzes` contract; MVP release is fixed to `AFTER_END` (D-020). MANUAL/custom release is documented as a future extension added by migration when a concrete flow exists.
 
 Files changed: `docs/DECISIONS.md`, `docs/database/SCHEMA_CONTRACT.md`, `docs/database/Smart_Book_V2_ERD.drawio`, `docs/REBUILD_CONTEXT.md`, `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`, `docs/SESSION_LOG.md`. Wait for review before Phase 1B.2.
+
+## 2026-08-31 — Phase 1B.2 canonical database implementation complete
+
+### Goal
+
+Implement the Phase 1B.1 contract as real Laravel migrations and deterministic seeders inside the running Docker stack, prove it from an empty database, and verify every constraint. No commit.
+
+### Scope guardrails honored
+
+- No business-rule inference, no schema redesign, no auth/controllers/APIs/grading/AI features.
+- No change to the Legacy worktree. No modifications to the stock framework migrations (`cache`, `jobs`), `UserFactory`, or `composer.json`.
+
+### Implementation
+
+- **`users` migration rewritten** (`0001_01_01_000000_create_users_table.php`): canonical users columns (role/status default STUDENT/PENDING), 3 self-FKs (approved_by/status_changed_by/created_by) as RESTRICT/CASCADE, `(role,status)` + `(status,email_verified_at)` indexes, `users_role_check`, `users_status_check`; `password_reset_tokens` and `sessions` kept byte-for-byte stock (sessions = Laravel database-session table, index-only user_id, no FK).
+- **10 domain migrations** `2026_08_31_000001`…`000010` (courses, course_books, enrollments, quizzes, questions, options, quiz_attempts, student_answers, student_answer_options, ai_generation_requests) matching SCHEMA_CONTRACT exactly: 25 CHECK constraints via explicit `DB::statement`, all UNIQUEs, all indexes.
+- **DatabaseSeeder rewritten** with Query Builder + `WithoutModelEvents` (no new Eloquent models): Seed Admin (ACTIVE, bootstrap), Seed Instructor (ACTIVE, created/approved by admin), Seed Active Student (ACTIVE, enrolled), Seed Pending Student (PENDING, verified, not enrolled), 1 ACTIVE course (admin-assigned instructor), 1 ACTIVE enrollment, 1 PUBLISHED quiz (starts −2d / ends +7d, max_attempts 3), 1 SINGLE_CHOICE question (4 options, one correct) + 1 MULTI_SELECT question (4 options, three correct). Passwords `password` via `Hash::make`; emails lowercase.
+
+### Conflicts found and resolved
+
+1. **MySQL 8.0 error 3823 (verified empirically in-container):** a CHECK constraint may not reference a column whose FK declares a referential action other than RESTRICT/NO ACTION; `ON UPDATE CASCADE` is rejected. `courses.instructor_id` is referenced by two contract CHECKs → changed only that FK to `restrictOnDelete()->restrictOnUpdate()` (ON DELETE RESTRICT / ON UPDATE RESTRICT). User approved this minimal deviation; recorded as **D-031** in `DECISIONS.md` and referenced inline in `SCHEMA_CONTRACT.md`. All other domain FKs verified RESTRICT/CASCADE via `information_schema.referential_constraints`.
+2. **Identifier length:** the auto-generated composite index on `ai_generation_requests(requested_by_instructor_id, created_at)` exceeded MySQL’s 64-char limit → explicit shorter names used.
+3. **Seeder bug:** mutable `Carbon::now()` collapsed the quiz window (starts_at == ends_at) → switched to `$now->copy()` derived values. Verified ends_at > starts_at.
+4. **Skipped `laravel/boost`** (suggested in `backend/AGENTS.md`): would modify `composer.json` and is outside approved phase scope; note for later if wanted.
+
+### Verification
+
+- `php artisan migrate:fresh --seed` passed in the dev container: 13 migrations, **19 tables** (9 framework incl. `users` + 10 domain), 25 CHECKs.
+- Seed fixtures verified by select: 4 users (2 roles covered, ACTIVE + PENDING states), course ACTIVE with instructor assigned, 1 ACTIVE enrollment, PUBLISHED quiz (schedule valid), both question types with correct option cardinality (SINGLE_CHOICE exactly one correct; MULTI_SELECT three correct).
+- 11 focused **negative SQL tests** — each rejected with the exact expected constraint: users_role_check, users_status_check, courses_requires_instructor_check, courses_assignment_consistency_check, quizzes_schedule_range_check, quizzes_max_attempts_check, questions_type_check, enrollments_course_id_student_id_unique, quiz_attempts_lifecycle_check, options_question_id_position_unique, student_answers_points_bounds_check.
+- **Positive proof (D-028/029/030):** valid IN_PROGRESS→SUBMITTED transition (all four submit fields set, score within bounds), a MULTI_SELECT answer with 3 selected options, and composite-PK rejection of a duplicate selection.
+
+### Files changed
+
+- `backend/database/migrations/0001_01_01_000000_create_users_table.php` (rewritten: canonical users)
+- `backend/database/migrations/2026_08_31_000001_create_courses_table.php` … `000010_create_ai_generation_requests_table.php` (new)
+- `backend/database/seeders/DatabaseSeeder.php` (rewritten: deterministic fixtures)
+- `docs/DECISIONS.md` (D-031)
+- `docs/database/SCHEMA_CONTRACT.md` (migration plan status, D-031 FK exception)
+- `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`, `docs/SESSION_LOG.md` (status/log updates)
+- Unchanged: stock `cache`/`jobs` migrations, `password_reset_tokens`, `sessions`, `UserFactory.php`, Legacy worktree, `composer.json`.
+
+### Exact next step
+
+Phase 1B exit review: verify the implementation against `SCHEMA_CONTRACT.md` (incl. D-031), then commit/push the Phase 1B.2 checkpoint when the user authorizes. Do not start admin/auth feature work before Phase 1 exit criteria pass.

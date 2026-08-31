@@ -194,6 +194,12 @@ All decisions below are accepted and are the implementation source of truth. Sup
 
 **Rationale:** CHECK constraints guarantee integrity at rest; immutability is a behavioral rule best owned and tested by the application layer.
 
+### D-031 — MySQL 8.0 CHECK/FK interplay exception (confirmed Phase 1B.2)
+
+**Decision:** MySQL 8.0 rejects a CHECK constraint that references a column whose foreign key declares a referential action other than `RESTRICT`/`NO ACTION` (error 3823 — verified empirically in the dev container: `ON UPDATE CASCADE` fails, `ON DELETE RESTRICT ON UPDATE RESTRICT` succeeds). The CHECKs `courses_assignment_consistency_check` and `courses_requires_instructor_check` both reference `courses.instructor_id`, so that single FK deviates from the blanket domain rule and is declared **ON DELETE RESTRICT / ON UPDATE RESTRICT** (`restrictOnDelete()->restrictOnUpdate()`) instead of ON UPDATE CASCADE. All other domain FKs keep RESTRICT/CASCADE. This is semantically inert because surrogate PKs are never updated.
+
+**Rationale:** Keeping the two contract-mandated courses constraints is more valuable than a uniform referential-action rule that can never fire; the deviation is localized and documented rather than silently dropping constraints.
+
 ## Open architectural decisions
 
 None currently block Phase 1 coding. Deferred product choices must remain deferred until a concrete requirement justifies them.

@@ -6,9 +6,9 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1B.1 canonical database contract documented (Phase 1A complete); awaiting user review before Phase 1B.2 (migrations, seeders, database sessions)
+**Current phase:** Phase 1B.2 canonical database implemented and verified (migrations, seeders, empty-database proof, constraint tests). Phase 1B exit review is next.
 
-**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are all running as a Docker Compose stack with the locked ports and an isolated V2-only MySQL database. The canonical schema contract and reviewed ERD are documented under `docs/database/`; no domain migrations, authentication, or product features exist yet.
+**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are all running as a Docker Compose stack with the locked ports and an isolated V2-only MySQL database. The Phase 1B database contract is fully implemented: canonical `users` + 10 domain migrations seeded with deterministic fixtures and validated via `migrate:fresh --seed` plus 11 focused negative SQL tests and a positive attempt-lifecycle/multi-select proof. No authentication or product features exist yet.
 
 ## Completed
 
@@ -75,7 +75,7 @@ Unchanged from Phase 0 (see `DECISIONS.md` for D-001 through D-026).
 
 ## Completed
 
-### Phase 1B.1 (canonical database contract review — current)
+### Phase 1B.1 (canonical database contract — complete)
 
 - Re-evaluated the draft ERD and locked business rules against the Legacy schema evidence (read-only) and the stock Laravel scaffold.
 - Created `docs/database/SCHEMA_CONTRACT.md` — the implementation-ready contract: per-table columns/types/nullability/defaults, FKs with ON DELETE RESTRICT / ON UPDATE CASCADE, unique constraints, indexes, CHECK constraints, status value sets, archive/soft-delete behavior, timestamps/timezone rules, and the DB-enforced vs application-level invariant matrix.
@@ -89,10 +89,25 @@ Unchanged from Phase 0 (see `DECISIONS.md` for D-001 through D-026).
 - Deferred `book_interactions` (D-027); documented its Legacy semantics and the Phase 3 revisit.
 - Stock migrations disposition decided: `users` rewritten, framework tables retained stock, `sessions` kept as the Laravel database-session table.
 - Updated `DECISIONS.md` (D-027…D-030), `ROADMAP.md`, `SESSION_LOG.md`, `PROJECT_STATE.md`.
+- Reviewed (4 corrections applied) and committed as `2babd1a`; pushed to `origin/rebuild/v2`.
 
-## Not started (Phase 1B.2 and later)
+### Phase 1B.2 (canonical database implementation — complete)
 
-- Phase 1B.2: migrations implementing `docs/database/SCHEMA_CONTRACT.md`, deterministic seeders, Laravel database sessions, empty-database proof.
+- Rewrote `0001_01_01_000000_create_users_table.php`: canonical `users` (role/status, self-FKs for approval/status/creation provenance, `(role,status)` + `(status,email_verified_at)` indexes, `users_role_check`, `users_status_check`); `password_reset_tokens` and `sessions` retained byte-for-byte stock.
+- Created domain migrations `2026_08_31_000001`…`000010` in dependency order: `courses`, `course_books`, `enrollments`, `quizzes`, `questions`, `options`, `quiz_attempts`, `student_answers`, `student_answer_options`, `ai_generation_requests` — matching SCHEMA_CONTRACT exactly.
+- Implemented all 25 CHECK constraints via explicit `ALTER TABLE` statements (including the symmetric attempt-lifecycle and exact-set grading bounds), all UNIQUE keys (enrollment duplicate, question/option position, attempt/student/attempt_number, answer/question, composite selection PK, `storage_path`, `email`), and all contract indexes.
+- Resolved a MySQL 8.0 limitation (error 3823): `courses.instructor_id` FK declared `ON DELETE RESTRICT / ON UPDATE RESTRICT` (D-031) so its two contract CHECKs can legally reference it; all other domain FKs remain RESTRICT/CASCADE (verified via `information_schema.referential_constraints`).
+- Rewrote `DatabaseSeeder.php` (Query Builder, no new Eloquent models, `WithoutModelEvents`): 1 ACTIVE Admin (bootstrap), 1 ACTIVE Instructor (created/approved by admin), 1 ACTIVE + 1 PENDING student, 1 ACTIVE instructor-assigned course, 1 ACTIVE enrollment, 1 PUBLISHED quiz, 1 SINGLE_CHOICE question (4 options) + 1 MULTI_SELECT question (4 options); `email`/`password` deterministic. Kept stock `UserFactory`.
+- Empty-database proof passed inside the dev container: `php artisan migrate:fresh --seed` — 13 migrations, 19 tables (9 framework incl. `users` + 10 domain).
+- Verified 25 CHECKs, FK referential actions, and every UNIQUE/index via `information_schema`.
+- Ran 11 focused negative SQL tests — each failed with exactly the expected CHECK/UNIQUE constraint — plus a positive proof: valid IN_PROGRESS→SUBMITTED lifecycle, a 3-option MULTI_SELECT answer, and composite-PK duplicate-selection rejection.
+- Skipped `laravel/boost` (backend/AGENTS.md suggestion) — it would modify `composer.json` and is outside approved phase scope.
+- Updated `DECISIONS.md` (D-031), `SCHEMA_CONTRACT.md`, `SESSION_LOG.md`, `PROJECT_STATE.md`.
+- Uncommitted per phase instructions; awaiting user review before the Phase 1B exit check and commit.
+
+## Not started (later phases)
+
+- Phase 1B exit review and commit of the Phase 1B.2 implementation.
 - Authentication endpoints, signup, email verification, account approval/status enforcement.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
@@ -109,8 +124,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-This documentation/implementation update is intentionally uncommitted pending user review.
+Phase 1B.2 implementation and documentation updates are intentionally uncommitted pending user review.
 
 ## Exact next step
 
-After the user reviews this Phase 1B.1 checkpoint, implement Phase 1B.2 as defined in `ROADMAP.md` and `docs/database/SCHEMA_CONTRACT.md`: rewrite the stock `users` migration, add the domain migrations in dependency order, deterministic seeders, Laravel database sessions, and a `migrate:fresh` empty-database proof. Do not start Admin feature pages before the Phase 1 exit criteria pass.
+Phase 1B exit review: confirm the database implementation against `docs/database/SCHEMA_CONTRACT.md` (including the D-031 `courses.instructor_id` FK exception), then commit and push the Phase 1B.2 checkpoint. Do not start Admin feature pages before the Phase 1B exit criteria pass.

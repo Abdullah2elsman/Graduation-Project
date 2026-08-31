@@ -20,7 +20,7 @@ The roadmap is dependency-ordered and delivered as vertical slices. Checkbox com
 Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
-- **Phase 1B (NEXT)** — canonical persistence: 1B.1 contract/ERD (complete 2026-08-31), 1B.2 migrations/sessions/seeders.
+- **Phase 1B (NEXT)** — canonical persistence: 1B.1 contract/ERD (complete 2026-08-31, committed `2babd1a`), 1B.2 migrations/sessions/seeders (complete 2026-08-31, awaiting review/commit).
 
 ### Phase 1A — Reproducible runtime
 
@@ -53,16 +53,17 @@ Phase 1 is split into:
 - [x] Decide stock-migration disposition: rewrite `users`, retain framework tables stock, `sessions` remains the session table.
 - [x] Update the canonical ERD (validated draw.io XML) and DECISIONS/ROADMAP/state/log docs.
 - [x] Apply review corrections: symmetric `quiz_attempts` lifecycle CHECK, AFTER_END-only result release, `constrained()`/referential-action wording, and aligned decision IDs.
-- [ ] User review of this contract checkpoint.
+- [x] User review of this contract checkpoint (4 corrections applied 2026-08-31).
+- [x] Commit the reviewed contract checkpoint (commit `2babd1a`, pushed to `origin/rebuild/v2`).
 
-#### Phase 1B.2 — Canonical migrations, sessions, seeders (NEXT)
+#### Phase 1B.2 — Canonical migrations, sessions, seeders (complete 2026-08-31, uncommitted)
 
-- [ ] Re-evaluated column set finalized: rewrite the stock `users` migration; retain `password_reset_tokens` and `sessions` stock.
-- [ ] Add domain migrations in dependency order per `SCHEMA_CONTRACT.md`: courses, course_books, enrollments, quizzes, questions, options, quiz_attempts, student_answers, student_answer_options, ai_generation_requests.
-- [ ] Add foreign keys (ON DELETE RESTRICT / ON UPDATE CASCADE), unique constraints, CHECK constraints, lifecycle fields, and indexes explicitly.
-- [ ] Configure Laravel database sessions for Sanctum SPA authentication.
-- [ ] Add deterministic seed data: one admin, one instructor, representative pending students, one course, one active enrollment, and a minimal quiz fixture (one SINGLE_CHOICE and one MULTI_SELECT question).
-- [ ] Prove migrations and seeders work from an empty database (`php artisan migrate:fresh --seed`).
+- [x] Rewrite the stock `users` migration; retain `password_reset_tokens` and `sessions` byte-for-byte stock.
+- [x] Add domain migrations in dependency order per `SCHEMA_CONTRACT.md` (`2026_08_31_000001`…`000010`): courses, course_books, enrollments, quizzes, questions, options, quiz_attempts, student_answers, student_answer_options, ai_generation_requests.
+- [x] Add foreign keys (ON DELETE RESTRICT / ON UPDATE CASCADE, with the documented D-031 `courses.instructor_id` exception), unique constraints, 25 CHECK constraints, lifecycle fields, and indexes explicitly.
+- [x] Confirm Laravel database sessions for Sanctum SPA authentication (`SESSION_DRIVER=database`, stock `sessions` table; no extra table needed).
+- [x] Add deterministic seed data: one admin, one instructor, an ACTIVE and a PENDING student, one course, one active enrollment, and a minimal quiz fixture (one SINGLE_CHOICE and one MULTI_SELECT question).
+- [x] Prove migrations and seeders work from an empty database (`php artisan migrate:fresh --seed`, 19 tables) and verify constraints with negative SQL tests.
 
 ### Authentication and lifecycle vertical slice
 
