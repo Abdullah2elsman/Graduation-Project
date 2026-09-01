@@ -1,11 +1,11 @@
 # Smart Book V2 — Canonical Database Schema Contract
 
-**Date:** 2026-08-31 (Phase 1B implemented; auth cross-reference updated in Phase 1C.1)
+**Date:** 2026-09-01 (Phase 1B canonical baseline; authentication persistence extended through Phase 1C.8)
 **Canonical ERD:** `docs/database/Smart_Book_V2_ERD.drawio`
 **Target:** MySQL 8.x, Laravel 13 migrations.
 **Read together with:** `docs/DECISIONS.md`, `docs/REBUILD_CONTEXT.md`, `docs/auth/AUTH_CONTRACT.md`, and the latest `docs/SESSION_LOG.md`.
 
-This document is the implemented canonical database contract at checkpoint `d474d70`. Deliberations and rationale live in `DECISIONS.md`/`SESSION_LOG.md`; this document states the Phase 1B schema. Authentication-specific persistence added in Phase 1C—such as Instructor invitation records and internal rejection reasons—must follow `docs/auth/AUTH_CONTRACT.md` and update this contract/ERD alongside the implementation rather than being inferred from the existing Phase 1B tables.
+This document records the implemented canonical database contract. The Phase 1B baseline was established at checkpoint `d474d70`; Phase 1C.8 extends that baseline with dedicated Instructor-invitation persistence. Deliberations and rationale live in `DECISIONS.md`/`SESSION_LOG.md`; authentication behavior must also be read with `docs/auth/AUTH_CONTRACT.md`.
 
 ---
 
@@ -43,8 +43,9 @@ This document is the implemented canonical database contract at checkpoint `d474
 | `2026_08_31_000008_create_student_answers_table.php` | `student_answers` | created |
 | `2026_08_31_000009_create_student_answer_options_table.php` | `student_answer_options` | created |
 | `2026_08_31_000010_create_ai_generation_requests_table.php` | `ai_generation_requests` | created |
+| `2026_09_01_000001_create_instructor_invitations_table.php` | `instructor_invitations` | created in Phase 1C.8 |
 
-Domain migrations appear after the framework migrations in dependency order. The empty-database proof passed with `php artisan migrate:fresh --seed` inside the dev container (13 migrations, 19 tables — 9 framework incl. `users`, 10 domain — and 25 CHECKs).
+Phase 1B domain migrations appear after the framework migrations in dependency order. At the Phase 1B checkpoint, the empty-database proof passed with `php artisan migrate:fresh --seed` inside the dev container (13 migrations, 19 tables — 9 framework incl. `users`, 10 domain — and 25 CHECKs). Phase 1C.8 subsequently adds the `instructor_invitations` migration; that migration is exercised by the isolated MySQL focused and full Laravel test suites.
 
 ### 2.2 Framework tables (retained stock, not part of the domain model)
 
@@ -412,6 +413,37 @@ DB-enforced: page-range and count CHECKs; status values.
 App-level: authorization (requesting instructor owns the course containing the book); page-range ≤ page_count; response schema validation; timeout/failure handling; draft-before-publish rule.
 
 ---
+
+### 3.13 `instructor_invitations`
+
+Purpose: dedicated single-use onboarding invitations for Admin-created Instructor accounts.
+
+| Column | Type | Null | Default | Notes |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | no | auto | PK |
+| instructor_id | BIGINT UNSIGNED | no | — | FK → `users.id`; owning Instructor |
+| token_hash | CHAR(64) | no | — | **UQ**; SHA-256 hex digest only; plaintext token is never persisted |
+| expires_at | TIMESTAMP | no | — | invitation usability expires after 7 days (app-level rule) |
+| accepted_at | TIMESTAMP | yes | NULL | set exactly when invitation acceptance succeeds |
+| revoked_at | TIMESTAMP | yes | NULL | set when an unused invitation is superseded/revoked |
+| created_at / updated_at | TIMESTAMP | yes | NULL | Eloquent |
+
+Keys / constraints:
+- `UQ (token_hash)`
+- `INDEX (instructor_id, accepted_at, revoked_at)` named `instructor_invitations_lifecycle_index`
+- FK `instructor_id` → `users.id`: `ON DELETE RESTRICT`, `ON UPDATE CASCADE`
+
+Business semantics:
+- Invitations belong only to Admin-created Instructor onboarding flows; Instructors cannot self-register.
+- The application generates 32 cryptographically random bytes and sends the plaintext token only through the invitation URL; only its SHA-256 digest is stored.
+- A usable invitation is unaccepted, unrevoked, unexpired, and belongs to an Instructor still in the expected `PENDING` + unverified onboarding state.
+- Reissue transactionally revokes all prior unused/unrevoked invitations for the Instructor and persists one replacement invitation.
+- Acceptance is single-use and transactional: establish the real password, set email verification, transition the Instructor to `ACTIVE`, record latest status-transition provenance, consume the invitation, and revoke any other still-unused invitation.
+- Invitation expiry alone does not reject, delete, or activate the Instructor.
+- Notification dispatch is an application side effect performed only after the create/reissue database transaction commits.
+
+DB-enforced: invitation identity, unique token digest, Instructor referential integrity.
+App-level: seven-day lifetime, lifecycle eligibility, revocation/reissue rules, token hashing/verification, single-use acceptance, transactional locking, and after-commit notification dispatch.
 
 ## 4. Grading model (summary)
 

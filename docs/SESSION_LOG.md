@@ -545,3 +545,44 @@ No history/audit table or migration was added.
 ### Exact next step
 
 Phase 1C.8 — Instructor invitation/password setup: Admin-created pending Instructor accounts, seven-day single-use invitations, atomic invitation reissue/revocation, password establishment, email verification, and activation on acceptance.
+
+## 2026-09-01 — Phase 1C.8 Instructor invitation/password setup implemented and verified
+
+### Persistence and security
+
+- Added dedicated `instructor_invitations` persistence.
+- Invitation token source is 32 cryptographically random bytes represented as 64 hex characters.
+- Only the SHA-256 token digest is persisted; plaintext invitation tokens are never stored.
+- Invitations expire after seven days and carry accepted/revoked timestamps.
+- Unaccepted Instructor accounts use an unguessable unusable password hash until invitation acceptance.
+
+### Admin creation and reissue
+
+- Admin creation is protected by `auth:sanctum` → `application.access` → `admin`.
+- Creation atomically persists an `INSTRUCTOR/PENDING` unverified account and its invitation.
+- `created_by_user_id` records the creating Admin.
+- Reissue locks/revalidates the Instructor, revokes all previous unused invitations, and persists one replacement invitation transactionally.
+- Reissue is throttled to 3 attempts/minute per authenticated Admin.
+- Invitation notifications are registered with `DB::afterCommit()` so a rolled-back transaction never sends an unusable invitation link.
+
+### Public validation and acceptance
+
+- Public validation returns only minimal `usable`/expiry state.
+- Invalid, expired, revoked, accepted, and lifecycle-invalid invitations share a safe unusable response.
+- Validation is throttled to 10 requests/minute per IP.
+- Acceptance is throttled to 5 requests/minute per IP.
+- Acceptance uses transaction + row locking and rechecks invitation and Instructor invariants under lock.
+- Successful acceptance establishes the password, marks email verified, changes status to `ACTIVE`, records current transition provenance, consumes the invitation, and revokes other unused invitations.
+- Acceptance returns `204` and does not authenticate the Instructor; normal login is required afterward.
+- The invitation email uses `FRONTEND_URL/auth/instructor-invitations/{token}`. Angular route/UI implementation remains deferred.
+
+### Verification
+
+- Focused `InstructorInvitationTest`: **21 passed, 161 assertions**.
+- Full Laravel suite: **122 passed, 542 assertions**.
+- `git diff --check`: passed.
+- No Phase 1C.9 implementation was started.
+
+### Exact next step
+
+Phase 1C.9 — forgot/reset password: established-password eligibility, enumeration-safe forgot responses, lifecycle preservation, and invalidation of existing sessions after successful reset.

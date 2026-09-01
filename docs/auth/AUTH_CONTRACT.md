@@ -161,7 +161,7 @@ REJECTED -> PENDING + unverified     Admin-only reversal
 - **LOCKED:** expiry or non-use leaves the Instructor `PENDING`; it never automatically rejects or deletes the account.
 - **LOCKED:** Admin recovery before acceptance is invitation reissue only. Admin-assigned temporary passwords are forbidden.
 - **LOCKED:** an unaccepted Instructor cannot use forgot-password to bypass invitation onboarding.
-- **TECHNICAL RECOMMENDATION:** persist invitation records separately with a hashed random token, `expires_at`, and accepted/revoked timestamps. Store an unguessable unusable password hash on the required non-null `users.password` column until acceptance. The exact migration is Phase 1C implementation work and is not created in Phase 1C.1.
+- **VERIFIED (Phase 1C.8):** invitation records are persisted separately in `instructor_invitations`. A cryptographically random plaintext token exists only transiently; only its SHA-256 hash is stored. Invitations carry `expires_at`, `accepted_at`, and `revoked_at`. An unaccepted Instructor has an unguessable unusable password hash in the required non-null `users.password` column until acceptance.
 - **TECHNICAL RECOMMENDATION:** after acceptance, require a normal login rather than silently establishing a session from an emailed bearer secret.
 
 ---
@@ -221,8 +221,8 @@ The route nouns may be adjusted consistently during implementation, but the tran
 
 | Endpoint | Authentication/state | Request | Success | Relevant errors and throttling |
 |---|---|---|---|---|
-| `POST /api/admin/instructors` | `ACTIVE`, verified `ADMIN` | Instructor identity fields including `name`, `email` | `201`, `INSTRUCTOR/PENDING` created and 7-day invitation dispatched | `403`; validation/duplicate email `422`; transaction failure |
-| `POST /api/admin/instructors/{instructor}/invitation` | `ACTIVE`, verified `ADMIN`; target unaccepted `INSTRUCTOR/PENDING` | none | `202`, old unused invitations revoked and new invitation dispatched atomically | `403`, `404`, invalid state `409`, throttle |
+| `POST /api/admin/instructors` | `ACTIVE`, verified `ADMIN` | Instructor identity fields including `name`, `email` | `201`, `INSTRUCTOR/PENDING` and 7-day invitation persisted; notification dispatched after DB commit | `403`; validation/duplicate email `422`; transaction failure |
+| `POST /api/admin/instructors/{instructor}/invitation` | `ACTIVE`, verified `ADMIN`; target unaccepted `INSTRUCTOR/PENDING` | none | `202`, old unused invitations revoked and one replacement invitation persisted atomically; notification dispatched after DB commit | `403`, `404`, invalid state `409`, throttle |
 | `GET /api/auth/instructor-invitations/{token}` | Public token validation | token in path | Minimal non-sensitive validity/expiry state | Invalid/expired/revoked token response; throttle |
 | `POST /api/auth/instructor-invitations/{token}/accept` | Valid unused invitation | `password`, `password_confirmation` | `204`; password established, email verified, account `ACTIVE`, invitation consumed | Invalid/expired/revoked token; validation `422`; throttle |
 

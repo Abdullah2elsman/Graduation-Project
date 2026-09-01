@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.7 Admin Student lifecycle is implemented and verified. Phase 1C.8 (Instructor invitation/password setup) is the next implementation step.
+**Current phase:** Phase 1C.8 Instructor invitation/password setup is implemented and verified. Phase 1C.9 (forgot/reset password) is the next implementation step.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -176,9 +176,23 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - No audit-history table was added; canonical `status_changed_*` fields represent the latest transition, while full status audit history remains out of MVP scope.
 - Verification: focused lifecycle tests **15 passed / 78 assertions**; full Laravel suite **101 passed / 381 assertions**; `git diff --check` passed.
 
+### Phase 1C.8 (Instructor invitation/password setup — implemented and verified)
+
+- Added dedicated `instructor_invitations` persistence with hashed random tokens, seven-day expiry, accepted/revoked timestamps, and Instructor ownership.
+- Admin Instructor creation is protected by `auth:sanctum` → `application.access` → `admin`.
+- Admin-created Instructors begin `INSTRUCTOR/PENDING`, unverified, with `created_by_user_id` provenance and an unguessable unusable password hash.
+- Invitation tokens use 32 cryptographically random bytes represented as 64 hex characters; only the SHA-256 digest is persisted.
+- Reissue transactionally revokes previous unused invitations and creates one replacement invitation.
+- Invitation validation exposes only minimal usability/expiry state and uses a uniform safe invalid response.
+- Acceptance is transactional and single-use, establishes the real password, verifies the email, activates the Instructor, records latest-transition provenance, consumes the invitation, and creates no authenticated session.
+- Invitation email dispatch occurs through `DB::afterCommit()` so rolled-back creation/reissue transactions do not send unusable invitation links.
+- Throttling: reissue **3/min per Admin**, public validation **10/min per IP**, acceptance **5/min per IP**.
+- The email URL seam is `FRONTEND_URL/auth/instructor-invitations/{token}`; Angular handling remains deferred to Phase 1C.11.
+- Verification: focused invitation tests **21 passed / 161 assertions**; full Laravel suite **122 passed / 542 assertions**; `git diff --check` passed.
+
 ## Not started (later phases)
 
-- Admin approval/status lifecycle, invitations, recovery, and the remaining Angular auth integration.
+- Password recovery, first-production-Admin bootstrap, and the remaining Angular auth integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -198,4 +212,4 @@ Phase 1C.7 Admin Student lifecycle application and documentation changes are com
 
 ## Exact next step
 
-Phase 1C.8 — implement Instructor invitation/password setup: Admin-created `INSTRUCTOR/PENDING` accounts, seven-day single-use invitations, atomic reissue/revocation, password establishment, email verification, and activation on acceptance.
+Phase 1C.9 — implement forgot/reset password using the existing Laravel reset-token infrastructure, with established-password eligibility, enumeration-safe forgot responses, lifecycle preservation, and invalidation of existing sessions after a successful reset.

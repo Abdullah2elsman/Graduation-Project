@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\InstructorInvitationController as AdminInstructorInvitationController;
 use App\Http\Controllers\Admin\StudentLifecycleController;
+use App\Http\Controllers\Auth\InstructorInvitationController as AuthInstructorInvitationController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +44,21 @@ Route::post('/auth/email/verification-notification', [AuthController::class, 're
 // Logout and me require Sanctum authentication
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/auth/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+
+// Phase 1C.8 — Public Instructor invitation validation and acceptance
+Route::get('/auth/instructor-invitations/{token}', [AuthInstructorInvitationController::class, 'show'])
+    ->middleware('throttle:10,1');
+Route::post('/auth/instructor-invitations/{token}/accept', [AuthInstructorInvitationController::class, 'accept'])
+    ->middleware('throttle:5,1');
+
+// Phase 1C.8 — Admin Instructor creation and invitation reissue
+Route::prefix('/admin')
+    ->middleware(['auth:sanctum', 'application.access', 'admin'])
+    ->group(function (): void {
+        Route::post('/instructors', [AdminInstructorInvitationController::class, 'store']);
+        Route::post('/instructors/{instructor}/invitation', [AdminInstructorInvitationController::class, 'reissue'])
+            ->middleware('throttle:3,1');
+    });
 
 // Phase 1C.7 — Admin Student lifecycle
 Route::prefix('/admin/students/{student}')
