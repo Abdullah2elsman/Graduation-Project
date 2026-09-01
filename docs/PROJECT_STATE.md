@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.10 first production Admin bootstrap is implemented and verified. Phase 1C.11 (Angular authentication integration) is the next implementation step.
+**Current phase:** Phase 1C.11 Angular authentication integration is in progress. Phase 1C.11A (Angular auth foundation) is implemented and verified; Phase 1C.11B (login/register and restricted account experiences) is next.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -217,9 +217,24 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Development seeders remain separate and unchanged.
 - Verification: focused command tests **11 passed / 79 assertions**; full Laravel suite **149 passed / 759 assertions**; `git diff --check` passed.
 
+### Phase 1C.11A (Angular auth foundation — implemented and verified)
+
+- Added strict Angular safe-user/auth response types matching the backend safe representation: `id`, `name`, `email`, `role`, `status`, and nullable `email_verified_at`.
+- Added a typed `AuthApiService` for `/api/auth/me`, login, registration, and logout using the existing centralized HttpClient configuration.
+- Added canonical signal-based session state: `loading`, `guest`, `authenticated`, and `error`.
+- Application startup now resolves the server-backed session exactly once through `/api/auth/me`; `401` becomes guest while unexpected failures remain distinguishable as error state.
+- Added reusable guest-only, authenticated, and normal-application-access guards. Normal access mirrors the backend contract: authenticated + verified + `ACTIVE`.
+- No bearer token, personal-access-token, localStorage, or sessionStorage authentication authority was introduced.
+- Identified and corrected a missing SPA integration seam from the earlier HTTP/XSRF foundation: Angular's XSRF interceptor can only forward an existing `XSRF-TOKEN`; it does not itself obtain Sanctum's CSRF cookie.
+- Added centralized `CsrfBootstrapService`: state-changing auth operations obtain `/sanctum/csrf-cookie` before login/register/logout, reuse the existing HttpClient/XSRF stack, deduplicate concurrent bootstrap requests, and do not send the mutation if CSRF bootstrap fails.
+- No cookie parsing or manual `X-XSRF-TOKEN` construction was introduced; Angular's configured interceptor remains responsible for the header.
+- Guard redirect destinations remain injectable because final guest/application shell route destinations are not yet frozen by the current router.
+- Verification: Angular test command **4 files / 32 tests passed**; `git diff --check` passed.
+- No backend code, auth screens, recovery/invitation UI, verification-resume flow, production build, browser smoke proof, or later 1C.11 slice was started.
+
 ## Not started (later phases)
 
-- First-production-Admin bootstrap and the remaining Angular auth integration.
+- Remaining Angular authentication integration (Phase 1C.11B–1C.11E).
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -239,4 +254,4 @@ Phase 1C.7 Admin Student lifecycle application and documentation changes are com
 
 ## Exact next step
 
-Phase 1C.11 — integrate the Angular authentication experience with the completed backend contract, including auth state, login/registration, restricted account experiences, recovery flows, Instructor invitation acceptance, and preservation/resumption of interrupted signed email verification.
+Phase 1C.11B — implement Angular login/registration screens and the canonical restricted-account experiences on top of the completed 1C.11A auth/session foundation. Do not start the interrupted verification-resume, Instructor invitation, recovery UI, or final browser-proof slices yet.

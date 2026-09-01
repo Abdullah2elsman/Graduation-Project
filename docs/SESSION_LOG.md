@@ -671,3 +671,41 @@ No self-referential creator, approver, or transition provenance is recorded.
 ### Exact next step
 
 Phase 1C.11 — Angular authentication integration against the completed backend authentication contract.
+
+## 2026-09-01 — Phase 1C.11A Angular auth foundation implemented and verified
+
+### Angular authentication foundation
+
+- Added typed safe-user and auth-response contracts matching Laravel's safe representation.
+- Added canonical `AuthApiService` for `/api/auth/me`, login, registration, and logout.
+- Added signal-based auth/session state with `loading`, `guest`, `authenticated`, and `error`.
+- Startup session resolution is centralized through one deduplicated `/api/auth/me` bootstrap.
+- `/me` `200` establishes authenticated state; `401` establishes guest; unexpected failures remain error state.
+- Added guest-only, authenticated, and normal-application-access route guards.
+- Normal application access mirrors Laravel: authenticated + verified + `ACTIVE`.
+- Restricted authenticated states remain authenticated rather than being collapsed to guest.
+
+### Sanctum CSRF correction
+
+The existing Phase 1C.2 HttpClient/XSRF configuration correctly knew how to forward an existing `XSRF-TOKEN`, and the proxy/runtime CSRF endpoint had been proven independently, but Angular had no application-level mechanism that actually obtained the cookie before the first auth mutation.
+
+Phase 1C.11A adds centralized `CsrfBootstrapService`:
+
+- `GET /sanctum/csrf-cookie` precedes login, registration, and logout.
+- Mutations run only after successful CSRF bootstrap.
+- Concurrent callers share one in-flight bootstrap request.
+- Angular's existing XSRF interceptor remains responsible for `X-XSRF-TOKEN`.
+- No manual cookie parsing, bearer authentication, or client-side auth-secret storage was added.
+
+### Verification
+
+- Angular `npx ng test --no-watch`: **4 files, 32 tests passed**.
+- Tests cover startup auth resolution, request deduplication, state classification, login/register/logout state changes, all three guards, CSRF mutation ordering/failure behavior, and absence of bearer/local-storage auth.
+- `git diff --check`: passed.
+- No backend changes were made.
+- No production build or browser smoke proof was performed in this sub-slice; those remain for final Phase 1C.11 integration proof.
+- No Phase 1C.11B implementation was started.
+
+### Exact next step
+
+Phase 1C.11B — Angular login/registration screens and restricted account experiences, built on the completed 1C.11A session/CSRF foundation.

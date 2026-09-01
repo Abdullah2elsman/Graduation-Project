@@ -64,6 +64,7 @@ These facts describe the repository at the end of Phase 1C.1; they are not claim
 - **LOCKED:** the first-party SPA does not use bearer tokens or personal access tokens.
 - **LOCKED:** the canonical authenticated-user endpoint is `GET /api/auth/me`.
 - **LOCKED:** browser mutations use CSRF protection.
+- **VERIFIED (Phase 1C.11A):** Angular's standard XSRF interceptor forwards an existing `XSRF-TOKEN` as `X-XSRF-TOKEN`, but it does not obtain Sanctum's CSRF cookie. The canonical Angular auth mutation path therefore obtains `GET /sanctum/csrf-cookie` before login, registration, and logout. A failed CSRF bootstrap prevents the mutation; concurrent bootstrap callers share one in-flight request. Angular does not parse or store the CSRF token manually.
 - **LOCKED:** database-backed Laravel sessions remain the session store.
 
 ### Development origin contract
