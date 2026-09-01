@@ -6,9 +6,9 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.3 login/logout/me implemented and verified. Phase 1C.4 (student registration) is the next implementation step.
+**Current phase:** Phase 1C.4 Student registration and Phase 1C.5 email verification/resend are implemented and verified. Phase 1C.6 (account-state authorization) is the next implementation step.
 
-**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`. Sanctum `v4.3.3`, `/api` routing, stateful middleware, database-session/cookie settings, exact credentialed CORS, the Angular same-origin dev proxy, centralized HttpClient/XSRF infrastructure, and focused foundation tests are now implemented. Phase 1C.3 — email-only login, logout, and `GET /api/auth/me` — is implemented and verified against the isolated test database `smart_book_v2_test`. Registration, verification, account-state lifecycle, invitations, recovery, and all later authentication behavior remain unimplemented.
+**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
 ## Completed
 
@@ -136,9 +136,28 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Proved the runtime CSRF/session auth flow against a disposable user in `smart_book_v2_test` using an isolated one-off backend (`GET /sanctum/csrf-cookie` → `204`; `POST /api/auth/login` → `200`; `GET /api/auth/me` → `200`; `POST /api/auth/logout` → `204`; `GET /api/auth/me` after logout → `401`). This flow was performed directly against the isolated temporary server (not through the Angular proxy); the Angular proxy/Sanctum/CSRF foundation was verified separately in Phase 1C.2.
 - No application code, tests, Docker config, or `phpunit.xml` were modified for this documentation update, and no commit was made.
 
+### Phase 1C.4 (Student registration — implemented and verified)
+
+- Added public `POST /api/auth/register` with canonical trim/lowercase email normalization and the frozen password policy (minimum 8 characters, at least one letter and one number, confirmed).
+- Server owns lifecycle fields: new public registrations are always `STUDENT`, `PENDING`, and unverified; client-supplied lifecycle fields cannot override them.
+- Successful registration hashes the password, creates and regenerates an authenticated restricted session, dispatches Laravel's verification notification, and returns the safe user representation with `201`.
+- Duplicate/reserved emails, including `REJECTED` accounts, remain unavailable for re-registration.
+- Registration throttling is scoped by normalized email + IP at 3 attempts per 60 seconds.
+- Real runtime registration was proven against `smart_book_v2_test`: `POST /api/auth/register` returned `201` and Mailpit accepted the real SMTP message (`SMTPAccepted=1`, `Messages=1`).
+
+### Phase 1C.5 (email verification/resend — implemented and verified)
+
+- Added named signed callback `GET /api/auth/email/verify/{id}/{hash}` as `verification.verify`, protected by `auth:sanctum`, signed URL validation, and callback throttling (`6/minute`).
+- Laravel `EmailVerificationRequest` enforces authenticated-user ID/hash matching. Verification sets only `email_verified_at`; the Student remains `PENDING` and no approval/enrollment metadata changes.
+- Added `POST /api/auth/email/verification-notification` for authenticated `STUDENT/PENDING` unverified users, with resend throttling at 3 attempts per 60 seconds.
+- Added configurable `FRONTEND_URL`-based success redirect to `/auth/verify-email/success` and a minimal Angular success page that correctly states the account still awaits administrator approval.
+- Real `VerifyEmail` mail/signed-URL construction is covered, including the required `verification.verify` route.
+- Final verification: Laravel **75 tests / 280 assertions** passed; Angular **7 tests** passed; Angular production build passed; `git diff --check` passed.
+- **Approved scope adjustment:** the browser journey for opening a verification link without a valid session, logging in, and resuming the original signed verification target is deferred to Phase 1C.11, where the Angular login/auth state flow is implemented. The required final product behavior is unchanged.
+
 ## Not started (later phases)
 
-- Signup (student registration), email verification, account approval/status enforcement, invitations, recovery, and Angular auth integration.
+- Account-state application authorization, Admin approval/status lifecycle, invitations, recovery, and the remaining Angular auth integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -154,8 +173,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1C.3 application and documentation changes are complete and verified.
+Phase 1C.4 Student registration and Phase 1C.5 email verification/resend application and documentation changes are complete and verified.
 
 ## Exact next step
 
-Phase 1C.4 — implement Student registration (public, Student-only) creating a `STUDENT/PENDING` account with an immediate restricted session, per `AUTH_CONTRACT.md`. Do not implement verification, account-state application middleware, invitations, recovery, Admin lifecycle actions, or Angular auth screens/store/guards yet.
+Phase 1C.6 — implement centralized account-state authorization so normal application APIs require an authenticated, verified, `ACTIVE` account while restricted authenticated states retain only their explicitly allowed auth endpoints. Do not start Admin lifecycle, invitations, recovery, or full Angular auth integration yet.

@@ -430,3 +430,63 @@ Implement email-only login, logout, and `GET /api/auth/me` on the proven Sanctum
 ### Exact next step
 
 Phase 1C.4 — Student registration: public Student-only `POST /api/auth/register` creating a `STUDENT/PENDING` account with an immediate restricted session, per `AUTH_CONTRACT.md`. Do not implement verification, account-state middleware, invitations, recovery, Admin lifecycle actions, or Angular auth UI yet.
+
+## 2026-09-01 — Phase 1C.4–1C.5 registration and email verification implemented and verified
+
+### Scope
+
+Implemented Student registration and the dependent email-verification/resend flow on top of the proven Sanctum session foundation. No Phase 1C.6 account-state application gate, Admin lifecycle, recovery, invitations, or full Angular auth integration was started.
+
+### Phase 1C.4 — Student registration
+
+- Added public `POST /api/auth/register`.
+- Canonical email normalization: trim + lowercase.
+- Password policy: confirmed, minimum 8 characters, at least one letter and one number; no uppercase/symbol requirement.
+- Server assigns `role=STUDENT`, `status=PENDING`, `email_verified_at=null`; clients cannot override lifecycle fields.
+- Password is stored through Laravel's configured hashing behavior.
+- Successful registration immediately establishes and regenerates a restricted authenticated session.
+- Verification notification is dispatched and the safe user representation is returned with `201`.
+- Existing/reserved email returns validation failure; `REJECTED` emails cannot re-register.
+- Registration throttle: normalized email + IP, 3 attempts / 60 seconds.
+
+### Phase 1C.5 — Email verification/resend
+
+- Added `GET /api/auth/email/verify/{id}/{hash}` named `verification.verify`.
+- Callback uses `auth:sanctum`, signed URL validation, `EmailVerificationRequest`, and `throttle:6,1`.
+- Verification changes only `email_verified_at`; the Student remains `PENDING`.
+- Added authenticated resend endpoint for `STUDENT/PENDING` unverified accounts.
+- Resend throttle: user ID, 3 attempts / 60 seconds.
+- Added configurable frontend success redirect using `FRONTEND_URL` + `/auth/verify-email/success`.
+- Added the minimal Angular verification-success route/component; it explicitly states that email verification succeeded while administrator approval is still pending.
+- Real Laravel `VerifyEmail` mail rendering and signed URL construction are covered by tests.
+
+### Runtime Mailpit proof
+
+An isolated one-off backend was started against `smart_book_v2_test` on port `18081`.
+
+Observed:
+
+- runtime database: `mysql|db|3306|smart_book_v2_test`;
+- real `POST /api/auth/register` returned `201`;
+- created user state was `STUDENT/PENDING`, unverified;
+- Mailpit changed to `Messages=1`, `Unread=1`, `SMTPAccepted=1`;
+- disposable test user was deleted;
+- proof container was removed;
+- the five normal project services remained healthy.
+
+### Verification
+
+- Laravel full suite: **75 passed, 280 assertions**.
+- Angular tests: **7 passed**.
+- Angular production build: passed.
+- `git diff --check`: passed.
+
+### Approved scope adjustment
+
+The frozen product behavior still requires a user who opens a signed verification URL without a valid session to authenticate and then resume that original verification request.
+
+The browser/UI implementation of preserving and resuming that signed target is intentionally assigned to **Phase 1C.11 — Angular auth integration**, because the Angular login/auth state flow does not exist yet. Phase 1C.5 owns and completes the backend signed-verification/email behavior.
+
+### Exact next step
+
+Phase 1C.6 — centralized account-state authorization: normal application APIs require authenticated + verified + `ACTIVE`, while restricted authenticated states retain only explicitly permitted auth endpoints.

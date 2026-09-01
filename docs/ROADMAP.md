@@ -21,7 +21,7 @@ Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
 - **Phase 1B (complete 2026-08-31)** — canonical persistence: 1B.1 contract/ERD committed at `2babd1a`; 1B.2 migrations/sessions/seeders committed at `d474d70`.
-- **Phase 1C (current)** — authentication: 1C.1 contract review complete; 1C.2 Sanctum/API/CSRF/CORS foundation implemented and verified; 1C.3 login/logout/me implemented and verified; 1C.4 student registration is next.
+- **Phase 1C (current)** — authentication: 1C.1–1C.5 implemented and verified through Student registration and email verification/resend; 1C.6 account-state authorization is next.
 
 ### Phase 1A — Reproducible runtime
 
@@ -73,21 +73,21 @@ The frozen contract is `docs/auth/AUTH_CONTRACT.md`. Complete these small review
 - [x] **1C.1 — Authentication Contract Review:** reverify the implementation baseline and freeze identity, password, state machine, student approval, Instructor invitation, signed verification, recovery, Admin bootstrap, endpoints, SPA, authorization, and security behavior.
 - [x] **1C.2 — Sanctum/API/CSRF/CORS foundation:** installed Sanctum 4.3.3, wired stateful API routing, configured database sessions/cookies/exact credentialed CORS, added the Angular proxy and central HttpClient/XSRF providers, and verified the foundation with automated and Docker HTTP tests. No token or auth business endpoints were added.
 - [x] **1C.3 — Login, logout, `/api/auth/me` (complete):** implemented & verified email normalization, restricted-session state payload, throttling, and session security (2026-09-01). Full suite green (37 tests, 150 assertions); focused login suite green after test strengthening (19 tests, 110 assertions); runtime CSRF/session flow proven and DB isolation verified. Test DB `smart_book_v2_test`; dev DB `smart_book_v2` unchanged.
-- [ ] **1C.4 — Student registration:** public Student-only creation as `PENDING` plus immediate restricted session.
-- [ ] **1C.5 — Email verification/resend:** authenticated signed verification, login/resume behavior, Mailpit delivery, and throttling.
+- [x] **1C.4 — Student registration:** public Student-only creation as `PENDING` plus immediate restricted session; canonical validation/normalization, server-owned lifecycle state, verification dispatch, throttling, focused tests, and real Mailpit delivery verified.
+- [x] **1C.5 — Email verification/resend:** authenticated signed verification, resend/state checks, throttling, real Mailpit delivery, configurable Angular success redirect, and focused tests verified. Browser login/resume of an interrupted signed verification target is intentionally completed with Angular auth integration in 1C.11.
 - [ ] **1C.6 — Account-state authorization:** centralized verified/`ACTIVE` gate and restricted PENDING/SUSPENDED/REJECTED behavior.
 - [ ] **1C.7 — Admin Student lifecycle:** approval, rejection with internal reason, and Admin-only rejected-to-pending restoration.
 - [ ] **1C.8 — Instructor invitation/password setup:** seven-day single-use invitations, atomic reissue/revocation, activation on acceptance.
 - [ ] **1C.9 — Forgot/reset password:** established-password eligibility, lifecycle preservation, enumeration safety, and session invalidation.
 - [ ] **1C.10 — First production Admin command:** `php artisan app:create-admin` creates an ACTIVE, verified Admin without hardcoded production credentials.
-- [ ] **1C.11 — Angular auth integration:** API client/state, CSRF, guards, auth/recovery screens, all restricted states, and browser smoke proof.
+- [ ] **1C.11 — Angular auth integration:** API client/state, CSRF, guards, auth/recovery screens, all restricted states, preservation/resumption of an interrupted signed email-verification target after login, and browser smoke proof.
 
 ### Phase 1 exit criteria
 
 - [ ] A fresh clone starts through Docker without host language/database dependencies. (Phase 1A validated the flow and documented a Docker-DNS caveat on this machine.)
 - [x] MySQL, Laravel, Angular, Flask health endpoint, and Mailpit are reachable through documented ports (Phase 1A verification, 2026-08-31).
 - [ ] Legacy and V2 can run concurrently without port, database, volume, or runtime dependency conflicts. (V2 ports/db/volume isolation verified; a live concurrent Legacy boot is still outstanding.)
-- [ ] A student can sign up, receive a Mailpit verification email, verify, authenticate, and remain restricted while pending.
+- [ ] A student can sign up, receive a Mailpit verification email, verify, authenticate, and remain restricted while pending. (Backend/session/email path is verified through 1C.5; complete browser journey remains for 1C.11.)
 - [ ] A seeded active admin can authenticate and reach an authorized Angular shell.
 - [ ] Automated tests prove pending users cannot access normal application APIs.
 
