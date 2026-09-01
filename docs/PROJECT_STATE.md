@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.9 forgot/reset password is implemented and verified. Phase 1C.10 (first production Admin bootstrap command) is the next implementation step.
+**Current phase:** Phase 1C.10 first production Admin bootstrap is implemented and verified. Phase 1C.11 (Angular authentication integration) is the next implementation step.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -204,6 +204,19 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Password reset does not mutate role, status, verification, approval metadata, transition provenance, rejection/suspension reason, or creator provenance.
 - Verification: focused recovery tests **16 passed / 138 assertions**; full Laravel suite **138 passed / 680 assertions**; `git diff --check` passed.
 
+### Phase 1C.10 (first production Admin bootstrap — implemented and verified)
+
+- Added interactive `php artisan app:create-admin` as the production first-Admin bootstrap mechanism.
+- The command signature exposes no credential arguments or options.
+- Name/email use interactive prompts; password and password confirmation use hidden secret prompts.
+- Email uses the canonical `EmailNormalizer`; duplicate, normalized-duplicate, and reserved/rejected emails fail without mutating existing users.
+- Password validation reuses canonical `PasswordRules`; password hashing uses Laravel's configured `Hash` service.
+- Successful bootstrap creates exactly one `ADMIN/ACTIVE` account with `email_verified_at` set.
+- Bootstrap provenance is intentionally actorless: `approved_at`, `approved_by_user_id`, `status_changed_at`, `status_changed_by_user_id`, `status_reason`, and `created_by_user_id` are all `NULL`.
+- No self-referential creator, approver, or transition actor is fabricated for the bootstrap Admin.
+- Development seeders remain separate and unchanged.
+- Verification: focused command tests **11 passed / 79 assertions**; full Laravel suite **149 passed / 759 assertions**; `git diff --check` passed.
+
 ## Not started (later phases)
 
 - First-production-Admin bootstrap and the remaining Angular auth integration.
@@ -226,4 +239,4 @@ Phase 1C.7 Admin Student lifecycle application and documentation changes are com
 
 ## Exact next step
 
-Phase 1C.10 — implement the first-production-Admin bootstrap command `php artisan app:create-admin` using canonical email normalization and password rules, creating an email-verified `ACTIVE/ADMIN` safely without hardcoded production credentials.
+Phase 1C.11 — integrate the Angular authentication experience with the completed backend contract, including auth state, login/registration, restricted account experiences, recovery flows, Instructor invitation acceptance, and preservation/resumption of interrupted signed email verification.

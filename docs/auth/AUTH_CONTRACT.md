@@ -182,6 +182,7 @@ REJECTED -> PENDING + unverified     Admin-only reversal
 
 - **LOCKED:** the first real production Admin is provisioned with `php artisan app:create-admin`.
 - **LOCKED:** the command creates the Admin as `ACTIVE` and email-verified.
+- **LOCKED (Phase 1C.10):** the first bootstrap Admin is created directly in its initial `ACTIVE` + verified state with no acting application user. Therefore `approved_at`, `approved_by_user_id`, `status_changed_at`, `status_changed_by_user_id`, `status_reason`, and `created_by_user_id` are all `NULL`. Self-referential creator/actor provenance is forbidden for this bootstrap case.
 - **LOCKED:** production Admin credentials are never hardcoded in seeders or environment variables.
 - **TECHNICAL RECOMMENDATION:** use interactive email/name input and a hidden confirmed password prompt, apply the canonical normalization/password rules, fail safely on an existing email, and avoid accepting a plaintext password as a command-line option.
 - **VERIFIED:** deterministic development seed credentials currently exist for local fixtures. They are development-only and are not the production bootstrap mechanism.

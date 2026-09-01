@@ -21,7 +21,7 @@ Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
 - **Phase 1B (complete 2026-08-31)** — canonical persistence: 1B.1 contract/ERD committed at `2babd1a`; 1B.2 migrations/sessions/seeders committed at `d474d70`.
-- **Phase 1C (current)** — authentication: 1C.1–1C.9 implemented and verified through forgot/reset password recovery; 1C.10 first production Admin bootstrap is next.
+- **Phase 1C (current)** — authentication: 1C.1–1C.10 implemented and verified through the first production Admin bootstrap; 1C.11 Angular authentication integration is next.
 
 ### Phase 1A — Reproducible runtime
 
@@ -79,7 +79,7 @@ The frozen contract is `docs/auth/AUTH_CONTRACT.md`. Complete these small review
 - [x] **1C.7 — Admin Student lifecycle:** Admin-only approval, rejection with internal reason, and rejected-to-pending restoration implemented transactionally with canonical latest-transition provenance.
 - [x] **1C.8 — Instructor invitation/password setup:** seven-day single-use hashed-token invitations, transactional reissue/revocation, after-commit notification dispatch, and activation on acceptance implemented and verified.
 - [x] **1C.9 — Forgot/reset password:** established-password eligibility, enumeration-safe recovery, lifecycle preservation, and all-session invalidation implemented and verified.
-- [ ] **1C.10 — First production Admin command:** `php artisan app:create-admin` creates an ACTIVE, verified Admin without hardcoded production credentials.
+- [x] **1C.10 — First production Admin command:** `php artisan app:create-admin` implemented and verified with interactive hidden credentials, canonical normalization/password rules, `ADMIN/ACTIVE` + verified creation, and actorless bootstrap provenance.
 - [ ] **1C.11 — Angular auth integration:** API client/state, CSRF, guards, auth/recovery screens, all restricted states, preservation/resumption of an interrupted signed email-verification target after login, and browser smoke proof.
 
 ### Phase 1 exit criteria

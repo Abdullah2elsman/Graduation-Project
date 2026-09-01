@@ -97,6 +97,7 @@ Business semantics:
 - `REJECTED` emails remain reserved forever; re-registering the same email is blocked (app normalization + CI unique).
 - No destructive deletion of accounts that may own academic history; suspension/rejection preserve enrollments/attempts/grades.
 - Current-state metadata fields capture the latest transition; a full status audit trail is out of scope for the MVP.
+- First-production-Admin bootstrap exception: `app:create-admin` creates the initial Admin directly as `ADMIN/ACTIVE` and verified, with no acting application user and no prior lifecycle transition. For this bootstrap row, `approved_at`, `approved_by_user_id`, `status_changed_at`, `status_changed_by_user_id`, `status_reason`, and `created_by_user_id` remain `NULL`; no self-referential provenance is fabricated.
 
 DB-enforced: email uniqueness (case-insensitive), role/status value sets.
 App-level: lowercase email normalization before persist/login/verification; role/status transition policies (who may approve/suspend/reject); `ACTIVE`-state access enforcement; no-deletion invariant.

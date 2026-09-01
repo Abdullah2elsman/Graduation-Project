@@ -630,3 +630,44 @@ Phase 1C.9 — forgot/reset password: established-password eligibility, enumerat
 ### Exact next step
 
 Phase 1C.10 — implement `php artisan app:create-admin` as the production first-Admin bootstrap mechanism with canonical normalization/password rules and no hardcoded production credentials.
+
+## 2026-09-01 — Phase 1C.10 first production Admin bootstrap implemented and verified
+
+### Implementation
+
+- Added `php artisan app:create-admin`.
+- Command signature contains no credential arguments/options.
+- Name/email are interactive prompts.
+- Password and confirmation are hidden secret prompts.
+- Email normalization uses the canonical `EmailNormalizer`.
+- Password validation reuses canonical `PasswordRules`.
+- Password persistence uses Laravel `Hash`.
+- Duplicate/reserved emails fail safely without mutating existing users.
+- Successful execution atomically creates exactly one `ADMIN/ACTIVE`, email-verified account.
+- Development seeders remain unchanged and separate from production bootstrap.
+
+### Bootstrap provenance decision
+
+The first production Admin is created directly into its initial `ACTIVE`/verified state by the bootstrap mechanism, with no acting application user.
+
+Therefore these fields are intentionally `NULL`:
+
+- `approved_at`
+- `approved_by_user_id`
+- `status_changed_at`
+- `status_changed_by_user_id`
+- `status_reason`
+- `created_by_user_id`
+
+No self-referential creator, approver, or transition provenance is recorded.
+
+### Verification
+
+- Focused `CreateAdminCommandTest`: **11 passed, 79 assertions**.
+- Full Laravel suite: **149 passed, 759 assertions**.
+- `git diff --check`: passed.
+- No Phase 1C.11 implementation was started.
+
+### Exact next step
+
+Phase 1C.11 — Angular authentication integration against the completed backend authentication contract.
