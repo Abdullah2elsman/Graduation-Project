@@ -6,6 +6,7 @@ import { CsrfBootstrapService } from '../http/csrf-bootstrap.service';
 import {
   AuthUserEnvelope,
   LoginRequest,
+  MessageEnvelope,
   RegisterEnvelope,
   RegisterRequest,
 } from './auth.types';
@@ -45,6 +46,15 @@ export class AuthApiService {
   logout(): Observable<void> {
     return from(this.csrf.ensureCookie()).pipe(
       switchMap(() => this.http.post<void>('/api/auth/logout', {})),
+    );
+  }
+
+  /** POST /api/auth/email/verification-notification (authenticated PENDING unverified). */
+  resendVerificationNotification(): Observable<MessageEnvelope> {
+    return from(this.csrf.ensureCookie()).pipe(
+      switchMap(() =>
+        this.http.post<MessageEnvelope>('/api/auth/email/verification-notification', {}),
+      ),
     );
   }
 }

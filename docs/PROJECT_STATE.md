@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.11 Angular authentication integration is in progress. Phase 1C.11A (Angular auth foundation) is implemented and verified; Phase 1C.11B (login/register and restricted account experiences) is next.
+**Current phase:** Phase 1C.11 Angular authentication integration is in progress. Phase 1C.11A (Angular auth foundation) and Phase 1C.11B (login/register and restricted account experiences) are implemented and verified; Phase 1C.11C (interrupted signed email-verification login/resume) is next.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -232,9 +232,28 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Verification: Angular test command **4 files / 32 tests passed**; `git diff --check` passed.
 - No backend code, auth screens, recovery/invitation UI, verification-resume flow, production build, browser smoke proof, or later 1C.11 slice was started.
 
+### Phase 1C.11B (login/register and restricted account experiences — implemented and verified)
+
+- Added concrete Angular authentication routes for `/auth/login` and `/auth/register`.
+- Added canonical restricted-account routes for `/account/verify-email`, `/account/pending`, `/account/suspended`, `/account/rejected`, and `/account/anomaly`.
+- Added the minimal `/app` placeholder destination for authenticated, email-verified `ACTIVE` users; no Phase 2 dashboard functionality was introduced.
+- Added one `AuthDestinationService` as the canonical account-state-to-route classifier so login, registration, guards, and restricted experiences do not independently duplicate lifecycle routing logic.
+- Login preserves authenticated restricted sessions and routes each safe user state to its canonical destination rather than treating restricted accounts as failed authentication.
+- Public registration exposes only Student registration fields (`name`, `email`, `password`, `password_confirmation`) and routes the successful `STUDENT/PENDING` unverified session to the verification-required experience.
+- Added the verification-required experience with CSRF-safe resend through `POST /api/auth/email/verification-notification`.
+- Added waiting-for-Admin, suspended, generic rejected, and `ACTIVE`+unverified anomaly experiences.
+- Restricted experiences expose logout but not the normal application shell.
+- Internal rejection reasons are not available in the Angular safe-user type and are never rendered by the rejected-account experience.
+- Logout clears the canonical in-memory authenticated user state and returns the browser to `/auth/login`.
+- Added safe handling for validation `422`, generic login `401`, throttle `429`, and unexpected/network errors.
+- No bearer tokens, localStorage, or sessionStorage authentication authority was introduced.
+- Verification: Angular test command **9 files / 66 tests passed**; `git diff --check` passed.
+- Final debugging corrected test defects only: asynchronous CSRF-to-mutation test timing, same-URL Router guard testing, invalid seven-character registration fixture password, incorrect post-success submit-state assertions, and missing login error coverage.
+- No backend changes, documentation-contract changes, signed verification-resume flow, Instructor invitation UI, recovery UI, final browser smoke proof, or Phase 2 implementation was started.
+
 ## Not started (later phases)
 
-- Remaining Angular authentication integration (Phase 1C.11B–1C.11E).
+- Remaining Angular authentication integration (Phase 1C.11C–1C.11E).
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -250,8 +269,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1C.7 Admin Student lifecycle application and documentation changes are complete and verified.
+Phase 1C.11B login/register and restricted-account experience application and documentation changes are complete and verified.
 
 ## Exact next step
 
-Phase 1C.11B — implement Angular login/registration screens and the canonical restricted-account experiences on top of the completed 1C.11A auth/session foundation. Do not start the interrupted verification-resume, Instructor invitation, recovery UI, or final browser-proof slices yet.
+Phase 1C.11C — implement preservation and resumption of an interrupted signed email-verification target when the verification link is opened without a valid authenticated session. Do not start Instructor invitation UI, recovery UI, or final browser-proof work yet.

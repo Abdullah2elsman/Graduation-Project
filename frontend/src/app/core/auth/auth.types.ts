@@ -39,3 +39,8 @@ export interface RegisterEnvelope {
     user: SafeUser;
   };
 }
+
+/** Generic message envelope (verification resend acknowledgement). */
+export interface MessageEnvelope {
+  message: string;
+}

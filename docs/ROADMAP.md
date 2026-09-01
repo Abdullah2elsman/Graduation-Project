@@ -21,7 +21,7 @@ Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
 - **Phase 1B (complete 2026-08-31)** — canonical persistence: 1B.1 contract/ERD committed at `2babd1a`; 1B.2 migrations/sessions/seeders committed at `d474d70`.
-- **Phase 1C (current)** — authentication: 1C.1–1C.10 are complete; 1C.11 is in progress. 1C.11A Angular auth/session/CSRF foundation is implemented and verified; 1C.11B login/register and restricted experiences is next.
+- **Phase 1C (current)** — authentication: 1C.1–1C.10 are complete; 1C.11 is in progress. 1C.11A auth/session/CSRF foundation and 1C.11B login/register/restricted experiences are implemented and verified; 1C.11C interrupted signed verification login/resume is next.
 
 ### Phase 1A — Reproducible runtime
 
@@ -80,7 +80,7 @@ The frozen contract is `docs/auth/AUTH_CONTRACT.md`. Complete these small review
 - [x] **1C.8 — Instructor invitation/password setup:** seven-day single-use hashed-token invitations, transactional reissue/revocation, after-commit notification dispatch, and activation on acceptance implemented and verified.
 - [x] **1C.9 — Forgot/reset password:** established-password eligibility, enumeration-safe recovery, lifecycle preservation, and all-session invalidation implemented and verified.
 - [x] **1C.10 — First production Admin command:** `php artisan app:create-admin` implemented and verified with interactive hidden credentials, canonical normalization/password rules, `ADMIN/ACTIVE` + verified creation, and actorless bootstrap provenance.
-- [ ] **1C.11 — Angular auth integration:** IN PROGRESS — 1C.11A API client/state, startup `/me` bootstrap, Sanctum CSRF bootstrap, and reusable guards are implemented and verified. Remaining: login/register UI, restricted states, interrupted verification login/resume, invitation/recovery UI, and browser smoke proof.
+- [ ] **1C.11 — Angular auth integration:** IN PROGRESS — 1C.11A API client/state, startup `/me` bootstrap, Sanctum CSRF bootstrap and guards, plus 1C.11B login/register UI, canonical restricted-state experiences, resend, logout, and state-aware routing are implemented and verified. Remaining: interrupted verification login/resume, invitation/recovery UI, and browser smoke proof.
 
 ### Phase 1 exit criteria
 

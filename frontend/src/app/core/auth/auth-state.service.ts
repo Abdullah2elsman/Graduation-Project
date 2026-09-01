@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Observable, lastValueFrom } from 'rxjs';
+import { take, tap } from 'rxjs/operators';
 
 import { AuthApiService } from './auth-api.service';
 import { SafeUser } from './auth.types';
@@ -123,5 +123,13 @@ export class AuthStateService {
 
   setLoading(): void {
     this.session.set({ kind: 'loading' });
+  }
+
+  /**
+   * Invalidates the server session and, on success, clears canonical state to
+   * guest so stale user data disappears. Navigation is handled by the caller.
+   */
+  logout(): Observable<void> {
+    return this.authApi.logout().pipe(tap(() => this.setGuest()));
   }
 }

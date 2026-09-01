@@ -1,37 +1,17 @@
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { inject, InjectionToken } from '@angular/core';
+import { inject } from '@angular/core';
 
 import { AuthStateService } from './auth-state.service';
-
-/**
- * Destination overrides for guard redirects. The Phase 1C.11A router has not yet
- * frozen dashboard/guest destination URLs, so guards default to the root and
- * route owners can override these tokens once the destination routes exist.
- */
-export const AUTHENTICATED_REDIRECT_URL = new InjectionToken<string>(
-  'AUTHENTICATED_REDIRECT_URL',
-  { factory: () => '/' },
-);
-
-export const UNAUTHENTICATED_REDIRECT_URL = new InjectionToken<string>(
-  'UNAUTHENTICATED_REDIRECT_URL',
-  { factory: () => '/' },
-);
-
-export const RESTRICTED_REDIRECT_URL = new InjectionToken<string>(
-  'RESTRICTED_REDIRECT_URL',
-  { factory: () => '/' },
-);
+import {
+  AuthDestinationService,
+  routeForAuthenticated,
+} from './auth-destination.service';
 
 export type GuardResult = boolean | UrlTree;
 
-function redirect(router: Router, url: string): UrlTree {
-  return router.parseUrl(url);
-}
-
 /**
  * Guest-only routes (login, register, public recovery). Authenticated users are
- * redirected regardless of their restricted status; restricted users remain
+ * redirected to their canonical state destination; restricted users remain
  * authenticated rather than being forced to guest.
  */
 export function guestOnlyGuard(
@@ -39,9 +19,10 @@ export function guestOnlyGuard(
   state: RouterStateSnapshot,
 ): GuardResult {
   const auth = inject(AuthStateService);
+  const gateway = inject(AuthDestinationService);
   const router = inject(Router);
   if (auth.isAuthenticated()) {
-    return redirect(router, inject(AUTHENTICATED_REDIRECT_URL));
+    return router.parseUrl(gateway.authenticatedDestination());
   }
   return true;
 }
@@ -55,11 +36,12 @@ export function authenticatedGuard(
   state: RouterStateSnapshot,
 ): GuardResult {
   const auth = inject(AuthStateService);
+  const gateway = inject(AuthDestinationService);
   const router = inject(Router);
   if (auth.isAuthenticated()) {
     return true;
   }
-  return redirect(router, inject(UNAUTHENTICATED_REDIRECT_URL));
+  return router.parseUrl(gateway.guestDestination);
 }
 
 /**
@@ -72,12 +54,35 @@ export function applicationAccessGuard(
   state: RouterStateSnapshot,
 ): GuardResult {
   const auth = inject(AuthStateService);
+  const gateway = inject(AuthDestinationService);
   const router = inject(Router);
   if (auth.canAccessApplication()) {
     return true;
   }
   if (auth.isAuthenticated()) {
-    return redirect(router, inject(RESTRICTED_REDIRECT_URL));
+    return router.parseUrl(gateway.authenticatedDestination());
   }
-  return redirect(router, inject(UNAUTHENTICATED_REDIRECT_URL));
+  return router.parseUrl(gateway.guestDestination);
+}
+
+/**
+ * Factory guard for a specific restricted account-state page. The user is only
+ * admitted when their canonical state maps to the requested destination;
+ * otherwise they are redirected to their correct destination. This keeps a
+ * restricted user off the wrong restricted page and avoids redirect loops.
+ */
+export function restrictedStateGuard(expectedPath: string) {
+  return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): GuardResult => {
+    const auth = inject(AuthStateService);
+    const gateway = inject(AuthDestinationService);
+    const router = inject(Router);
+    const user = auth.user();
+    if (!user) {
+      return router.parseUrl(gateway.guestDestination);
+    }
+    if (routeForAuthenticated(user) === expectedPath) {
+      return true;
+    }
+    return router.parseUrl(gateway.authenticatedDestination());
+  };
 }

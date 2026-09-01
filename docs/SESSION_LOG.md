@@ -709,3 +709,45 @@ Phase 1C.11A adds centralized `CsrfBootstrapService`:
 ### Exact next step
 
 Phase 1C.11B — Angular login/registration screens and restricted account experiences, built on the completed 1C.11A session/CSRF foundation.
+
+## 2026-09-01 — Phase 1C.11B login/register and restricted experiences implemented and verified
+
+### Angular authentication experiences
+
+- Added `/auth/login` and `/auth/register`.
+- Added canonical restricted routes:
+  - `/account/verify-email`
+  - `/account/pending`
+  - `/account/suspended`
+  - `/account/rejected`
+  - `/account/anomaly`
+- Added minimal `/app` placeholder routing for `ACTIVE` + verified users only.
+- Added `AuthDestinationService` as the single state-to-destination classifier used by navigation and guards.
+- Login preserves restricted authenticated states and routes each state to the correct experience.
+- Student registration exposes no role/status selection and routes the authenticated `PENDING` + unverified Student to verification.
+- Verification resend uses the existing Sanctum CSRF bootstrap before its mutation.
+- Restricted experiences provide logout without exposing the application shell.
+- Rejected users receive only generic rejected-account messaging; internal rejection reasons are never represented in the frontend safe-user model.
+- `ACTIVE` + unverified accounts are routed to a restricted integrity-anomaly experience and never to `/app`.
+- Logout clears canonical auth state and routes to `/auth/login`.
+
+### Error and form behavior
+
+- Login handles generic `401`, field validation `422`, throttle `429`, and unexpected/network failures safely.
+- Registration surfaces backend validation safely and prevents lifecycle-field injection through the form.
+- Login and registration prevent duplicate submissions while a request is pending.
+- Verification resend handles success and throttling without exposing internal lifecycle details.
+- No bearer-token or browser-storage authentication authority was introduced.
+
+### Verification
+
+- Angular test suite: **9 files, 66 tests passed**.
+- `git diff --check`: passed.
+- Focused tests cover the full login state-routing matrix, registration, restricted routing, resend, logout, rejection privacy, guards, and redirect-loop regressions.
+- Final test debugging changed test behavior only; no production behavior was changed for incorrect test expectations.
+- No backend changes were made.
+- No Phase 1C.11C/D/E work was started.
+
+### Exact next step
+
+Phase 1C.11C — preserve and resume the original signed email-verification target when a verification link is opened without a valid session and the user must authenticate first.
