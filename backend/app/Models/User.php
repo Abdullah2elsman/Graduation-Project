@@ -24,6 +24,12 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(InstructorInvitation::class, 'instructor_id');
     }
 
+    public function hasEstablishedPassword(): bool
+    {
+        return $this->role !== 'INSTRUCTOR'
+            || $this->instructorInvitations()->whereNotNull('accepted_at')->exists();
+    }
+
     /**
      * Get the attributes that should be cast.
      *

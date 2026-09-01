@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\InstructorInvitations;
 use App\Http\Controllers\Controller;
+use App\Support\PasswordRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Validation\Rules\Password;
 
 class InstructorInvitationController extends Controller
 {
@@ -37,11 +37,7 @@ class InstructorInvitationController extends Controller
         InstructorInvitations $invitations,
     ): Response {
         $validated = $request->validate([
-            'password' => [
-                'required',
-                'confirmed',
-                Password::min(8)->letters()->numbers(),
-            ],
+            'password' => PasswordRules::confirmed(),
         ]);
 
         $invitations->accept($token, $validated['password']);

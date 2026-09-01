@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.8 Instructor invitation/password setup is implemented and verified. Phase 1C.9 (forgot/reset password) is the next implementation step.
+**Current phase:** Phase 1C.9 forgot/reset password is implemented and verified. Phase 1C.10 (first production Admin bootstrap command) is the next implementation step.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -190,9 +190,23 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - The email URL seam is `FRONTEND_URL/auth/instructor-invitations/{token}`; Angular handling remains deferred to Phase 1C.11.
 - Verification: focused invitation tests **21 passed / 161 assertions**; full Laravel suite **122 passed / 542 assertions**; `git diff --check` passed.
 
+### Phase 1C.9 (forgot/reset password — implemented and verified)
+
+- Added `POST /api/auth/forgot-password` and `POST /api/auth/reset-password` using Laravel's existing Password Broker and stock `password_reset_tokens` table.
+- Extracted the frozen password policy into reusable `PasswordRules` so registration/invitation/recovery use one canonical rule.
+- Forgot-password responses are enumeration-safe: eligible, unknown, restricted-state, and unaccepted-Instructor requests share the same generic `202` acknowledgement.
+- Recovery eligibility is status-independent for accounts with established passwords; unaccepted Instructors remain ineligible until invitation acceptance.
+- Instructor established-password eligibility is derived from accepted invitation state; no new schema column was added.
+- Forgot throttling is **1/min per normalized email + 5/min per IP**; reset throttling is **5/min per IP**. Laravel's existing broker reissue throttle remains unchanged.
+- A minimum response-time floor is used as an implementation-level timing mitigation for valid forgot-password requests; it is not a product-state rule.
+- Reset emails target `FRONTEND_URL/auth/reset-password?token=...&email=...`; Angular handling remains deferred to Phase 1C.11.
+- Successful reset hashes the new password, consumes the broker token, invalidates all database sessions owned by that user, creates no replacement session, and requires normal login afterward.
+- Password reset does not mutate role, status, verification, approval metadata, transition provenance, rejection/suspension reason, or creator provenance.
+- Verification: focused recovery tests **16 passed / 138 assertions**; full Laravel suite **138 passed / 680 assertions**; `git diff --check` passed.
+
 ## Not started (later phases)
 
-- Password recovery, first-production-Admin bootstrap, and the remaining Angular auth integration.
+- First-production-Admin bootstrap and the remaining Angular auth integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -212,4 +226,4 @@ Phase 1C.7 Admin Student lifecycle application and documentation changes are com
 
 ## Exact next step
 
-Phase 1C.9 — implement forgot/reset password using the existing Laravel reset-token infrastructure, with established-password eligibility, enumeration-safe forgot responses, lifecycle preservation, and invalidation of existing sessions after a successful reset.
+Phase 1C.10 — implement the first-production-Admin bootstrap command `php artisan app:create-admin` using canonical email normalization and password rules, creating an email-verified `ACTIVE/ADMIN` safely without hardcoded production credentials.

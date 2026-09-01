@@ -586,3 +586,47 @@ Phase 1C.8 — Instructor invitation/password setup: Admin-created pending Instr
 ### Exact next step
 
 Phase 1C.9 — forgot/reset password: established-password eligibility, enumeration-safe forgot responses, lifecycle preservation, and invalidation of existing sessions after successful reset.
+
+## 2026-09-01 — Phase 1C.9 forgot/reset password implemented and verified
+
+### Recovery flow
+
+- Added `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`.
+- Recovery uses Laravel's existing Password Broker and stock `password_reset_tokens` persistence.
+- Email input is normalized before recovery lookup/processing.
+- Password reset uses the same canonical password rule as the other password-establishment flows.
+- Reset notification URLs use `FRONTEND_URL/auth/reset-password?token={token}&email={normalized-email}`.
+
+### Eligibility and enumeration safety
+
+- Students/Admins and accepted Instructors with established passwords may recover regardless of `PENDING`, `ACTIVE`, `SUSPENDED`, or `REJECTED` status.
+- An unaccepted Instructor remains ineligible for recovery and cannot bypass invitation onboarding.
+- Instructor established-password eligibility is derived from an accepted Instructor invitation; no new database column was added.
+- Eligible, unknown, restricted-state, and unaccepted-Instructor forgot requests return the same generic `202` acknowledgement.
+- Valid forgot requests use an implementation-level minimum response-time floor as an additional timing-enumeration mitigation.
+
+### Throttling
+
+- Forgot: 1 request/minute per normalized email plus 5 requests/minute per IP.
+- Reset: 5 requests/minute per IP.
+- Laravel Password Broker's existing 60-second token reissue throttle remains unchanged.
+
+### Successful reset guarantees
+
+- New password is hashed through Laravel's configured Hash service.
+- Password Broker token is consumed and remains single-use.
+- Every persisted database session belonging to the reset user is deleted.
+- Other users' sessions remain untouched.
+- Reset creates no authenticated replacement session; normal login is required afterward.
+- Role, account status, email verification, approval metadata, latest status-transition metadata/reason, and creator metadata remain unchanged.
+
+### Verification
+
+- Focused `PasswordRecoveryTest`: **16 passed, 138 assertions**.
+- Full Laravel suite: **138 passed, 680 assertions**.
+- `git diff --check`: passed.
+- No Phase 1C.10 or Phase 1C.11 implementation was started.
+
+### Exact next step
+
+Phase 1C.10 — implement `php artisan app:create-admin` as the production first-Admin bootstrap mechanism with canonical normalization/password rules and no hardcoded production credentials.

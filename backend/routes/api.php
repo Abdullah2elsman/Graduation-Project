@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\InstructorInvitationController as AdminInstructorInvitationController;
 use App\Http\Controllers\Admin\StudentLifecycleController;
 use App\Http\Controllers\Auth\InstructorInvitationController as AuthInstructorInvitationController;
+use App\Http\Controllers\Auth\PasswordRecoveryController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,12 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
 // Phase 1C.4 — Student Registration (public)
 Route::post('/auth/register', [AuthController::class, 'register']);
+
+// Phase 1C.9 — Forgot / Reset Password (public)
+Route::post('/auth/forgot-password', [PasswordRecoveryController::class, 'forgot'])
+    ->middleware('throttle:forgot-password');
+Route::post('/auth/reset-password', [PasswordRecoveryController::class, 'reset'])
+    ->middleware('throttle:reset-password');
 
 // Phase 1C.5 — Email Verification
 // The canonical name `verification.verify` is required by Laravel's stock
