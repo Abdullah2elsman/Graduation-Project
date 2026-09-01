@@ -375,8 +375,58 @@ Establish the minimum reliable first-party Angular → Laravel Sanctum cookie/se
 - No database schema change. Sanctum's optional PAT migration was not published.
 - No business-rule change and no new decision ID.
 - No login, logout, `/api/auth/me`, registration, verification, account-state middleware, Admin lifecycle, invitation, password recovery, first-Admin command, auth UI/store/guard, or domain API.
-- No commit.
 
 ### Exact next step
 
 Phase 1C.3 only: implement email-only login, logout, and `GET /api/auth/me` with canonical lowercase normalization, session regeneration/invalidation, safe lifecycle state output, throttling, and focused backend tests. Do not implement later Phase 1C slices yet.
+
+## 2026-09-01 — Phase 1C.3 login/logout/me implemented and verified
+
+### Goal
+
+Implement email-only login, logout, and `GET /api/auth/me` on the proven Sanctum session foundation, with canonical normalization, session regeneration/invalidation, safe auth-state output, throttling, and focused backend tests.
+
+### Scope guardrails honored
+
+- No registration, email verification, account-state application middleware, Admin approval/rejection, invitations, password recovery, Admin bootstrap command, or Angular auth UI/store/guards (these remain later Phase 1C slices).
+- No bearer/PAT auth and no remember-me. Docker/PHPUnit changes were limited to the isolated MySQL test-database foundation required for safe automated testing.
+
+### Implementation
+
+- `App\Support\EmailNormalizer` — reusable trim + lowercase normalization applied before login lookup/validation.
+- `POST /api/auth/login` (public): validation `422`; generic invalid-credentials `401`; `PENDING`/`ACTIVE`/`SUSPENDED`/`REJECTED` may authenticate with correct credentials; session regeneration; explicit `last_login_at` update; no remember-me; no bearer/PAT.
+- `GET /api/auth/me` (`auth:sanctum`): all authenticated account statuses; safe representation only (`id`, `name`, `email`, `role`, `status`, `email_verified_at`).
+- `POST /api/auth/logout` (`auth:sanctum`): current-session logout, session invalidation, CSRF token regeneration, `204`; subsequent `/api/auth/me` → `401`.
+- Login throttling: Laravel RateLimiter keyed by normalized email + IP; 5 failed credential attempts per minute, next attempt `429`; success clears failed-attempt state; validation failures do not consume credential attempts; unknown accounts do not leak existence.
+
+### Test database foundation
+
+- Development DB `smart_book_v2`; automated test DB `smart_book_v2_test`. Canonical PHPUnit execution is inside the backend container and resolves to `mysql://db:3306/smart_book_v2_test`.
+- Fresh MySQL Docker volumes auto-provision the test DB through `docker/mysql/init/10-create-test-database.sh`.
+- `RefreshDatabase` isolation explicitly proven.
+- Historical note (kept concise): during test-infrastructure development one accidental `migrate:fresh` reached `smart_book_v2`; the incident was audited — canonical schema/data hashes matched before/after, though transient runtime tables (sessions/cache/jobs) could not be proven unchanged historically. The infrastructure was subsequently corrected and safe isolation was proven.
+
+### Verification results (all observed)
+
+- Full Laravel suite green: **37 tests, 150 assertions, 0 failures, 0 errors** (PHPUnit 12.5.34, resolved DB `mysql://db:3306/smart_book_v2_test`, no process-level DB overrides).
+- Focused `LoginFoundationTest` green after strengthening validation/throttling coverage: **19 tests, 110 assertions**.
+- `git diff --check`: clean.
+- Dev DB `smart_book_v2` unchanged during the verified automated suite: schema hash MATCH, canonical domain/auth data hash MATCH.
+- Runtime auth flow proven against a disposable user in `smart_book_v2_test` using an isolated one-off backend server: `GET /sanctum/csrf-cookie` → `204`; `POST /api/auth/login` → `200`; `GET /api/auth/me` → `200`; `POST /api/auth/logout` → `204`; `GET /api/auth/me` after logout → `401`.
+- Accuracy note: the complete runtime login/logout flow was performed **directly against the isolated temporary backend on `:18080`**, NOT through `localhost:4200`. The Angular proxy/Sanctum/CSRF foundation was verified separately in Phase 1C.2; do not claim the full flow was proven end-to-end through the Angular proxy.
+
+### Files changed
+
+- `backend/app/Support/EmailNormalizer.php` (new)
+- `backend/app/Http/Controllers/AuthController.php` (new)
+- `backend/routes/api.php` (login/**me**/logout routes)
+- `backend/tests/Feature/LoginFoundationTest.php`, `AuthMeTest.php`, `AuthLogoutTest.php` (new)
+- `docker/mysql/init/10-create-test-database.sh` (new)
+- `compose.yaml` (automatic `smart_book_v2_test` provisioning)
+- `backend/phpunit.xml` (isolated MySQL PHPUnit configuration)
+- `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`, `docs/SESSION_LOG.md` (status/log updates)
+- No commit.
+
+### Exact next step
+
+Phase 1C.4 — Student registration: public Student-only `POST /api/auth/register` creating a `STUDENT/PENDING` account with an immediate restricted session, per `AUTH_CONTRACT.md`. Do not implement verification, account-state middleware, invitations, recovery, Admin lifecycle actions, or Angular auth UI yet.

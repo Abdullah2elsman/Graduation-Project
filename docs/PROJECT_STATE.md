@@ -6,9 +6,9 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.2 Sanctum/API/CSRF Foundation implemented and verified. Phase 1C.3 is the next implementation step.
+**Current phase:** Phase 1C.3 login/logout/me implemented and verified. Phase 1C.4 (student registration) is the next implementation step.
 
-**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`. Sanctum `v4.3.3`, `/api` routing, stateful middleware, database-session/cookie settings, exact credentialed CORS, the Angular same-origin dev proxy, centralized HttpClient/XSRF infrastructure, and focused foundation tests are now implemented. Login, logout, `/api/auth/me`, and all later authentication behavior remain unimplemented.
+**Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`. Sanctum `v4.3.3`, `/api` routing, stateful middleware, database-session/cookie settings, exact credentialed CORS, the Angular same-origin dev proxy, centralized HttpClient/XSRF infrastructure, and focused foundation tests are now implemented. Phase 1C.3 — email-only login, logout, and `GET /api/auth/me` — is implemented and verified against the isolated test database `smart_book_v2_test`. Registration, verification, account-state lifecycle, invitations, recovery, and all later authentication behavior remain unimplemented.
 
 ## Completed
 
@@ -124,10 +124,21 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Added focused Laravel and Angular tests. No personal-access-token migration, `HasApiTokens`, token endpoint, or auth business endpoint was added.
 - Verified proxy CSRF bootstrap (`204`, `XSRF-TOKEN` + V2 session cookie), proxy API health JSON, all five Docker services, Composer validity, backend tests, Angular tests, and production build.
 
+### Phase 1C.3 (login, logout, and `/api/auth/me` — implemented and verified)
+
+- Added `App\Support\EmailNormalizer` for canonical login: reusable trim + lowercase normalization applied before lookup and validation.
+- Added `POST /api/auth/login` (public): email-only login, validation `422`, generic invalid-credentials `401`, `PENDING`/`ACTIVE`/`SUSPENDED`/`REJECTED` may authenticate with correct credentials, session regeneration, explicit `last_login_at` update, no remember-me, no bearer/PAT auth.
+- Added `GET /api/auth/me` (`auth:sanctum`): available to all authenticated account statuses; safe representation only (`id`, `name`, `email`, `role`, `status`, `email_verified_at`).
+- Added `POST /api/auth/logout` (`auth:sanctum`): current-session logout, session invalidation, CSRF token regeneration, `204`; subsequent `/api/auth/me` returns `401`.
+- Added login throttling (Laravel RateLimiter keyed by normalized email + IP): 5 failed credential attempts per minute allowed, next attempt `429`, success clears failed-attempt state, validation failures do not consume credential attempts, unknown accounts do not leak existence.
+- Established test-database foundation: canonical PHPUnit execution inside the backend container resolves to `mysql://db:3306/smart_book_v2_test`; fresh MySQL volumes auto-provision the test DB via `docker/mysql/init/10-create-test-database.sh`; `RefreshDatabase` isolation explicitly proven.
+- Verified: full Laravel suite green (37 tests, 150 assertions); focused `LoginFoundationTest` green after strengthening validation/throttling tests (19 tests, 110 assertions); `git diff --check` clean; dev DB `smart_book_v2` unchanged (schema + canonical domain/auth data hashes MATCH before/after).
+- Proved the runtime CSRF/session auth flow against a disposable user in `smart_book_v2_test` using an isolated one-off backend (`GET /sanctum/csrf-cookie` → `204`; `POST /api/auth/login` → `200`; `GET /api/auth/me` → `200`; `POST /api/auth/logout` → `204`; `GET /api/auth/me` after logout → `401`). This flow was performed directly against the isolated temporary server (not through the Angular proxy); the Angular proxy/Sanctum/CSRF foundation was verified separately in Phase 1C.2.
+- No application code, tests, Docker config, or `phpunit.xml` were modified for this documentation update, and no commit was made.
+
 ## Not started (later phases)
 
-- Login, logout, and `/api/auth/me` (Phase 1C.3).
-- Signup, email verification, account approval/status enforcement, invitations, recovery, and Angular auth integration.
+- Signup (student registration), email verification, account approval/status enforcement, invitations, recovery, and Angular auth integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -143,8 +154,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1C.2 application and documentation changes are intentionally uncommitted pending user review.
+Phase 1C.3 application and documentation changes are complete and verified.
 
 ## Exact next step
 
-Phase 1C.3 — implement email-only login, logout, and `GET /api/auth/me` on the proven Sanctum session foundation, including normalization, session regeneration/invalidation, safe auth-state serialization, throttling, and focused Laravel tests. Do not implement registration, verification, account-state application middleware, invitations, recovery, Admin lifecycle actions, or Angular auth screens/store/guards yet.
+Phase 1C.4 — implement Student registration (public, Student-only) creating a `STUDENT/PENDING` account with an immediate restricted session, per `AUTH_CONTRACT.md`. Do not implement verification, account-state application middleware, invitations, recovery, Admin lifecycle actions, or Angular auth screens/store/guards yet.
