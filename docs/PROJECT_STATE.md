@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.4 Student registration and Phase 1C.5 email verification/resend are implemented and verified. Phase 1C.6 (account-state authorization) is the next implementation step.
+**Current phase:** Phase 1C.6 account-state authorization is implemented and verified. Phase 1C.7 (Admin Student lifecycle) is the next implementation step.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -155,9 +155,19 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - Final verification: Laravel **75 tests / 280 assertions** passed; Angular **7 tests** passed; Angular production build passed; `git diff --check` passed.
 - **Approved scope adjustment:** the browser journey for opening a verification link without a valid session, logging in, and resuming the original signed verification target is deferred to Phase 1C.11, where the Angular login/auth state flow is implemented. The required final product behavior is unchanged.
 
+### Phase 1C.6 (account-state authorization — implemented and verified)
+
+- Added centralized `application.access` middleware for normal application APIs.
+- Normal application access requires an authenticated, email-verified account with `status=ACTIVE`.
+- Guests remain unauthenticated (`401`); authenticated but ineligible accounts receive generic `403`.
+- `PENDING` (verified or unverified), `SUSPENDED`, `REJECTED`, and anomalous `ACTIVE` + unverified accounts are denied normal application access.
+- Restricted auth/session endpoints remain governed by their existing rules and are not placed behind the normal application-access gate.
+- The proof route exists only inside the test suite; no fake production endpoint was added.
+- Verification: focused Phase 1C.6 tests **11 passed / 23 assertions**; full Laravel suite **86 passed / 303 assertions**; `git diff --check` passed.
+
 ## Not started (later phases)
 
-- Account-state application authorization, Admin approval/status lifecycle, invitations, recovery, and the remaining Angular auth integration.
+- Admin approval/status lifecycle, invitations, recovery, and the remaining Angular auth integration.
 - Any Admin, Instructor, Student, course, book, quiz, AI-generation, analytics, or report implementation.
 - Baseline lint/test suite across all three applications (Laravel ships its own test script; see phase notes).
 - Production email provider, Redis, workers, object storage.
@@ -173,8 +183,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1C.4 Student registration and Phase 1C.5 email verification/resend application and documentation changes are complete and verified.
+Phase 1C.6 account-state authorization application and documentation changes are complete and verified.
 
 ## Exact next step
 
-Phase 1C.6 — implement centralized account-state authorization so normal application APIs require an authenticated, verified, `ACTIVE` account while restricted authenticated states retain only their explicitly allowed auth endpoints. Do not start Admin lifecycle, invitations, recovery, or full Angular auth integration yet.
+Phase 1C.7 — implement the Admin Student lifecycle: approve verified `PENDING` Students, reject `PENDING` Students with an internal reason, and restore `REJECTED` Students to unverified `PENDING`, preserving the frozen transition rules and provenance metadata.

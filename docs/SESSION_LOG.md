@@ -490,3 +490,26 @@ The browser/UI implementation of preserving and resuming that signed target is i
 ### Exact next step
 
 Phase 1C.6 — centralized account-state authorization: normal application APIs require authenticated + verified + `ACTIVE`, while restricted authenticated states retain only explicitly permitted auth endpoints.
+
+## 2026-09-01 — Phase 1C.6 account-state authorization implemented and verified
+
+### Implementation
+
+- Added centralized `EnsureUserHasApplicationAccess` middleware and registered alias `application.access`.
+- Normal application routes compose `auth:sanctum` followed by `application.access`.
+- Only verified `ACTIVE` accounts pass the application-access gate.
+- Authenticated but restricted accounts receive generic `403` JSON; guests remain `401`.
+- `PENDING` verified/unverified, `SUSPENDED`, `REJECTED`, and `ACTIVE` unverified accounts cannot access normal application APIs.
+- Existing restricted auth endpoints (`/auth/me`, logout, eligible verification resend, signed verification callback) retain their existing behavior.
+- No permanent proof endpoint was added; the protected proof route exists only in the test process.
+- No schema, Docker, PHPUnit infrastructure, role-policy, Admin lifecycle, or frontend changes.
+
+### Verification
+
+- Focused `AccountStateAuthorizationTest`: **11 passed, 23 assertions**.
+- Full Laravel suite: **86 passed, 303 assertions**.
+- `git diff --check`: passed.
+
+### Exact next step
+
+Phase 1C.7 — Admin Student lifecycle: approve verified `PENDING` Students, reject `PENDING` Students with an internal reason, and restore `REJECTED` Students to unverified `PENDING`, preserving transition/provenance rules.
