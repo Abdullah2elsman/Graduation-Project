@@ -21,7 +21,7 @@ Phase 1 is split into:
 
 - **Phase 1A (complete 2026-08-31)** — infrastructure/runtime foundation.
 - **Phase 1B (complete 2026-08-31)** — canonical persistence: 1B.1 contract/ERD committed at `2babd1a`; 1B.2 migrations/sessions/seeders committed at `d474d70`.
-- **Phase 1C (current)** — authentication: 1C.1–1C.6 implemented and verified through centralized account-state authorization; 1C.7 Admin Student lifecycle is next.
+- **Phase 1C (current)** — authentication: 1C.1–1C.7 implemented and verified through the Admin Student lifecycle; 1C.8 Instructor invitation/password setup is next.
 
 ### Phase 1A — Reproducible runtime
 
@@ -76,7 +76,7 @@ The frozen contract is `docs/auth/AUTH_CONTRACT.md`. Complete these small review
 - [x] **1C.4 — Student registration:** public Student-only creation as `PENDING` plus immediate restricted session; canonical validation/normalization, server-owned lifecycle state, verification dispatch, throttling, focused tests, and real Mailpit delivery verified.
 - [x] **1C.5 — Email verification/resend:** authenticated signed verification, resend/state checks, throttling, real Mailpit delivery, configurable Angular success redirect, and focused tests verified. Browser login/resume of an interrupted signed verification target is intentionally completed with Angular auth integration in 1C.11.
 - [x] **1C.6 — Account-state authorization:** centralized verified/`ACTIVE` application-access gate implemented and verified; restricted authenticated states retain only their explicitly allowed auth endpoints.
-- [ ] **1C.7 — Admin Student lifecycle:** approval, rejection with internal reason, and Admin-only rejected-to-pending restoration.
+- [x] **1C.7 — Admin Student lifecycle:** Admin-only approval, rejection with internal reason, and rejected-to-pending restoration implemented transactionally with canonical latest-transition provenance.
 - [ ] **1C.8 — Instructor invitation/password setup:** seven-day single-use invitations, atomic reissue/revocation, activation on acceptance.
 - [ ] **1C.9 — Forgot/reset password:** established-password eligibility, lifecycle preservation, enumeration safety, and session invalidation.
 - [ ] **1C.10 — First production Admin command:** `php artisan app:create-admin` creates an ACTIVE, verified Admin without hardcoded production credentials.

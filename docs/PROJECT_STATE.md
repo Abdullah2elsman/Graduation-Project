@@ -6,7 +6,7 @@
 
 **Current worktrees:** V2 at `~/Projects/Smart-Book`; read-only Legacy at `~/Projects/Smart-Book-Legacy`
 
-**Current phase:** Phase 1C.6 account-state authorization is implemented and verified. Phase 1C.7 (Admin Student lifecycle) is the next implementation step.
+**Current phase:** Phase 1C.7 Admin Student lifecycle is implemented and verified. Phase 1C.8 (Instructor invitation/password setup) is the next implementation step.
 
 **Implementation state:** V2 Docker foundation is running locally. Backend (Laravel), frontend (Angular), MySQL 8, AI (Flask), and Mailpit are healthy with the locked ports and an isolated V2-only database. Phase 1B is committed at `d474d70`; the complete authentication contract is committed at `eaa77d3`; Phase 1C.3 session authentication is committed at `ce3c676`. Student registration now creates `STUDENT/PENDING` unverified accounts with immediate restricted sessions and verification dispatch. Signed email verification, resend throttling, configurable Angular success redirect, and the minimal verification-success Angular route are implemented and verified. Normal application access enforcement and later lifecycle/authentication slices remain unimplemented.
 
@@ -165,6 +165,17 @@ See `DECISIONS.md` for D-001 through D-039 and `docs/auth/AUTH_CONTRACT.md` for 
 - The proof route exists only inside the test suite; no fake production endpoint was added.
 - Verification: focused Phase 1C.6 tests **11 passed / 23 assertions**; full Laravel suite **86 passed / 303 assertions**; `git diff --check` passed.
 
+### Phase 1C.7 (Admin Student lifecycle — implemented and verified)
+
+- Added Admin-only Student lifecycle routes behind `auth:sanctum` → `application.access` → reusable `admin` authorization middleware.
+- Added transactional lifecycle action using `lockForUpdate()` so transition preconditions are rechecked under row lock.
+- Approval requires a verified `STUDENT/PENDING`, transitions to `ACTIVE`, records approval and latest-status provenance, and does not create enrollment.
+- Rejection requires a non-empty internal reason, transitions `STUDENT/PENDING` to `REJECTED`, and records latest-status provenance without leaking the reason through safe responses.
+- Restore requires `STUDENT/REJECTED`, returns the account to unverified `PENDING`, clears prior approval metadata and rejection reason, and records the restoring Admin/time as the latest status transition.
+- Invalid role/state/verification transitions return generic `409`; malformed rejection reasons return `422`.
+- No audit-history table was added; canonical `status_changed_*` fields represent the latest transition, while full status audit history remains out of MVP scope.
+- Verification: focused lifecycle tests **15 passed / 78 assertions**; full Laravel suite **101 passed / 381 assertions**; `git diff --check` passed.
+
 ## Not started (later phases)
 
 - Admin approval/status lifecycle, invitations, recovery, and the remaining Angular auth integration.
@@ -183,8 +194,8 @@ A Docker daemon fix (`"dns": ["1.1.1.1"]` in `/etc/docker/daemon.json`) would ma
 
 ## Current documentation changes
 
-Phase 1C.6 account-state authorization application and documentation changes are complete and verified.
+Phase 1C.7 Admin Student lifecycle application and documentation changes are complete and verified.
 
 ## Exact next step
 
-Phase 1C.7 — implement the Admin Student lifecycle: approve verified `PENDING` Students, reject `PENDING` Students with an internal reason, and restore `REJECTED` Students to unverified `PENDING`, preserving the frozen transition rules and provenance metadata.
+Phase 1C.8 — implement Instructor invitation/password setup: Admin-created `INSTRUCTOR/PENDING` accounts, seven-day single-use invitations, atomic reissue/revocation, password establishment, email verification, and activation on acceptance.

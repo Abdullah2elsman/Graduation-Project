@@ -513,3 +513,35 @@ Phase 1C.6 — centralized account-state authorization: normal application APIs 
 ### Exact next step
 
 Phase 1C.7 — Admin Student lifecycle: approve verified `PENDING` Students, reject `PENDING` Students with an internal reason, and restore `REJECTED` Students to unverified `PENDING`, preserving transition/provenance rules.
+
+## 2026-09-01 — Phase 1C.7 Admin Student lifecycle implemented and verified
+
+### Implementation
+
+- Added reusable Admin authorization middleware.
+- Admin lifecycle routes use `auth:sanctum` → `application.access` → `admin`.
+- Added thin Admin lifecycle controller and transactional `StudentLifecycle` action.
+- Every transition reloads the Student using `lockForUpdate()` before validating and mutating state.
+- Approve: verified `STUDENT/PENDING` → `ACTIVE`; records approval and latest status-transition provenance; does not create enrollment.
+- Reject: `STUDENT/PENDING` → `REJECTED`; requires internal reason and records latest status-transition provenance.
+- Restore: `STUDENT/REJECTED` → unverified `PENDING`; clears approval metadata and `status_reason`; records restoring Admin/time as the latest status transition.
+- Invalid lifecycle transitions return generic `409`; invalid rejection reason input returns `422`.
+- Internal rejection reasons are not exposed through lifecycle responses or `/api/auth/me`.
+
+### Contract clarification
+
+The canonical database contract defines `status_changed_at`, `status_changed_by_user_id`, and `status_reason` as current/latest-transition metadata, while a full status audit trail is out of MVP scope.
+
+Accordingly, the Auth Contract restore wording was clarified: restoring `REJECTED` → `PENDING` records the restore itself as the latest transition rather than retaining stale rejection transition values.
+
+No history/audit table or migration was added.
+
+### Verification
+
+- Focused `AdminStudentLifecycleTest`: **15 passed, 78 assertions**.
+- Full Laravel suite: **101 passed, 381 assertions**.
+- `git diff --check`: passed.
+
+### Exact next step
+
+Phase 1C.8 — Instructor invitation/password setup: Admin-created pending Instructor accounts, seven-day single-use invitations, atomic invitation reissue/revocation, password establishment, email verification, and activation on acceptance.

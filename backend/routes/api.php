@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\StudentLifecycleController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +42,12 @@ Route::post('/auth/email/verification-notification', [AuthController::class, 're
 // Logout and me require Sanctum authentication
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/auth/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+
+// Phase 1C.7 — Admin Student lifecycle
+Route::prefix('/admin/students/{student}')
+    ->middleware(['auth:sanctum', 'application.access', 'admin'])
+    ->group(function (): void {
+        Route::post('/approve', [StudentLifecycleController::class, 'approve']);
+        Route::post('/reject', [StudentLifecycleController::class, 'reject']);
+        Route::post('/restore-to-pending', [StudentLifecycleController::class, 'restoreToPending']);
+    });

@@ -121,7 +121,7 @@ REJECTED -> PENDING + unverified     Admin-only reversal
 ```
 
 - **LOCKED:** `REJECTED -> ACTIVE` is forbidden.
-- **LOCKED:** returning a rejected account to `PENDING` restarts the normal verification/approval lifecycle. Verification and prior approval metadata are cleared; historical status-transition metadata is preserved.
+- **LOCKED:** returning a rejected account to `PENDING` restarts the normal verification/approval lifecycle. Verification and prior approval metadata are cleared. The restore itself becomes the latest status transition: `status_changed_at` and `status_changed_by_user_id` are updated to the restore action and `status_reason` is cleared. A full status audit trail remains out of scope for the MVP.
 - **LOCKED:** `SUSPENDED -> ACTIVE` preserves email verification, records transition metadata, invalidates all existing sessions, and requires a fresh login.
 
 ---
